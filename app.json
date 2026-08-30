@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "fridge-chef-ai",
+    "name": "FridgeChef AI",
     "slug": "fridge-chef-ai",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,26 @@
     "scheme": "fridgechefai",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fridgechef.ai",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Buzdolabınızdaki ve kalan yemeklerdeki malzemeleri tespit etmek için kamera erişimi gereklidir.",
+        "NSPhotoLibraryUsageDescription": "Dolabınızın veya yemeklerinizin fotoğraflarını seçip analiz etmek için galeri erişimi gereklidir."
+      }
     },
     "android": {
+      "package": "com.fridgechef.ai",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#10B981",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -31,9 +42,22 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#10B981"
         }
-      ]
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Buzdolabındaki malzemeleri algılamak için kameraya izin verin."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Malzeme fotoğraflarını seçmek için galeriye izin verin."
+        }
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true
