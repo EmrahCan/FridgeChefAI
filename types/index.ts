@@ -1,3 +1,16 @@
+export type UserRole = 'user' | 'admin';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  role: UserRole;
+  createdAt: string;
+  authProvider: 'google' | 'email';
+  dietaryPreferences?: string[];
+}
+
 export type DifficultyLevel = 'Kolay' | 'Orta' | 'Usta';
 
 export type CookingStyle = 
@@ -27,10 +40,10 @@ export interface Recipe {
   difficulty: DifficultyLevel;
   servings: number;
   caloriesPerServing: number;
-  wasteSavedGrams: number; // e.g. 350 grams saved
+  wasteSavedGrams: number;
   category: string;
-  ingredientsUsed: string[];       // From user's fridge/leftovers
-  pantryItemsNeeded: string[];     // Salt, pepper, olive oil, etc.
+  ingredientsUsed: string[];
+  pantryItemsNeeded: string[];
   optionalIngredients?: string[];
   instructions: RecipeInstruction[];
   chefTips: string[];
@@ -55,7 +68,7 @@ export interface DetectedIngredient {
 export interface AnalysisResponse {
   detectedIngredients: DetectedIngredient[];
   fridgeSummary: string;
-  wasteReductionScore: number; // 1-100
+  wasteReductionScore: number;
   recipes: Recipe[];
 }
 
@@ -68,8 +81,18 @@ export interface UserStats {
 
 export interface UserPreferences {
   geminiApiKey: string;
-  dietaryRestrictions: string[]; // 'Vejetaryen', 'Glutensiz', 'Laktozsuz', 'Düşük Karbonhidrat'
+  dietaryRestrictions: string[];
   defaultServings: number;
   favoriteCuisines: string[];
   hasSeenOnboarding: boolean;
+}
+
+export interface AdminMetrics {
+  totalUsers: number;
+  totalScans: number;
+  totalWasteSavedTons: number;
+  activeAiQueriesToday: number;
+  popularIngredients: { name: string; percentage: number; count: number }[];
+  recentUsers: { id: string; name: string; email: string; role: UserRole; joinedDate: string; scans: number }[];
+  systemHealth: 'Mükemmel' | 'Bakımda' | 'Yoğun';
 }

@@ -1,10 +1,11 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-import { useColorScheme } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
 export {
   ErrorBoundary,
@@ -16,33 +17,35 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+function AuthGuardNavigator() {
+  const { user, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    if (isLoading) return;
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
+
+    if (!user && !inAuthGroup) {
+      // User is not signed in -> redirect to login screen
+      router.replace('/login');
+    } else if (user && inAuthGroup) {
+      // User is signed in but on auth screens -> redirect to dashboard
+      router.replace('/(tabs)');
     }
-  }, [loaded]);
+  }, [user, isLoading, segments]);
 
-  if (!loaded) {
-    return null;
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+        <ActivityIndicator size="large" color="#10B981" />
+      </View>
+    );
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={DefaultTheme}>
+    <>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -50,7 +53,16 @@ function RootLayoutNav() {
           animation: 'slide_from_right',
         }}
       >
+        <Stack.Screen name="login" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="register" options={{ headerShown: false, animation: 'slide_from_right' }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="admin/index"
+          options={{
+            headerShown: false,
+            animation: 'slide_from_bottom',
+          }}
+        />
         <Stack.Screen
           name="recipe/[id]"
           options={{
@@ -72,6 +84,32 @@ function RootLayoutNav() {
           }}
         />
       </Stack>
-    </ThemeProvider>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
+
+  useEffect(() => {
+    if (error) throw error;
+  }, [error]);
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <AuthProvider>
+      <AuthGuardNavigator />
+    </AuthProvider>
   );
 }

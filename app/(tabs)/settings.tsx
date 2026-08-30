@@ -7,23 +7,22 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Switch,
   SafeAreaView,
   Platform,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import {
   Key,
-  ShieldCheck,
   Sparkles,
-  Info,
   Check,
-  RotateCcw,
-  ExternalLink,
-  ChevronRight,
   Leaf,
+  Shield,
+  LogOut,
+  User as UserIcon,
+  ChevronRight,
 } from 'lucide-react-native';
 import { StorageService } from '../../services/storageService';
-import { UserPreferences } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 import * as Haptics from 'expo-haptics';
 
 const DIETARY_OPTIONS = [
@@ -36,6 +35,9 @@ const DIETARY_OPTIONS = [
 ];
 
 export default function SettingsScreen() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
   const [apiKey, setApiKey] = useState('');
   const [dietary, setDietary] = useState<string[]>([]);
   const [isSavedSuccess, setIsSavedSuccess] = useState(false);
@@ -77,14 +79,73 @@ export default function SettingsScreen() {
     await StorageService.saveUserPreferences({ dietaryRestrictions: updated });
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      'Çıkış Yap',
+      'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Çıkış Yap',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            } catch {}
+            await logout();
+            router.replace('/login');
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.title}>⚙️ Ayarlar & Tercihler</Text>
-        <Text style={styles.subtitle}>AI ve beslenme tercihlerinizi özelleştirin.</Text>
+        <Text style={styles.title}>⚙️ Ayarlar & Profil</Text>
+        <Text style={styles.subtitle}>Hesap, AI ve beslenme tercihlerinizi yönetin.</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* User Profile Card */}
+        {user && (
+          <View style={styles.profileCard}>
+            <View style={styles.avatarBox}>
+              <Text style={styles.avatarLetter}>{user.name[0] || 'U'}</Text>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{user.name}</Text>
+              <Text style={styles.profileEmail}>{user.email}</Text>
+              <View style={[styles.roleBadge, user.role === 'admin' ? styles.adminRoleBadge : styles.userRoleBadge]}>
+                <Text style={[styles.roleBadgeText, user.role === 'admin' ? styles.adminRoleText : styles.userRoleText]}>
+                  {user.role === 'admin' ? '👑 Yönetici (Admin)' : '👨‍🍳 Şef Üye'}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Admin Dashboard Entry Button (If Admin) */}
+        {user?.role === 'admin' && (
+          <TouchableOpacity
+            style={styles.adminAccessBtn}
+            activeOpacity={0.88}
+            onPress={() => router.push('/admin')}
+          >
+            <View style={styles.adminAccessLeft}>
+              <View style={styles.adminAccessIcon}>
+                <Shield size={20} color="#FFFFFF" />
+              </View>
+              <View>
+                <Text style={styles.adminAccessTitle}>Yönetici Paneline Git</Text>
+                <Text style={styles.adminAccessSub}>Kullanıcılar, taramalar ve sistem KPI'ları</Text>
+              </View>
+            </View>
+            <ChevronRight size={20} color="#FEF08A" />
+          </TouchableOpacity>
+        )}
+
         {/* Section 1: Gemini AI Key */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -92,7 +153,7 @@ export default function SettingsScreen() {
             <Text style={styles.cardTitle}>Google Gemini Vision API</Text>
           </View>
           <Text style={styles.cardDesc}>
-            Canlı fotoğraf analizi için kendi ücretsiz Google Gemini API anahtarınızı tanımlayabilirsiniz. Boş bırakıldığında akıllı yerel şef motoru kullanılır.
+            Canlı fotoğraf analizi için kendi ücretsiz Google Gemini API anahtarınızı tanımlayabilirsiniz.
           </Text>
 
           <View style={styles.inputContainer}>
@@ -179,6 +240,12 @@ export default function SettingsScreen() {
             <Text style={styles.infoValue}>Sıfır Gıda İsrafı 🌱</Text>
           </View>
         </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <LogOut size={18} color="#EF4444" />
+          <Text style={styles.logoutBtnText}>Oturumu Kapat (Çıkış Yap)</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -210,7 +277,108 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 50,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 16,
+  },
+  avatarBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#10B981',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  avatarLetter: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  profileEmail: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+    marginBottom: 6,
+  },
+  roleBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  adminRoleBadge: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+  },
+  userRoleBadge: {
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
+    borderWidth: 1,
+  },
+  roleBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  adminRoleText: {
+    color: '#DC2626',
+  },
+  userRoleText: {
+    color: '#059669',
+  },
+  adminAccessBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1E293B',
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  adminAccessLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  adminAccessIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#DC2626',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adminAccessTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  adminAccessSub: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 2,
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -312,5 +480,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#111827',
     fontWeight: '700',
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FEE2E2',
+    borderWidth: 1.5,
+    borderColor: '#FCA5A5',
+    paddingVertical: 14,
+    borderRadius: 16,
+    marginTop: 6,
+  },
+  logoutBtnText: {
+    color: '#DC2626',
+    fontWeight: '800',
+    fontSize: 14,
   },
 });
