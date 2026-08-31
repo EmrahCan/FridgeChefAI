@@ -2,8 +2,10 @@
   "expo": {
     "name": "FridgeChef AI",
     "slug": "fridge-chef-ai",
+    "description": "Buzdolabındaki kalan yemekleri ve sebzeleri Google Cloud Vision yapay zekasıyla analiz edip 15 dakikada sıfır israf gurme tarifler üreten akıllı mutfak asistanı.",
     "version": "1.0.0",
     "orientation": "portrait",
+    "primaryColor": "#0F766E",
     "icon": "./assets/images/icon.png",
     "scheme": "fridgechefai",
     "userInterfaceStyle": "automatic",
@@ -42,7 +44,7 @@
         {
           "image": "./assets/images/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#10B981"
+          "backgroundColor": "#041F1A"
         }
       ],
       [
