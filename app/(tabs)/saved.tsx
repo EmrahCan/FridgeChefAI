@@ -86,6 +86,19 @@ export default function SavedScreen() {
 
   return (
     <View style={styles.safeArea}>
+      {/* FULL CINEMATIC DARK GOURMET BACKGROUND */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
+        }}
+        style={styles.ambientBackgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.ambientGradientOverlay}
+      />
+
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -251,8 +264,26 @@ export default function SavedScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
+    backgroundColor: '#041F1A',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
+  },
+  ambientBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.60,
+    resizeMode: 'cover',
+  },
+  ambientGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
     padding: 18,
@@ -265,14 +296,14 @@ const styles = StyleSheet.create({
   topHeaderLabel: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#9F1239',
+    color: '#5EEAD4',
     letterSpacing: 1.2,
     marginBottom: 2,
   },
   topHeaderTitle: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.6,
   },
   heroCoverCard: {
@@ -281,7 +312,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 18,
-    shadowColor: '#9F1239',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 16,
@@ -390,21 +421,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   filterChip: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1.5,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.20)',
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 16,
   },
   filterChipSelected: {
-    backgroundColor: '#9F1239',
-    borderColor: '#881337',
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
   },
   filterChipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#4B5563',
+    color: '#CCFBF1',
   },
   filterChipTextSelected: {
     color: '#FFFFFF',
@@ -412,12 +443,12 @@ const styles = StyleSheet.create({
   },
   recipesList: {},
   emptyCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(6, 44, 38, 0.85)',
     borderRadius: 26,
     padding: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(94, 234, 212, 0.25)',
     marginTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -429,7 +460,9 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#FFE4E6',
+    backgroundColor: 'rgba(225, 29, 72, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(253, 164, 175, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -437,12 +470,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 17,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     marginBottom: 6,
   },
   emptyDesc: {
     fontSize: 12.5,
-    color: '#687E74',
+    color: '#CCFBF1',
     textAlign: 'center',
     lineHeight: 18,
     marginBottom: 20,
