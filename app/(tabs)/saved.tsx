@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -18,6 +19,7 @@ import {
   Flame,
   Bookmark,
   Compass,
+  Star,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RecipeCard } from '../../components/RecipeCard';
@@ -85,7 +87,7 @@ export default function SavedScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Header */}
+        {/* TOP HEADER */}
         <View style={styles.topHeader}>
           <Text style={styles.topHeaderLabel}>
             {language === 'en' ? 'YOUR RECIPE VAULT' : 'KİŞİSEL ŞEF KOLEKSİYONU'}
@@ -95,24 +97,28 @@ export default function SavedScreen() {
           </Text>
         </View>
 
-        {/* LUXURY BENTO HERO: RECIPE VAULT */}
-        <View style={styles.heroCard}>
+        {/* CINEMATIC HERO COVER BANNER */}
+        <View style={styles.heroCoverCard}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80' }}
+            style={styles.heroCoverImage}
+          />
           <LinearGradient
-            colors={['#881337', '#9F1239', '#4C0519']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroGradient}
-          >
-            <View style={styles.glowSphere} />
+            colors={['rgba(136, 19, 55, 0.4)', 'rgba(76, 5, 25, 0.85)', 'rgba(76, 5, 25, 0.96)']}
+            locations={[0, 0.5, 1]}
+            style={styles.heroCoverGradient}
+          />
 
+          <View style={styles.heroCoverContent}>
             <View style={styles.heroTopRow}>
-              <View style={styles.heroBadge}>
-                <Bookmark size={13} color="#FDA4AF" />
-                <Text style={styles.heroBadgeText}>
-                  {language === 'en' ? 'Gourmet Bookmarks' : 'Şef Koleksiyonu'}
+              <View style={styles.heroBadgeGlass}>
+                <Bookmark size={12} color="#FDA4AF" />
+                <Text style={styles.heroBadgeGlassText}>
+                  {language === 'en' ? 'Gourmet Vault' : 'Şef Koleksiyonu'}
                 </Text>
               </View>
-              <View style={styles.countPill}>
+
+              <View style={styles.countPillGlass}>
                 <Text style={styles.countPillText}>{savedRecipes.length}</Text>
               </View>
             </View>
@@ -128,10 +134,10 @@ export default function SavedScreen() {
                 : 'Dolabınızdaki artık malzemelerle yarattığınız gurme lezzetler.'}
             </Text>
 
-            {/* In-Hero Mini Bento Stats */}
+            {/* In-Hero Mini Bento Telemetry */}
             <View style={styles.heroStatsRow}>
               <View style={styles.heroStatItem}>
-                <Leaf size={14} color="#FDA4AF" />
+                <Leaf size={13} color="#FDA4AF" />
                 <Text style={styles.heroStatValue}>
                   {(totalWasteSaved / 1000).toFixed(1)} kg
                 </Text>
@@ -143,7 +149,7 @@ export default function SavedScreen() {
               <View style={styles.heroStatDivider} />
 
               <View style={styles.heroStatItem}>
-                <Clock size={14} color="#FDA4AF" />
+                <Clock size={13} color="#FDA4AF" />
                 <Text style={styles.heroStatValue}>{quickMealsCount}</Text>
                 <Text style={styles.heroStatLabel}>
                   {language === 'en' ? 'Fast Meals' : 'Pratik Menü'}
@@ -153,14 +159,14 @@ export default function SavedScreen() {
               <View style={styles.heroStatDivider} />
 
               <View style={styles.heroStatItem}>
-                <Sparkles size={14} color="#FDA4AF" />
-                <Text style={styles.heroStatValue}>100%</Text>
+                <Star size={13} color="#FBBF24" fill="#FBBF24" />
+                <Text style={styles.heroStatValue}>4.9</Text>
                 <Text style={styles.heroStatLabel}>
-                  {language === 'en' ? 'Zero Waste' : 'Sıfır İsraf'}
+                  {language === 'en' ? 'Rating' : 'Puan'}
                 </Text>
               </View>
             </View>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* Filter Pills Carousel */}
@@ -197,7 +203,7 @@ export default function SavedScreen() {
         {savedRecipes.length === 0 ? (
           <View style={styles.emptyCard}>
             <View style={styles.emptyIconBox}>
-              <Heart size={36} color="#E11D48" />
+              <Heart size={34} color="#E11D48" />
             </View>
             <Text style={styles.emptyTitle}>{t('saved.emptyTitle')}</Text>
             <Text style={styles.emptyDesc}>{t('saved.emptyDesc')}</Text>
@@ -244,7 +250,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
   topHeader: {
-    marginBottom: 16,
+    marginBottom: 14,
     paddingHorizontal: 2,
   },
   topHeaderLabel: {
@@ -260,109 +266,113 @@ const styles = StyleSheet.create({
     color: '#0D1714',
     letterSpacing: -0.6,
   },
-  heroCard: {
+  heroCoverCard: {
+    height: 240,
     borderRadius: 28,
-    marginBottom: 20,
-    shadowColor: '#9F1239',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.28,
-    shadowRadius: 18,
-    elevation: 8,
-  },
-  heroGradient: {
-    borderRadius: 28,
-    padding: 22,
-    position: 'relative',
     overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 18,
+    shadowColor: '#9F1239',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 6,
   },
-  glowSphere: {
+  heroCoverImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroCoverGradient: {
     position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(253, 164, 175, 0.22)',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  heroCoverContent: {
+    position: 'absolute',
+    bottom: 16,
+    left: 18,
+    right: 18,
   },
   heroTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 8,
   },
-  heroBadge: {
+  heroBadgeGlass: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 11,
-    paddingVertical: 5,
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  heroBadgeText: {
+  heroBadgeGlassText: {
     color: '#FFE4E6',
     fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.3,
   },
-  countPill: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  countPillGlass: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   countPillText: {
     color: '#FFFFFF',
     fontWeight: '900',
-    fontSize: 13,
+    fontSize: 12.5,
   },
   heroTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: -0.5,
-    lineHeight: 28,
-    marginBottom: 6,
+    letterSpacing: -0.4,
+    marginBottom: 3,
   },
   heroSub: {
-    fontSize: 12.5,
+    fontSize: 12,
     color: '#FECDD3',
-    lineHeight: 18,
-    marginBottom: 18,
+    lineHeight: 16,
+    marginBottom: 12,
     opacity: 0.95,
   },
   heroStatsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   heroStatItem: {
     alignItems: 'center',
-    gap: 3,
+    gap: 2,
   },
   heroStatValue: {
     color: '#FFFFFF',
     fontWeight: '900',
-    fontSize: 14.5,
+    fontSize: 13.5,
   },
   heroStatLabel: {
     color: '#FDA4AF',
-    fontSize: 10.5,
+    fontSize: 10,
     fontWeight: '600',
   },
   heroStatDivider: {
     width: 1,
-    height: 24,
+    height: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   filterScroll: {
@@ -394,7 +404,7 @@ const styles = StyleSheet.create({
   recipesList: {},
   emptyCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 28,
+    borderRadius: 26,
     padding: 30,
     alignItems: 'center',
     borderWidth: 1,
@@ -407,26 +417,26 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   emptyIconBox: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: '#FFE4E6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '900',
     color: '#0D1714',
     marginBottom: 6,
   },
   emptyDesc: {
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#687E74',
     textAlign: 'center',
-    lineHeight: 19,
-    marginBottom: 22,
+    lineHeight: 18,
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
   emptyCtaBtn: {
@@ -434,9 +444,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     backgroundColor: '#0F766E',
-    paddingHorizontal: 22,
-    paddingVertical: 14,
-    borderRadius: 18,
+    paddingHorizontal: 20,
+    paddingVertical: 13,
+    borderRadius: 16,
     shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -446,6 +456,6 @@ const styles = StyleSheet.create({
   emptyCtaText: {
     color: '#FFFFFF',
     fontWeight: '800',
-    fontSize: 13.5,
+    fontSize: 13,
   },
 });

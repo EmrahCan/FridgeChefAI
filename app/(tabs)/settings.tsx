@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   Platform,
   Switch,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -26,6 +27,7 @@ import {
   Trash2,
   ChefHat,
   Award,
+  Star,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StorageService } from '../../services/storageService';
@@ -165,27 +167,30 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Header */}
+        {/* TOP HEADER */}
         <View style={styles.topHeader}>
           <Text style={styles.topHeaderLabel}>
             {language === 'en' ? 'CHEF WORKSPACE' : 'ŞEF PROFİLİ & AYARLAR'}
           </Text>
           <Text style={styles.topHeaderTitle}>
-            {language === 'en' ? 'Account & Preferences ⚙️' : 'Hesap & Tercihler ⚙️'}
+            {language === 'en' ? 'Account & Atelier ⚙️' : 'Hesap & Atölye ⚙️'}
           </Text>
         </View>
 
-        {/* LUXURY BENTO HERO: USER PROFILE */}
+        {/* CINEMATIC HERO COVER: USER ATELIER */}
         {user && (
           <View style={styles.heroProfileCard}>
+            <Image
+              source={{ uri: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80' }}
+              style={styles.heroProfileImage}
+            />
             <LinearGradient
-              colors={['#0F4A3E', '#062B23']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+              colors={['rgba(15, 74, 62, 0.4)', 'rgba(6, 43, 35, 0.88)', 'rgba(6, 43, 35, 0.98)']}
+              locations={[0, 0.45, 1]}
               style={styles.heroProfileGradient}
-            >
-              <View style={styles.glowSphere} />
+            />
 
+            <View style={styles.heroProfileContent}>
               <View style={styles.profileMainRow}>
                 <View style={styles.avatarHalo}>
                   <View style={styles.avatarInner}>
@@ -203,7 +208,7 @@ export default function SettingsScreen() {
                   </View>
                 </View>
               </View>
-            </LinearGradient>
+            </View>
           </View>
         )}
 
@@ -409,7 +414,7 @@ export default function SettingsScreen() {
 
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>{t('settings.version')}</Text>
-            <Text style={styles.infoValue}>1.0.0 (Build 1)</Text>
+            <Text style={styles.infoValue}>2.0.0 (Build 2)</Text>
           </View>
 
           <View style={styles.infoRow}>
@@ -450,7 +455,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
   topHeader: {
-    marginBottom: 16,
+    marginBottom: 14,
     paddingHorizontal: 2,
   },
   topHeaderLabel: {
@@ -467,7 +472,10 @@ const styles = StyleSheet.create({
     letterSpacing: -0.6,
   },
   heroProfileCard: {
+    height: 190,
     borderRadius: 28,
+    overflow: 'hidden',
+    position: 'relative',
     marginBottom: 18,
     shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 8 },
@@ -475,20 +483,24 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 6,
   },
-  heroProfileGradient: {
-    borderRadius: 28,
-    padding: 20,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  glowSphere: {
+  heroProfileImage: {
+    width: '100%',
+    height: '100%',
     position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: 'rgba(94, 234, 212, 0.2)',
+    resizeMode: 'cover',
+  },
+  heroProfileGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  heroProfileContent: {
+    position: 'absolute',
+    bottom: 16,
+    left: 18,
+    right: 18,
   },
   profileMainRow: {
     flexDirection: 'row',
@@ -496,19 +508,19 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   avatarHalo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(94, 234, 212, 0.4)',
+    borderColor: 'rgba(94, 234, 212, 0.5)',
   },
   avatarInner: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
@@ -541,14 +553,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   adminBadge: {
-    backgroundColor: 'rgba(239, 68, 68, 0.25)',
+    backgroundColor: 'rgba(239, 68, 68, 0.35)',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: 'rgba(239, 68, 68, 0.5)',
   },
   chefBadge: {
-    backgroundColor: 'rgba(94, 234, 212, 0.2)',
+    backgroundColor: 'rgba(94, 234, 212, 0.25)',
     borderWidth: 1,
-    borderColor: 'rgba(94, 234, 212, 0.35)',
+    borderColor: 'rgba(94, 234, 212, 0.45)',
   },
   roleBadgeText: {
     fontSize: 10.5,

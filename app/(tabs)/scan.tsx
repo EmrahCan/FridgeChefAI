@@ -22,7 +22,10 @@ import {
   ChefHat,
   Zap,
   ArrowRight,
+  ShieldCheck,
+  Flame,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { GeminiService } from '../../services/geminiService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getDemoPresets, DemoPreset } from '../../constants/MockData';
@@ -138,16 +141,37 @@ export default function ScanScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.badgeRow}>
-            <View style={styles.visionPill}>
-              <Sparkles size={12} color="#0F766E" />
-              <Text style={styles.visionPillText}>{t('scan.aiVisionBadge')}</Text>
+        {/* CINEMATIC HERO COVER BANNER */}
+        <View style={styles.heroCoverCard}>
+          <Image
+            source={{ uri: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80' }}
+            style={styles.heroCoverImage}
+          />
+          <LinearGradient
+            colors={['rgba(0,0,0,0.3)', 'rgba(13, 23, 20, 0.75)', 'rgba(13, 23, 20, 0.95)']}
+            locations={[0, 0.5, 1]}
+            style={styles.heroCoverGradient}
+          />
+
+          <View style={styles.heroCoverContent}>
+            <View style={styles.heroBadgeRow}>
+              <View style={styles.visionGlassBadge}>
+                <Sparkles size={12} color="#5EEAD4" />
+                <Text style={styles.visionGlassBadgeText}>
+                  {language === 'en' ? 'AI Culinary Scanner 2.0' : 'Akıllı Şef Tarayıcı 2.0'}
+                </Text>
+              </View>
+              <View style={styles.instantPill}>
+                <Zap size={11} color="#FBBF24" />
+                <Text style={styles.instantPillText}>
+                  {language === 'en' ? 'Live Multimodal' : 'Canlı Analiz'}
+                </Text>
+              </View>
             </View>
+
+            <Text style={styles.heroCoverTitle}>{t('scan.title')}</Text>
+            <Text style={styles.heroCoverSubtitle}>{t('scan.subtitle')}</Text>
           </View>
-          <Text style={styles.title}>{t('scan.title')}</Text>
-          <Text style={styles.subtitle}>{t('scan.subtitle')}</Text>
         </View>
 
         {/* CYBER-ORGANIC VIEWFINDER */}
@@ -220,7 +244,7 @@ export default function ScanScreen() {
           <Text style={styles.tipLine}>{t('scan.tip3')}</Text>
         </View>
 
-        {/* INSTANT PANTRY TEST PRESETS */}
+        {/* INSTANT PANTRY TEST PRESETS WITH HD PHOTOGRAPHY */}
         <View style={styles.presetsWrapper}>
           <View style={styles.presetsHeader}>
             <Zap size={14} color="#D97706" />
@@ -230,22 +254,30 @@ export default function ScanScreen() {
           {presets.map((preset) => (
             <TouchableOpacity
               key={preset.id}
-              style={styles.presetCard}
-              activeOpacity={0.85}
+              style={styles.presetPhotoCard}
+              activeOpacity={0.9}
               onPress={() => handleUsePreset(preset)}
             >
-              <View style={styles.presetIconBox}>
-                <ChefHat size={18} color="#0F766E" />
+              <Image source={{ uri: preset.imageUrl }} style={styles.presetImage} />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.1)', 'rgba(0,0,0,0.7)']}
+                style={styles.presetGradient}
+              />
+
+              <View style={styles.presetContent}>
+                <View style={styles.presetTopTag}>
+                  <ChefHat size={12} color="#5EEAD4" />
+                  <Text style={styles.presetTopTagText}>
+                    {preset.ingredients.length} {language === 'en' ? 'Ingredients Detected' : 'Malzeme Hazır'}
+                  </Text>
+                </View>
+                <Text style={styles.presetNameText}>{preset.name}</Text>
+                <Text style={styles.presetSubText} numberOfLines={1}>{preset.subtitle}</Text>
               </View>
-              <View style={styles.presetInfo}>
-                <Text style={styles.presetName}>
-                  {preset.name}
-                </Text>
-                <Text style={styles.presetSubtitle} numberOfLines={1}>
-                  {preset.subtitle}
-                </Text>
+
+              <View style={styles.presetArrowBtn}>
+                <ArrowRight size={16} color="#FFFFFF" />
               </View>
-              <ArrowRight size={16} color="#9CA3AF" />
             </TouchableOpacity>
           ))}
         </View>
@@ -262,41 +294,86 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 18,
-    paddingBottom: 40,
+    paddingBottom: 50,
   },
-  header: {
-    marginBottom: 16,
+  heroCoverCard: {
+    height: 170,
+    borderRadius: 26,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  badgeRow: {
-    marginBottom: 8,
+  heroCoverImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
-  visionPill: {
+  heroCoverGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  heroCoverContent: {
+    position: 'absolute',
+    bottom: 14,
+    left: 16,
+    right: 16,
+  },
+  heroBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  visionGlassBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#CCFBF1',
-    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(15, 118, 110, 0.9)',
     paddingHorizontal: 10,
-    paddingVertical: 4.5,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
+  },
+  visionGlassBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
+  },
+  instantPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
   },
-  visionPillText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#0F766E',
-    letterSpacing: 0.3,
+  instantPillText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#FBBF24',
   },
-  title: {
-    fontSize: 24,
+  heroCoverTitle: {
+    fontSize: 20,
     fontWeight: '900',
-    color: '#0D1714',
-    letterSpacing: -0.5,
-    marginBottom: 4,
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+    marginBottom: 2,
   },
-  subtitle: {
-    fontSize: 13,
-    color: '#556860',
-    lineHeight: 18,
+  heroCoverSubtitle: {
+    fontSize: 12,
+    color: '#D1D5DB',
+    lineHeight: 16,
   },
   viewfinderWrapper: {
     marginBottom: 18,
@@ -307,7 +384,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   viewfinderCard: {
-    height: 280,
+    height: 270,
     backgroundColor: '#FFFFFF',
     borderRadius: 28,
     overflow: 'hidden',
@@ -494,7 +571,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   presetsTitle: {
     fontSize: 12,
@@ -503,36 +580,75 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  presetCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 8,
+  presetPhotoCard: {
+    height: 110,
+    borderRadius: 22,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E6EBE8',
+    justifyContent: 'flex-end',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  presetIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: '#CCFBF1',
-    justifyContent: 'center',
+  presetImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+  },
+  presetGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  presetContent: {
+    padding: 14,
+    paddingRight: 50,
+  },
+  presetTopTag: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 12,
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginBottom: 4,
   },
-  presetInfo: {
-    flex: 1,
+  presetTopTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#5EEAD4',
   },
-  presetName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#0D1714',
+  presetNameText: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: '#FFFFFF',
     marginBottom: 2,
   },
-  presetSubtitle: {
+  presetSubText: {
     fontSize: 11.5,
-    color: '#687E74',
+    color: '#E5E7EB',
+  },
+  presetArrowBtn: {
+    position: 'absolute',
+    right: 14,
+    bottom: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(15, 118, 110, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
 });
