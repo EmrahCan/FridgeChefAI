@@ -230,6 +230,19 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.safeArea}>
+      {/* FULL CINEMATIC DARK GOURMET BACKGROUND */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
+        }}
+        style={styles.ambientBackgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.ambientGradientOverlay}
+      />
+
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -582,8 +595,26 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
+    backgroundColor: '#041F1A',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
+  },
+  ambientBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.60,
+    resizeMode: 'cover',
+  },
+  ambientGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
     padding: 18,
@@ -596,14 +627,14 @@ const styles = StyleSheet.create({
   topHeaderLabel: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#0F766E',
+    color: '#5EEAD4',
     letterSpacing: 1.2,
     marginBottom: 2,
   },
   topHeaderTitle: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.6,
   },
   heroProfileCard: {
@@ -714,15 +745,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#F8FAF8',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     padding: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E6EBE8',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   badgeItemRowUnlocked: {
-    backgroundColor: '#EFFCF6',
-    borderColor: '#A7F3D0',
+    backgroundColor: 'rgba(15, 118, 110, 0.35)',
+    borderColor: 'rgba(94, 234, 212, 0.40)',
   },
   badgeEmoji: {
     fontSize: 24,
@@ -736,7 +767,7 @@ const styles = StyleSheet.create({
   badgeName: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#0D1714',
+    color: '#FFFFFF',
   },
   unlockedPill: {
     flexDirection: 'row',
@@ -756,7 +787,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
@@ -764,29 +795,31 @@ const styles = StyleSheet.create({
   lockedPillText: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#6B7280',
+    color: '#D1D5DB',
   },
   badgeDesc: {
     fontSize: 11.5,
-    color: '#687E74',
+    color: '#CCFBF1',
     lineHeight: 15,
   },
   progressBarBg: {
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: 2,
     marginTop: 6,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#0F766E',
+    backgroundColor: '#5EEAD4',
   },
   adminAccessBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1E293B',
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
     padding: 16,
     borderRadius: 22,
     marginBottom: 16,
@@ -820,11 +853,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   bentoCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(6, 44, 38, 0.85)',
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(94, 234, 212, 0.25)',
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -842,19 +875,19 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 10,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: 'rgba(204, 251, 241, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardTitle: {
     fontSize: 15.5,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.2,
   },
   cardDesc: {
     fontSize: 12.5,
-    color: '#556860',
+    color: '#CCFBF1',
     lineHeight: 18,
     marginBottom: 14,
   },
@@ -864,16 +897,16 @@ const styles = StyleSheet.create({
   langOptionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAF8',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1.5,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   langOptionBtnSelected: {
-    backgroundColor: '#CCFBF1',
-    borderColor: '#0F766E',
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
   },
   langFlag: {
     fontSize: 20,
@@ -883,24 +916,24 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#2C3E36',
+    color: '#CCFBF1',
   },
   langNameSelected: {
-    color: '#0F766E',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   inputContainer: {
     marginBottom: 12,
   },
   input: {
-    backgroundColor: '#F8FAF8',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderWidth: 1.5,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.20)',
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 11,
     fontSize: 14,
-    color: '#0D1714',
+    color: '#FFFFFF',
   },
   saveKeyBtn: {
     backgroundColor: '#0F766E',
@@ -933,30 +966,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F8FAF8',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1.5,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   dietaryItemSelected: {
-    backgroundColor: '#CCFBF1',
-    borderColor: '#0F766E',
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
   },
   dietaryText: {
     fontSize: 13.5,
     fontWeight: '600',
-    color: '#2C3E36',
+    color: '#CCFBF1',
   },
   dietaryTextSelected: {
-    color: '#0F766E',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   preferenceLabel: {
     fontSize: 12.5,
     fontWeight: '800',
-    color: '#2C3E36',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   unitsRow: {
@@ -968,22 +1001,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 14,
-    backgroundColor: '#F8FAF8',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1.5,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     alignItems: 'center',
   },
   unitBtnSelected: {
-    backgroundColor: '#CCFBF1',
-    borderColor: '#0F766E',
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
   },
   unitBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#687E74',
+    color: '#CCFBF1',
   },
   unitBtnTextSelected: {
-    color: '#0F766E',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   switchRow: {
@@ -992,16 +1025,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F3F6F4',
+    borderTopColor: 'rgba(255, 255, 255, 0.12)',
   },
   switchTitle: {
     fontSize: 13.5,
     fontWeight: '700',
-    color: '#0D1714',
+    color: '#FFFFFF',
   },
   switchDesc: {
     fontSize: 11.5,
-    color: '#687E74',
+    color: '#CCFBF1',
     marginTop: 2,
   },
   legalRow: {
@@ -1010,28 +1043,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F6F4',
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)',
   },
   legalRowText: {
     fontSize: 13.5,
     fontWeight: '600',
-    color: '#2C3E36',
+    color: '#FFFFFF',
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F6F4',
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)',
   },
   infoLabel: {
     fontSize: 13,
-    color: '#687E74',
+    color: '#A7F3D0',
     fontWeight: '500',
   },
   infoValue: {
     fontSize: 13,
-    color: '#0D1714',
+    color: '#FFFFFF',
     fontWeight: '800',
   },
   clearCacheBtn: {
@@ -1039,15 +1072,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
     paddingVertical: 13,
     borderRadius: 16,
     marginBottom: 12,
   },
   clearCacheBtnText: {
-    color: '#4B5563',
+    color: '#D1D5DB',
     fontWeight: '700',
     fontSize: 13,
   },
@@ -1056,9 +1089,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#FFE4E6',
+    backgroundColor: 'rgba(225, 29, 72, 0.20)',
     borderWidth: 1.5,
-    borderColor: '#FECDD3',
+    borderColor: 'rgba(253, 164, 175, 0.4)',
     paddingVertical: 15,
     borderRadius: 18,
     marginTop: 2,
@@ -1069,7 +1102,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   logoutBtnText: {
-    color: '#BE123C',
+    color: '#FECDD3',
     fontWeight: '800',
     fontSize: 14,
   },
