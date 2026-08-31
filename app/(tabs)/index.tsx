@@ -276,11 +276,11 @@ export default function HomeScreen() {
       >
         {/* Editorial Top Bar with Streak 🔥 and Grocery Button */}
         <View style={styles.topBar}>
-          <View>
+          <View style={styles.topLeftCol}>
             <Text style={styles.dateLabel}>
               {new Date().toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
             </Text>
-            <Text style={styles.greetingText}>
+            <Text style={styles.greetingText} numberOfLines={1}>
               {t('home.greeting')} {user?.name?.split(' ')[0] || t('home.defaultChef')} 👋
             </Text>
           </View>
@@ -288,19 +288,9 @@ export default function HomeScreen() {
           <View style={styles.topRightRow}>
             {/* 3-Day Cooking Streak Badge */}
             <View style={styles.streakBadge}>
-              <Flame size={14} color="#EA580C" fill="#EA580C" />
+              <Flame size={13} color="#EA580C" fill="#EA580C" />
               <Text style={styles.streakBadgeText}>3 🔥</Text>
             </View>
-
-            {/* Quick SKT Scanner Trigger */}
-            <TouchableOpacity
-              style={styles.sktHeaderShortcutBtn}
-              activeOpacity={0.8}
-              onPress={() => setIsAddRadarModalOpen(true)}
-            >
-              <Camera size={13} color="#5EEAD4" />
-              <Text style={styles.sktHeaderShortcutText}>SKT 📷</Text>
-            </TouchableOpacity>
 
             {/* Smart Grocery Cart Trigger */}
             <TouchableOpacity
@@ -308,7 +298,7 @@ export default function HomeScreen() {
               activeOpacity={0.8}
               onPress={() => setGroceryModalVisible(true)}
             >
-              <ShoppingCart size={14} color="#0F766E" />
+              <ShoppingCart size={14} color="#5EEAD4" />
               {groceryItems.length > 0 && (
                 <View style={styles.groceryBadgeCount}>
                   <Text style={styles.groceryBadgeCountText}>{groceryItems.length}</Text>
@@ -322,7 +312,7 @@ export default function HomeScreen() {
               activeOpacity={0.8}
               onPress={toggleLanguage}
             >
-              <Globe size={13} color="#0F766E" />
+              <Globe size={12} color="#5EEAD4" />
               <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
             </TouchableOpacity>
           </View>
@@ -978,48 +968,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 18,
-    paddingTop: 12,
-    paddingBottom: 14,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  topLeftCol: {
+    flex: 1,
+    paddingRight: 10,
   },
   dateLabel: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontWeight: '800',
     color: '#5EEAD4',
-    letterSpacing: 1.2,
+    letterSpacing: 1.1,
     marginBottom: 2,
   },
   greetingText: {
-    fontSize: 22,
+    fontSize: 19,
     fontWeight: '900',
     color: '#FFFFFF',
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   topRightRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     backgroundColor: 'rgba(234, 88, 12, 0.25)',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 14,
+    paddingHorizontal: 7,
+    paddingVertical: 4.5,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(251, 146, 60, 0.5)',
   },
   streakBadgeText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '900',
     color: '#FDBA74',
   },
   groceryBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(94, 234, 212, 0.35)',
     justifyContent: 'center',
@@ -1030,31 +1024,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -4,
     right: -4,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
     backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   groceryBadgeCountText: {
     color: '#FFFFFF',
-    fontSize: 9,
+    fontSize: 8.5,
     fontWeight: '900',
   },
   langPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 14,
+    gap: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 4.5,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
   },
   langPillText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '900',
     color: '#FFFFFF',
   },
