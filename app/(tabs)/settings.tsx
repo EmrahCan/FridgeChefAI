@@ -24,8 +24,10 @@ import {
   Sliders,
   FileText,
   Trash2,
-  Vibrate,
+  ChefHat,
+  Award,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StorageService } from '../../services/storageService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -159,27 +161,49 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{t('settings.title')}</Text>
-        <Text style={styles.subtitle}>{t('settings.subtitle')}</Text>
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top Header */}
+        <View style={styles.topHeader}>
+          <Text style={styles.topHeaderLabel}>
+            {language === 'en' ? 'CHEF WORKSPACE' : 'ŞEF PROFİLİ & AYARLAR'}
+          </Text>
+          <Text style={styles.topHeaderTitle}>
+            {language === 'en' ? 'Account & Preferences ⚙️' : 'Hesap & Tercihler ⚙️'}
+          </Text>
+        </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* User Profile Card */}
+        {/* LUXURY BENTO HERO: USER PROFILE */}
         {user && (
-          <View style={styles.profileCard}>
-            <View style={styles.avatarBox}>
-              <Text style={styles.avatarLetter}>{user.name[0] || 'C'}</Text>
-            </View>
-            <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{user.name}</Text>
-              <Text style={styles.profileEmail}>{user.email}</Text>
-              <View style={[styles.roleBadge, user.role === 'admin' ? styles.adminRoleBadge : styles.userRoleBadge]}>
-                <Text style={[styles.roleBadgeText, user.role === 'admin' ? styles.adminRoleText : styles.userRoleText]}>
-                  {user.role === 'admin' ? '👑 Admin' : '👨‍🍳 Chef Member'}
-                </Text>
+          <View style={styles.heroProfileCard}>
+            <LinearGradient
+              colors={['#0F4A3E', '#062B23']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroProfileGradient}
+            >
+              <View style={styles.glowSphere} />
+
+              <View style={styles.profileMainRow}>
+                <View style={styles.avatarHalo}>
+                  <View style={styles.avatarInner}>
+                    <Text style={styles.avatarLetter}>{user.name[0] || 'C'}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.profileTextInfo}>
+                  <Text style={styles.profileName}>{user.name}</Text>
+                  <Text style={styles.profileEmail}>{user.email}</Text>
+                  <View style={[styles.roleBadge, user.role === 'admin' ? styles.adminBadge : styles.chefBadge]}>
+                    <Text style={[styles.roleBadgeText, user.role === 'admin' ? styles.adminBadgeText : styles.chefBadgeText]}>
+                      {user.role === 'admin' ? '👑 Executive Admin' : '👨‍🍳 Certified Master Chef'}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            </View>
+            </LinearGradient>
           </View>
         )}
 
@@ -203,10 +227,12 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Language Selection Card */}
-        <View style={styles.card}>
+        {/* BENTO CARD: LANGUAGE SELECTOR */}
+        <View style={styles.bentoCard}>
           <View style={styles.cardHeader}>
-            <Globe size={18} color="#0F766E" />
+            <View style={styles.cardIconBox}>
+              <Globe size={16} color="#0F766E" />
+            </View>
             <Text style={styles.cardTitle}>{t('settings.languageTitle')}</Text>
           </View>
 
@@ -237,10 +263,43 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section: Custom AI Key */}
-        <View style={styles.card}>
+        {/* BENTO CARD: DIETARY RESTRICTIONS */}
+        <View style={styles.bentoCard}>
           <View style={styles.cardHeader}>
-            <Key size={18} color="#0F766E" />
+            <View style={[styles.cardIconBox, { backgroundColor: '#FFEDD5' }]}>
+              <Sparkles size={16} color="#EA580C" />
+            </View>
+            <Text style={styles.cardTitle}>{t('settings.dietaryTitle')}</Text>
+          </View>
+          <Text style={styles.cardDesc}>{t('settings.dietaryDesc')}</Text>
+
+          <View style={styles.dietaryList}>
+            {DIETARY_ITEMS.map((item) => {
+              const isSelected = dietary.includes(item.id);
+              const label = t(item.key);
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.dietaryItem, isSelected && styles.dietaryItemSelected]}
+                  activeOpacity={0.85}
+                  onPress={() => toggleDietary(item.id)}
+                >
+                  <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
+                    {label}
+                  </Text>
+                  {isSelected && <Check size={16} color="#0F766E" />}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* BENTO CARD: AI KEY CONFIGURATION */}
+        <View style={styles.bentoCard}>
+          <View style={styles.cardHeader}>
+            <View style={styles.cardIconBox}>
+              <Key size={16} color="#0F766E" />
+            </View>
             <Text style={styles.cardTitle}>{t('settings.geminiKeyTitle')}</Text>
           </View>
           <Text style={styles.cardDesc}>{t('settings.geminiKeyDesc')}</Text>
@@ -260,6 +319,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={[styles.saveKeyBtn, isSavedSuccess && styles.saveKeyBtnSuccess]}
+            activeOpacity={0.88}
             onPress={handleSaveApiKey}
           >
             {isSavedSuccess ? (
@@ -273,38 +333,12 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Section: Dietary Restrictions (Standardized Keys) */}
-        <View style={styles.card}>
+        {/* BENTO CARD: APP & COOKING PREFERENCES */}
+        <View style={styles.bentoCard}>
           <View style={styles.cardHeader}>
-            <Sparkles size={18} color="#EA580C" />
-            <Text style={styles.cardTitle}>{t('settings.dietaryTitle')}</Text>
-          </View>
-          <Text style={styles.cardDesc}>{t('settings.dietaryDesc')}</Text>
-
-          <View style={styles.dietaryList}>
-            {DIETARY_ITEMS.map((item) => {
-              const isSelected = dietary.includes(item.id);
-              const label = t(item.key);
-              return (
-                <TouchableOpacity
-                  key={item.id}
-                  style={[styles.dietaryItem, isSelected && styles.dietaryItemSelected]}
-                  onPress={() => toggleDietary(item.id)}
-                >
-                  <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
-                    {label}
-                  </Text>
-                  {isSelected && <Check size={16} color="#0F766E" />}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Section: App & Cooking Preferences */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Sliders size={18} color="#0F766E" />
+            <View style={styles.cardIconBox}>
+              <Sliders size={16} color="#0F766E" />
+            </View>
             <Text style={styles.cardTitle}>{t('settings.appPreferencesTitle')}</Text>
           </View>
 
@@ -344,10 +378,12 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section: Legal & Privacy (App Store Guideline 5.1.1) */}
-        <View style={styles.card}>
+        {/* BENTO CARD: LEGAL & PRIVACY */}
+        <View style={styles.bentoCard}>
           <View style={styles.cardHeader}>
-            <FileText size={18} color="#0F766E" />
+            <View style={styles.cardIconBox}>
+              <FileText size={16} color="#0F766E" />
+            </View>
             <Text style={styles.cardTitle}>{t('settings.legalTitle')}</Text>
           </View>
 
@@ -362,10 +398,12 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Section: App Info */}
-        <View style={styles.card}>
+        {/* BENTO CARD: APP STORE INFO */}
+        <View style={styles.bentoCard}>
           <View style={styles.cardHeader}>
-            <Leaf size={18} color="#0F766E" />
+            <View style={styles.cardIconBox}>
+              <Leaf size={16} color="#0F766E" />
+            </View>
             <Text style={styles.cardTitle}>{t('settings.aboutTitle')}</Text>
           </View>
 
@@ -385,15 +423,15 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section: Data Management (Clear Stats / Cache) */}
-        <TouchableOpacity style={styles.clearCacheBtn} onPress={handleClearCache}>
-          <Trash2 size={16} color="#4B5563" />
+        {/* RESET CACHE BUTTON */}
+        <TouchableOpacity style={styles.clearCacheBtn} activeOpacity={0.85} onPress={handleClearCache}>
+          <Trash2 size={15} color="#6B7280" />
           <Text style={styles.clearCacheBtnText}>{t('settings.clearCacheBtn')}</Text>
         </TouchableOpacity>
 
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <LogOut size={18} color="#BE123C" />
+        {/* LOGOUT BUTTON */}
+        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.88} onPress={handleLogout}>
+          <LogOut size={17} color="#BE123C" />
           <Text style={styles.logoutBtnText}>{t('settings.logoutBtn')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -407,92 +445,120 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
-  header: {
-    paddingHorizontal: 18,
-    paddingTop: 14,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E6EBE8',
-    backgroundColor: '#FFFFFF',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#0D1714',
-    letterSpacing: -0.5,
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#556860',
-  },
   scrollContent: {
     padding: 18,
     paddingBottom: 50,
   },
-  profileCard: {
+  topHeader: {
+    marginBottom: 16,
+    paddingHorizontal: 2,
+  },
+  topHeaderLabel: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#0F766E',
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  topHeaderTitle: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#0D1714',
+    letterSpacing: -0.6,
+  },
+  heroProfileCard: {
+    borderRadius: 28,
+    marginBottom: 18,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  heroProfileGradient: {
+    borderRadius: 28,
+    padding: 20,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  glowSphere: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(94, 234, 212, 0.2)',
+  },
+  profileMainRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: '#E1E6DF',
-    marginBottom: 16,
+    gap: 14,
   },
-  avatarBox: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  avatarHalo: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
+  },
+  avatarInner: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 14,
   },
   avatarLetter: {
     color: '#FFFFFF',
     fontSize: 22,
     fontWeight: '900',
   },
-  profileInfo: {
+  profileTextInfo: {
     flex: 1,
   },
   profileName: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0D1714',
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
   },
   profileEmail: {
     fontSize: 12,
-    color: '#687E74',
+    color: '#CCFBF1',
     marginTop: 2,
     marginBottom: 6,
+    opacity: 0.9,
   },
   roleBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 3.5,
+    borderRadius: 10,
   },
-  adminRoleBadge: {
-    backgroundColor: '#FFE4E6',
-    borderColor: '#FECDD3',
+  adminBadge: {
+    backgroundColor: 'rgba(239, 68, 68, 0.25)',
     borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
   },
-  userRoleBadge: {
-    backgroundColor: '#CCFBF1',
-    borderColor: '#99F6E4',
+  chefBadge: {
+    backgroundColor: 'rgba(94, 234, 212, 0.2)',
     borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
   },
   roleBadgeText: {
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: '800',
   },
-  adminRoleText: {
-    color: '#BE123C',
+  adminBadgeText: {
+    color: '#FECDD3',
   },
-  userRoleText: {
-    color: '#0F766E',
+  chefBadgeText: {
+    color: '#5EEAD4',
   },
   adminAccessBtn: {
     flexDirection: 'row',
@@ -504,9 +570,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 3,
   },
   adminAccessLeft: {
     flexDirection: 'row',
@@ -531,13 +597,18 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     marginTop: 2,
   },
-  card: {
+  bentoCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
     borderColor: '#E1E6DF',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -545,10 +616,19 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
+  cardIconBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: '#CCFBF1',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 15.5,
+    fontWeight: '900',
     color: '#0D1714',
+    letterSpacing: -0.2,
   },
   cardDesc: {
     fontSize: 12.5,
@@ -605,6 +685,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 13,
     alignItems: 'center',
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   saveKeyBtnSuccess: {
     backgroundColor: '#0B514B',
@@ -755,6 +840,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 18,
     marginTop: 2,
+    shadowColor: '#BE123C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
   },
   logoutBtnText: {
     color: '#BE123C',
