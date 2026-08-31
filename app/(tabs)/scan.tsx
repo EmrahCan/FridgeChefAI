@@ -143,6 +143,19 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.safeArea}>
+      {/* FULL CINEMATIC DARK GOURMET BACKGROUND */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
+        }}
+        style={styles.ambientBackgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.ambientGradientOverlay}
+      />
+
       <ScrollView
         contentContainerStyle={[
           styles.container,
@@ -301,8 +314,26 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
+    backgroundColor: '#041F1A',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
+  },
+  ambientBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.60,
+    resizeMode: 'cover',
+  },
+  ambientGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   container: {
     padding: 18,
@@ -397,11 +428,11 @@ const styles = StyleSheet.create({
   },
   viewfinderCard: {
     height: 270,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(6, 44, 38, 0.85)',
     borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(94, 234, 212, 0.30)',
     position: 'relative',
   },
   viewfinderEmpty: {
@@ -409,13 +440,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#FAFBF9',
+    backgroundColor: 'transparent',
   },
   cornerBracket: {
     position: 'absolute',
     width: 24,
     height: 24,
-    borderColor: '#0F766E',
+    borderColor: '#5EEAD4',
   },
   bracketTL: {
     top: 18,
@@ -449,7 +480,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: 'rgba(204, 251, 241, 0.20)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -458,24 +489,24 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 3,
   },
   viewfinderHint: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#0D1714',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   viewfinderSub: {
     fontSize: 12,
-    color: '#687E74',
+    color: '#A7F3D0',
     textAlign: 'center',
     paddingHorizontal: 16,
     lineHeight: 16,
@@ -491,7 +522,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    backgroundColor: 'rgba(4, 31, 26, 0.94)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -499,13 +530,13 @@ const styles = StyleSheet.create({
   loadingTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#0D1714',
+    color: '#FFFFFF',
     marginTop: 14,
     marginBottom: 4,
   },
   loadingStatus: {
     fontSize: 13,
-    color: '#0F766E',
+    color: '#5EEAD4',
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -541,22 +572,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#E6F4F1',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1.5,
-    borderColor: '#99F6E4',
+    borderColor: 'rgba(94, 234, 212, 0.35)',
     borderRadius: 18,
   },
   secondaryGalleryBtnText: {
-    color: '#0F766E',
+    color: '#5EEAD4',
     fontSize: 14.5,
     fontWeight: '900',
   },
   tipsCard: {
-    backgroundColor: '#EFF5F2',
+    backgroundColor: 'rgba(6, 44, 38, 0.85)',
     padding: 16,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#D8E2DC',
+    borderColor: 'rgba(94, 234, 212, 0.25)',
     marginBottom: 20,
   },
   tipHeaderRow: {
@@ -568,13 +599,13 @@ const styles = StyleSheet.create({
   tipCardTitle: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#0F766E',
+    color: '#5EEAD4',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   tipLine: {
     fontSize: 12,
-    color: '#34473F',
+    color: '#CCFBF1',
     lineHeight: 18,
     marginBottom: 2,
   },
@@ -588,7 +619,7 @@ const styles = StyleSheet.create({
   presetsTitle: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#7D9087',
+    color: '#A7F3D0',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
