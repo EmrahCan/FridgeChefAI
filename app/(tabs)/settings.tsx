@@ -60,10 +60,8 @@ export default function SettingsScreen() {
   const { user, logout, deleteAccount } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [apiKey, setApiKey] = useState('');
   const [dietary, setDietary] = useState<string[]>([]);
   const [badges, setBadges] = useState<ChefBadge[]>([]);
-  const [isSavedSuccess, setIsSavedSuccess] = useState(false);
   const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
@@ -74,23 +72,8 @@ export default function SettingsScreen() {
   const loadPrefs = async () => {
     const prefs = await StorageService.getUserPreferences();
     const loadedBadges = await GamificationService.getBadges(language);
-    setApiKey(prefs.geminiApiKey || '');
     setDietary(prefs.dietaryRestrictions || []);
     setBadges(loadedBadges);
-  };
-
-  const handleSaveApiKey = async () => {
-    try {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {}
-
-    await StorageService.saveUserPreferences({
-      geminiApiKey: apiKey.trim(),
-    });
-
-    setIsSavedSuccess(true);
-    setTimeout(() => setIsSavedSuccess(false), 2500);
-    Alert.alert(t('settings.savedSuccess'), language === 'en' ? 'API key updated successfully.' : 'API anahtarı başarıyla güncellendi.');
   };
 
   const toggleDietary = async (id: string) => {
@@ -434,45 +417,6 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </View>
-
-        {/* BENTO CARD: AI KEY CONFIGURATION */}
-        <View style={styles.bentoCard}>
-          <View style={styles.cardHeader}>
-            <View style={styles.cardIconBox}>
-              <Key size={16} color="#0F766E" />
-            </View>
-            <Text style={styles.cardTitle}>{t('settings.geminiKeyTitle')}</Text>
-          </View>
-          <Text style={styles.cardDesc}>{t('settings.geminiKeyDesc')}</Text>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="AIzaSy..."
-              placeholderTextColor="#8A9C93"
-              value={apiKey}
-              onChangeText={setApiKey}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.saveKeyBtn, isSavedSuccess && styles.saveKeyBtnSuccess]}
-            activeOpacity={0.88}
-            onPress={handleSaveApiKey}
-          >
-            {isSavedSuccess ? (
-              <View style={styles.btnRow}>
-                <Check size={16} color="#FFFFFF" />
-                <Text style={styles.saveKeyBtnText}>{t('settings.savedSuccess')}</Text>
-              </View>
-            ) : (
-              <Text style={styles.saveKeyBtnText}>{t('settings.saveKeyBtn')}</Text>
-            )}
-          </TouchableOpacity>
         </View>
 
         {/* BENTO CARD: APP & COOKING PREFERENCES */}
