@@ -150,7 +150,27 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+
+    if (Platform.OS === 'web') {
+      const confirmLogout = typeof window !== 'undefined' && window.confirm
+        ? window.confirm(
+            language === 'en'
+              ? 'Are you sure you want to sign out of your account?'
+              : 'Hesabınızdan çıkış yapmak istediğinize emin misiniz?'
+          )
+        : true;
+
+      if (confirmLogout) {
+        await logout();
+        router.replace('/login');
+      }
+      return;
+    }
+
     Alert.alert(
       t('settings.logoutConfirmTitle'),
       t('settings.logoutConfirmMsg'),
@@ -160,9 +180,6 @@ export default function SettingsScreen() {
           text: t('settings.logoutBtn'),
           style: 'destructive',
           onPress: async () => {
-            try {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            } catch {}
             await logout();
             router.replace('/login');
           },
