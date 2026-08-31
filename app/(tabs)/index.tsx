@@ -292,6 +292,16 @@ export default function HomeScreen() {
               <Text style={styles.streakBadgeText}>3 🔥</Text>
             </View>
 
+            {/* Quick SKT Scanner Trigger */}
+            <TouchableOpacity
+              style={styles.sktHeaderShortcutBtn}
+              activeOpacity={0.8}
+              onPress={() => setIsAddRadarModalOpen(true)}
+            >
+              <Camera size={13} color="#5EEAD4" />
+              <Text style={styles.sktHeaderShortcutText}>SKT 📷</Text>
+            </TouchableOpacity>
+
             {/* Smart Grocery Cart Trigger */}
             <TouchableOpacity
               style={styles.groceryBtn}
@@ -318,39 +328,43 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* PANTRY EXPIRY RADAR WIDGET (Step 5) */}
-        {radarItems.length > 0 && (
-          <View style={styles.radarWrapper}>
-            <View style={styles.radarHeader}>
-              <View style={styles.radarHeaderLeft}>
-                <View style={styles.radarIconHalo}>
-                  <Hourglass size={16} color="#0F766E" />
-                </View>
-                <View>
-                  <Text style={styles.radarMainTitle}>
-                    {language === 'en' ? 'Pantry Expiry Radar' : 'Dolap Tazelik Radarı'} ⏳
-                  </Text>
-                  <Text style={styles.radarSubtitle}>
-                    {language === 'en'
-                      ? `${radarItems.length} items nearing shelf-life`
-                      : `Tüketilmesi gereken ${radarItems.length} malzeme var`}
-                  </Text>
-                </View>
+        {/* PANTRY EXPIRY RADAR WIDGET (Step 5 - Always Visible) */}
+        <View style={styles.radarWrapper}>
+          <View style={styles.radarHeader}>
+            <View style={styles.radarHeaderLeft}>
+              <View style={styles.radarIconHalo}>
+                <Hourglass size={16} color="#0F766E" />
               </View>
-
-              {/* Add / OCR SKT Trigger Button */}
-              <TouchableOpacity
-                style={styles.addRadarHeaderBtn}
-                activeOpacity={0.85}
-                onPress={() => setIsAddRadarModalOpen(true)}
-              >
-                <Plus size={13} color="#5EEAD4" />
-                <Text style={styles.addRadarHeaderBtnText}>
-                  {language === 'en' ? '+ Add / 📷 OCR' : '+ Ekle / 📷 SKT'}
+              <View>
+                <Text style={styles.radarMainTitle}>
+                  {language === 'en' ? 'Pantry Expiry Radar' : 'Dolap Tazelik Radarı'} ⏳
                 </Text>
-              </TouchableOpacity>
+                <Text style={styles.radarSubtitle}>
+                  {radarItems.length > 0
+                    ? (language === 'en'
+                        ? `${radarItems.length} items nearing shelf-life`
+                        : `Tüketilmesi gereken ${radarItems.length} malzeme var`)
+                    : (language === 'en'
+                        ? 'Pantry is clear • Tap + to add items'
+                        : 'Dolabınız taze • Ürün eklemek için dokunun')}
+                </Text>
+              </View>
             </View>
 
+            {/* Add / OCR SKT Trigger Button */}
+            <TouchableOpacity
+              style={styles.addRadarHeaderBtn}
+              activeOpacity={0.85}
+              onPress={() => setIsAddRadarModalOpen(true)}
+            >
+              <Plus size={13} color="#5EEAD4" />
+              <Text style={styles.addRadarHeaderBtnText}>
+                {language === 'en' ? '+ Add / 📷 OCR' : '+ Ekle / 📷 SKT'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {radarItems.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -439,8 +453,32 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </View>
-        )}
+          ) : (
+            /* EMPTY RADAR STATE - PERMANENT EASY ENTRY */
+            <TouchableOpacity
+              style={styles.radarEmptyCard}
+              activeOpacity={0.88}
+              onPress={() => setIsAddRadarModalOpen(true)}
+            >
+              <View style={styles.radarEmptyLeft}>
+                <Text style={styles.radarEmptyTitle}>
+                  {language === 'en' ? 'Pantry is Fresh & Clear! 🌿' : 'Dolabınız Tertemiz & Taze! 🌿'}
+                </Text>
+                <Text style={styles.radarEmptySub}>
+                  {language === 'en'
+                    ? 'Tap to add milk, cheese or scan packaging expiry date (OCR).'
+                    : 'Süt, peynir eklemek veya kutusundaki SKT tarihini okutmak için dokunun.'}
+                </Text>
+              </View>
+              <View style={styles.radarEmptyActionBtn}>
+                <Camera size={14} color="#042F2E" />
+                <Text style={styles.radarEmptyActionText}>
+                  {language === 'en' ? 'Scan SKT' : '+ SKT Tara'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* SPOTLIGHT HERO: CINEMATIC FOOD PHOTOGRAPHY SPOTLIGHT */}
         {spotlightRecipe && (
@@ -1675,6 +1713,68 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#5EEAD4',
+  },
+  sktHeaderShortcutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(15, 118, 110, 0.35)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.45)',
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+    borderRadius: 16,
+  },
+  sktHeaderShortcutText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#5EEAD4',
+  },
+  radarEmptyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(6, 44, 38, 0.75)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.25)',
+    borderRadius: 20,
+    padding: 16,
+    marginHorizontal: 2,
+    marginTop: 4,
+  },
+  radarEmptyLeft: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  radarEmptyTitle: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 3,
+  },
+  radarEmptySub: {
+    fontSize: 11.5,
+    color: '#CCFBF1',
+    lineHeight: 15,
+  },
+  radarEmptyActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#5EEAD4',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 14,
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  radarEmptyActionText: {
+    color: '#042F2E',
+    fontWeight: '900',
+    fontSize: 12,
   },
   radarCardHeaderRight: {
     flexDirection: 'row',

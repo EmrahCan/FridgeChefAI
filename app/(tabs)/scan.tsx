@@ -24,9 +24,11 @@ import {
   ArrowRight,
   ShieldCheck,
   Flame,
+  Hourglass,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GeminiService } from '../../services/geminiService';
+import { PantryRadarService } from '../../services/pantryRadarService';
 import { useLanguage } from '../../context/LanguageContext';
 import { getDemoPresets, DemoPreset } from '../../constants/MockData';
 import * as Haptics from 'expo-haptics';
@@ -121,6 +123,56 @@ export default function ScanScreen() {
         });
       }, 700);
     } catch (err) {
+      setIsAnalyzing(false);
+      Alert.alert(t('scan.errorTitle'), t('scan.scanError'));
+    }
+  };
+
+  const handleScanSKTDirectly = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(t('scan.permissionTitle'), t('scan.cameraPermissionMsg'));
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0 && result.assets[0].base64) {
+        setIsAnalyzing(true);
+        setAnalysisStatus(language === 'en' ? 'Scanning expiration date (OCR)...' : 'SKT tarihi okunuyor (OCR)...');
+
+        const ocrRes = await GeminiService.scanExpiryDateFromImage(result.assets[0].base64, language);
+
+        await PantryRadarService.addManualItem(
+          {
+            name: language === 'en' ? 'Dairy / Milk (Scanned 🥛)' : 'Süt / Şarküteri (Taranan 🥛)',
+            daysRemaining: ocrRes.daysRemaining || 5,
+            expiryDate: ocrRes.dateStr,
+            isOpened: false,
+          },
+          language
+        );
+
+        setIsAnalyzing(false);
+        Alert.alert(
+          language === 'en' ? 'SKT Added to Radar! 🎯' : 'SKT Radara Eklendi! 🎯',
+          language === 'en'
+            ? `Expiry date: ${ocrRes.dateStr || ''} (${ocrRes.daysRemaining} days remaining). Product added to your Freshness Radar on Home!`
+            : `Son kullanma tarihi: ${ocrRes.dateStr || ''} (${ocrRes.daysRemaining} gün kaldı). Ürün Ana Sayfa'daki Dolap Radarı'na eklendi!`,
+          [
+            {
+              text: language === 'en' ? 'View Radar ⏳' : 'Radarı Gör ⏳',
+              onPress: () => router.push('/(tabs)'),
+            },
+          ]
+        );
+      }
+    } catch (e) {
       setIsAnalyzing(false);
       Alert.alert(t('scan.errorTitle'), t('scan.scanError'));
     }
@@ -257,6 +309,29 @@ export default function ScanScreen() {
             <Text style={styles.secondaryGalleryBtnText}>{t('scan.pickGallery')}</Text>
           </TouchableOpacity>
         </View>
+
+        {/* DEDICATED OCR EXPIRY DATE SCANNER BUTTON */}
+        <TouchableOpacity
+          style={styles.sktScannerBannerBtn}
+          activeOpacity={0.88}
+          onPress={handleScanSKTDirectly}
+          disabled={isAnalyzing}
+        >
+          <View style={styles.sktBannerIconBox}>
+            <Hourglass size={18} color="#5EEAD4" />
+          </View>
+          <View style={styles.sktBannerTextCol}>
+            <Text style={styles.sktBannerTitle}>
+              {language === 'en' ? 'Scan Expiry Date on Packaging (OCR) ⏳' : 'Ambalajdaki SKT Tarihini Oku (OCR) ⏳'}
+            </Text>
+            <Text style={styles.sktBannerSub}>
+              {language === 'en'
+                ? 'Reads milk, yogurt, cheese expiry dates & adds to radar'
+                : 'Süt, yoğurt, peynir kutusundaki tarihi okuyup dolap radarına kaydeder'}
+            </Text>
+          </View>
+          <ArrowRight size={16} color="#5EEAD4" />
+        </TouchableOpacity>
 
         {/* TIPS PILL CARD */}
         <View style={styles.tipsCard}>
@@ -693,5 +768,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  sktScannerBannerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 118, 110, 0.25)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
+    borderRadius: 20,
+    padding: 14,
+    marginBottom: 16,
+    gap: 12,
+  },
+  sktBannerIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: 'rgba(94, 234, 212, 0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sktBannerTextCol: {
+    flex: 1,
+  },
+  sktBannerTitle: {
+    fontSize: 13.5,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  sktBannerSub: {
+    fontSize: 11,
+    color: '#CCFBF1',
+    lineHeight: 14,
   },
 });
