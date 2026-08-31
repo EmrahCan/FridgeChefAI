@@ -47,6 +47,8 @@ export default function ReviewScreen() {
   const [generatedRecipes, setGeneratedRecipes] = useState<Recipe[]>([]);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
 
+  const scrollRef = React.useRef<ScrollView>(null);
+
   React.useEffect(() => {
     if (initialIngredients.length > 0) {
       PantryRadarService.registerScannedIngredients(initialIngredients);
@@ -102,6 +104,10 @@ export default function ReviewScreen() {
       const saved = await StorageService.getSavedRecipes();
       setSavedRecipes(saved);
       setGeneratedRecipes(recipes);
+
+      setTimeout(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      }, 350);
     } catch (err) {
       Alert.alert(language === 'en' ? 'Error' : 'Hata', language === 'en' ? 'Failed to craft recipes.' : 'Tarifler oluşturulamadı.');
     } finally {
@@ -127,7 +133,8 @@ export default function ReviewScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 20) + 40 }]}
+        ref={scrollRef}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 20) + 60 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
