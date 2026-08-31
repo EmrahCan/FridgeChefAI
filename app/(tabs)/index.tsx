@@ -160,6 +160,19 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.safeArea}>
+      {/* AMBIENT GOURMET BACKGROUND LAYER (TRIAL) */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
+        }}
+        style={styles.ambientBackgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(247, 248, 246, 0.88)', 'rgba(247, 248, 246, 0.95)', '#F7F8F6']}
+        locations={[0, 0.35, 1]}
+        style={styles.ambientGradientOverlay}
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={[
@@ -634,6 +647,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
+  },
+  ambientBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.18,
+    resizeMode: 'cover',
+  },
+  ambientGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   container: {
     flex: 1,
