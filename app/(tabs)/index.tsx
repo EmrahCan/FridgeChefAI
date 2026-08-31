@@ -121,6 +121,14 @@ export default function HomeScreen() {
     setRadarItems(updated);
   };
 
+  const handleRemoveRadarItem = async (id: string) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    const updated = await PantryRadarService.removeRadarItem(id, language);
+    setRadarItems(updated);
+  };
+
   const handleAddManualRadarItem = async () => {
     if (!customRadarName.trim()) return;
     try {
@@ -359,32 +367,46 @@ export default function HomeScreen() {
                   activeOpacity={0.88}
                   onPress={handleStartScan}
                 >
-                  {/* Card Top: Food Avatar, Opened Toggle & Urgency Pill */}
+                  {/* Card Top: Food Avatar, Urgency Pill & Quick Delete */}
                   <View style={styles.radarCardHeader}>
                     <View style={styles.foodAvatarCircle}>
                       <Text style={styles.foodAvatarEmoji}>{item.icon || '🍲'}</Text>
                     </View>
-                    <View
-                      style={[
-                        styles.urgencyCapsule,
-                        item.urgency === 'critical' ? styles.urgencyCapsuleCritical : styles.urgencyCapsuleWarning,
-                      ]}
-                    >
-                      <Flame
-                        size={10}
-                        color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
-                        fill={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
-                      />
-                      <Text
+                    <View style={styles.radarCardHeaderRight}>
+                      <View
                         style={[
-                          styles.urgencyCapsuleText,
-                          { color: item.urgency === 'critical' ? '#BE123C' : '#B45309' },
+                          styles.urgencyCapsule,
+                          item.urgency === 'critical' ? styles.urgencyCapsuleCritical : styles.urgencyCapsuleWarning,
                         ]}
                       >
-                        {item.daysRemaining === 1
-                          ? (language === 'en' ? '1 Day Left' : '1 Gün Kaldı')
-                          : (language === 'en' ? `${item.daysRemaining} Days` : `${item.daysRemaining} Gün`)}
-                      </Text>
+                        <Flame
+                          size={9}
+                          color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
+                          fill={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
+                        />
+                        <Text
+                          style={[
+                            styles.urgencyCapsuleText,
+                            { color: item.urgency === 'critical' ? '#BE123C' : '#B45309' },
+                          ]}
+                        >
+                          {item.daysRemaining === 1
+                            ? (language === 'en' ? '1d' : '1 Gün')
+                            : `${item.daysRemaining}${language === 'en' ? 'd' : 'g'}`}
+                        </Text>
+                      </View>
+
+                      {/* Quick Delete Trash Button */}
+                      <TouchableOpacity
+                        style={styles.radarCardDeleteBtn}
+                        activeOpacity={0.75}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleRemoveRadarItem(item.id);
+                        }}
+                      >
+                        <Trash2 size={11} color="#FDA4AF" />
+                      </TouchableOpacity>
                     </View>
                   </View>
 
@@ -1641,6 +1663,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
     color: '#5EEAD4',
+  },
+  radarCardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  radarCardDeleteBtn: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: 'rgba(239, 68, 68, 0.20)',
+    borderWidth: 1,
+    borderColor: 'rgba(253, 164, 175, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   openStatusPill: {
     alignSelf: 'flex-start',
