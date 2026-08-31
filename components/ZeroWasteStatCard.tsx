@@ -1,14 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Leaf, Sparkles, TrendingUp, Utensils, ShieldCheck } from 'lucide-react-native';
+import { Leaf, Sparkles, TrendingUp, Utensils } from 'lucide-react-native';
 import { UserStats } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Props {
   stats: UserStats;
 }
 
 export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.outerContainer}>
       <LinearGradient
@@ -24,11 +27,11 @@ export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
         <View style={styles.topHeader}>
           <View style={styles.ecoPill}>
             <Leaf size={12} color="#34D399" />
-            <Text style={styles.ecoPillText}>Sıfır İsraf Etkisi</Text>
+            <Text style={styles.ecoPillText}>{t('home.ecoPill')}</Text>
           </View>
           <View style={styles.liveIndicator}>
             <View style={styles.liveDot} />
-            <Text style={styles.liveText}>Canlı Sayaç</Text>
+            <Text style={styles.liveText}>{t('home.liveCounter')}</Text>
           </View>
         </View>
 
@@ -40,7 +43,7 @@ export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
               <Text style={styles.heroUnit}> kg</Text>
             </Text>
             <Text style={styles.heroDescription}>
-              Buzdolabından kurtarılan gıda 🌱
+              {t('home.foodSaved')}
             </Text>
           </View>
 
@@ -64,8 +67,8 @@ export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
               <Utensils size={14} color="#34D399" />
             </View>
             <View>
-              <Text style={styles.subTileValue}>{stats.totalMealsCooked} Öğün</Text>
-              <Text style={styles.subTileLabel}>Pişirilen Tarif</Text>
+              <Text style={styles.subTileValue}>{stats.totalMealsCooked}</Text>
+              <Text style={styles.subTileLabel}>{t('home.cookedMeals')}</Text>
             </View>
           </View>
 
@@ -77,7 +80,7 @@ export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
             </View>
             <View>
               <Text style={styles.subTileValue}>~₺{stats.estimatedMoneySavedTL}</Text>
-              <Text style={styles.subTileLabel}>Bütçe Tasarrufu</Text>
+              <Text style={styles.subTileLabel}>{t('home.moneySaved')}</Text>
             </View>
           </View>
         </View>

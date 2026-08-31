@@ -23,13 +23,14 @@ import {
   Zap,
   ArrowRight,
 } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { GeminiService } from '../../services/geminiService';
+import { useLanguage } from '../../context/LanguageContext';
 import { DEMO_PRESETS } from '../../constants/MockData';
 import * as Haptics from 'expo-haptics';
 
 export default function ScanScreen() {
   const router = useRouter();
+  const { language, t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisStatus, setAnalysisStatus] = useState<string>('');
@@ -38,7 +39,7 @@ export default function ScanScreen() {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('İzin Gerekli', 'Fotoğraf seçmek için galeri izni vermeniz gerekmektedir.');
+        Alert.alert(t('scan.permissionTitle'), t('scan.galleryPermissionMsg'));
         return;
       }
 
@@ -57,7 +58,7 @@ export default function ScanScreen() {
       }
     } catch (e) {
       console.error(e);
-      Alert.alert('Hata', 'Fotoğraf seçilirken bir sorun oluştu.');
+      Alert.alert(t('scan.errorTitle'), t('scan.scanError'));
     }
   };
 
@@ -65,7 +66,7 @@ export default function ScanScreen() {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('İzin Gerekli', 'Fotoğraf çekmek için kamera izni vermeniz gerekmektedir.');
+        Alert.alert(t('scan.permissionTitle'), t('scan.cameraPermissionMsg'));
         return;
       }
 
@@ -83,7 +84,7 @@ export default function ScanScreen() {
       }
     } catch (e) {
       console.error(e);
-      Alert.alert('Hata', 'Kamera açılırken bir sorun oluştu.');
+      Alert.alert(t('scan.errorTitle'), t('scan.scanError'));
     }
   };
 
@@ -93,12 +94,12 @@ export default function ScanScreen() {
     } catch {}
 
     setIsAnalyzing(true);
-    setAnalysisStatus('Dolaptaki kalan yemekler & sebzeler taranıyor...');
+    setAnalysisStatus(t('scan.analyzingStatus'));
 
     try {
-      const result = await GeminiService.analyzeFridgeImage(base64Data);
+      const result = await GeminiService.analyzeFridgeImage(base64Data, 'image/jpeg', language);
 
-      setAnalysisStatus('Sıfır israf şef reçeteleri hazırlanıyor...');
+      setAnalysisStatus(t('scan.prepStatus'));
 
       setTimeout(() => {
         setIsAnalyzing(false);
@@ -113,7 +114,7 @@ export default function ScanScreen() {
       }, 700);
     } catch (err) {
       setIsAnalyzing(false);
-      Alert.alert('Analiz Hatası', 'Görsel taranırken bir sorun oluştu.');
+      Alert.alert(t('scan.errorTitle'), t('scan.scanError'));
     }
   };
 
@@ -125,7 +126,9 @@ export default function ScanScreen() {
       pathname: '/recipe/review',
       params: {
         ingredientsJson: JSON.stringify(preset.ingredients),
-        summaryText: `${preset.name} başarıyla yüklendi.`,
+        summaryText: language === 'en'
+          ? `${preset.nameEn} loaded for review.`
+          : `${preset.name} başarıyla yüklendi.`,
       },
     });
   };
@@ -138,13 +141,11 @@ export default function ScanScreen() {
           <View style={styles.badgeRow}>
             <View style={styles.visionPill}>
               <Sparkles size={12} color="#0F766E" />
-              <Text style={styles.visionPillText}>AI Vision Scanner</Text>
+              <Text style={styles.visionPillText}>{t('scan.aiVisionBadge')}</Text>
             </View>
           </View>
-          <Text style={styles.title}>Dolap & Masa Tarama</Text>
-          <Text style={styles.subtitle}>
-            Buzdolabınızı veya kalan yemekleri vizöre yerleştirin, yapay zeka anında analiz etsin.
-          </Text>
+          <Text style={styles.title}>{t('scan.title')}</Text>
+          <Text style={styles.subtitle}>{t('scan.subtitle')}</Text>
         </View>
 
         {/* CYBER-ORGANIC VIEWFINDER */}
@@ -167,8 +168,8 @@ export default function ScanScreen() {
                   </View>
                 </View>
 
-                <Text style={styles.viewfinderHint}>Malzemeleri çerçeve içine alın</Text>
-                <Text style={styles.viewfinderSub}>Kalan tencere yemekleri, pörsümüş sebzeler veya açık peynirler</Text>
+                <Text style={styles.viewfinderHint}>{t('scan.viewfinderHint')}</Text>
+                <Text style={styles.viewfinderSub}>{t('scan.viewfinderSub')}</Text>
               </View>
             )}
 
@@ -176,7 +177,7 @@ export default function ScanScreen() {
             {isAnalyzing && (
               <View style={styles.loadingOverlay}>
                 <ActivityIndicator size="large" color="#0F766E" />
-                <Text style={styles.loadingTitle}>Yapay Zeka Analiz Ediyor 🧠</Text>
+                <Text style={styles.loadingTitle}>{t('scan.analyzingTitle')}</Text>
                 <Text style={styles.loadingStatus}>{analysisStatus}</Text>
               </View>
             )}
@@ -192,7 +193,7 @@ export default function ScanScreen() {
             disabled={isAnalyzing}
           >
             <Camera size={20} color="#FFFFFF" />
-            <Text style={styles.primaryCameraBtnText}>Fotoğraf Çek</Text>
+            <Text style={styles.primaryCameraBtnText}>{t('scan.takePhoto')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -202,7 +203,7 @@ export default function ScanScreen() {
             disabled={isAnalyzing}
           >
             <ImageIcon size={18} color="#0F766E" />
-            <Text style={styles.secondaryGalleryBtnText}>Galeriden Seç</Text>
+            <Text style={styles.secondaryGalleryBtnText}>{t('scan.pickGallery')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -210,18 +211,18 @@ export default function ScanScreen() {
         <View style={styles.tipsCard}>
           <View style={styles.tipHeaderRow}>
             <Info size={15} color="#0F766E" />
-            <Text style={styles.tipCardTitle}>Şefin Tarama Tavsiyeleri</Text>
+            <Text style={styles.tipCardTitle}>{t('scan.chefTipsTitle')}</Text>
           </View>
-          <Text style={styles.tipLine}>• Saklama kaplarının kapaklarını açık tutun.</Text>
-          <Text style={styles.tipLine}>• Rafı geniş açıyla, aydınlık bir ortamda çekin.</Text>
-          <Text style={styles.tipLine}>• Birden fazla kalan malzemeyi aynı kareye toplayabilirsiniz.</Text>
+          <Text style={styles.tipLine}>{t('scan.tip1')}</Text>
+          <Text style={styles.tipLine}>{t('scan.tip2')}</Text>
+          <Text style={styles.tipLine}>{t('scan.tip3')}</Text>
         </View>
 
         {/* INSTANT PANTRY TEST PRESETS */}
         <View style={styles.presetsWrapper}>
           <View style={styles.presetsHeader}>
             <Zap size={14} color="#D97706" />
-            <Text style={styles.presetsTitle}>Fotoğrafsız Test Etmek İçin Örnekler</Text>
+            <Text style={styles.presetsTitle}>{t('scan.presetsTitle')}</Text>
           </View>
 
           {DEMO_PRESETS.map((preset) => (
@@ -235,8 +236,12 @@ export default function ScanScreen() {
                 <ChefHat size={18} color="#0F766E" />
               </View>
               <View style={styles.presetInfo}>
-                <Text style={styles.presetName}>{preset.name}</Text>
-                <Text style={styles.presetSubtitle} numberOfLines={1}>{preset.subtitle}</Text>
+                <Text style={styles.presetName}>
+                  {language === 'en' ? preset.nameEn : preset.name}
+                </Text>
+                <Text style={styles.presetSubtitle} numberOfLines={1}>
+                  {language === 'en' ? preset.subtitleEn : preset.subtitle}
+                </Text>
               </View>
               <ArrowRight size={16} color="#9CA3AF" />
             </TouchableOpacity>

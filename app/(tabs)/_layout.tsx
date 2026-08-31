@@ -1,9 +1,12 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { ChefHat, Camera, Heart, Settings, Sparkles } from 'lucide-react-native';
+import { ChefHat, Camera, Heart, Settings } from 'lucide-react-native';
 import { View, StyleSheet, Platform } from 'react-native';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function TabLayout() {
+  const { t } = useLanguage();
+
   return (
     <Tabs
       screenOptions={{
@@ -32,14 +35,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Keşfet',
+          title: t('nav.discover'),
           tabBarIcon: ({ color, size }) => <ChefHat size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Tara',
+          title: t('nav.scan'),
           tabBarIcon: ({ focused }) => (
             <View style={[styles.scanFabOuter, focused && styles.scanFabFocused]}>
               <Camera size={20} color="#FFFFFF" />
@@ -50,14 +53,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="saved"
         options={{
-          title: 'Kaydedilenler',
+          title: t('nav.saved'),
           tabBarIcon: ({ color, size }) => <Heart size={22} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Ayarlar',
+          title: t('nav.settings'),
           tabBarIcon: ({ color, size }) => <Settings size={22} color={color} />,
         }}
       />

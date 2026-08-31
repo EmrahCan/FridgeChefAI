@@ -1,32 +1,59 @@
 import { Recipe, DetectedIngredient } from '../types';
+import { SupportedLanguage } from './Translations';
 
-export const ZERO_WASTE_TIPS = [
-  {
-    title: 'Bayat Ekmekleri Değerlendirin 🍞',
-    description: 'Bayat ekmekleri küp küp doğrayıp zeytinyağı ve kekikle fırınlayarak harika çorba krutonları yapabilirsiniz.',
-  },
-  {
-    title: 'Yumuşamış Domatesler 🍅',
-    description: 'Şeklini kaybeden domatesleri rendeleyip sarımsak ve zeytinyağı ile pişirerek nefis bir makarna/menemen sosuna çevirin.',
-  },
-  {
-    title: 'Kalan Pilavı Çorbaya Dönüştürün 🍚',
-    description: 'Dünden kalan pirinç veya bulgur pilavını yoğurtlu yayla çorbası veya köfte harcında mükemmel bir bağlayıcı olarak kullanabilirsiniz.',
-  },
-  {
-    title: 'Sebze Saplarını Atmayın 🥦',
-    description: 'Brokoli, maydanoz ve dereotu saplarını dondurucuda biriktirip sebze suyu (bulyon) yapımında kullanabilirsiniz.',
-  },
-  {
-    title: 'Kalan Peynir Uçları 🧀',
-    description: 'Kuruyan kaşar, beyaz peynir veya tulum peynirlerini rendeleyip fırın böreğinde veya fırınlanmış sebzelerde eritebilirsiniz.',
-  }
-];
+export const ZERO_WASTE_TIPS: Record<SupportedLanguage, { title: string; description: string }[]> = {
+  en: [
+    {
+      title: 'Revive Stale Bread 🍞',
+      description: 'Dice stale bread, toss with olive oil and oregano, and bake for crunchy homemade salad & soup croutons.',
+    },
+    {
+      title: 'Softening Tomatoes 🍅',
+      description: 'Grate softening tomatoes and simmer with garlic and olive oil for an instant restaurant-grade pasta & shakshuka sauce.',
+    },
+    {
+      title: 'Repurpose Leftover Rice 🍚',
+      description: 'Yesterday’s cooked rice makes a stellar creamy Turkish yogurt soup (Yayla) or an authentic crispy fried rice.',
+    },
+    {
+      title: 'Save Herb & Veggie Stems 🥦',
+      description: 'Freeze broccoli stems, parsley & dill stalks to create rich, aromatic homemade vegetable broth cubes.',
+    },
+    {
+      title: 'Hard Cheese Rinds 🧀',
+      description: 'Grate drying cheddar, feta, or parmesan rinds over baked casseroles or melt them into warm breakfast toasts.',
+    }
+  ],
+  tr: [
+    {
+      title: 'Bayat Ekmekleri Değerlendirin 🍞',
+      description: 'Bayat ekmekleri küp küp doğrayıp zeytinyağı ve kekikle fırınlayarak harika çorba krutonları yapabilirsiniz.',
+    },
+    {
+      title: 'Yumuşamış Domatesler 🍅',
+      description: 'Şeklini kaybeden domatesleri rendeleyip sarımsak ve zeytinyağı ile pişirerek nefis bir makarna/menemen sosuna çevirin.',
+    },
+    {
+      title: 'Kalan Pilavı Çorbaya Dönüştürün 🍚',
+      description: 'Dünden kalan pirinç veya bulgur pilavını yoğurtlu yayla çorbası veya köfte harcında mükemmel bir bağlayıcı olarak kullanabilirsiniz.',
+    },
+    {
+      title: 'Sebze Saplarını Atmayın 🥦',
+      description: 'Brokoli, maydanoz ve dereotu saplarını dondurucuda biriktirip sebze suyu (bulyon) yapımında kullanabilirsiniz.',
+    },
+    {
+      title: 'Kalan Peynir Uçları 🧀',
+      description: 'Kuruyan kaşar, beyaz peynir veya tulum peynirlerini rendeleyip fırın böreğinde veya fırınlanmış sebzelerde eritebilirsiniz.',
+    }
+  ]
+};
 
 export const DEMO_PRESETS: {
   id: string;
   name: string;
+  nameEn: string;
   subtitle: string;
+  subtitleEn: string;
   icon: string;
   ingredients: DetectedIngredient[];
   recipes: Recipe[];
@@ -34,60 +61,62 @@ export const DEMO_PRESETS: {
   {
     id: 'preset-chicken-rice',
     name: 'Dünden Kalan Tavuk & Pilav 🍗🍚',
-    subtitle: 'Haşlanmış tavuk, pirinç pilavı, yarım biber, yoğurt',
+    nameEn: 'Leftover Chicken & Cooked Rice 🍗🍚',
+    subtitle: 'Haşlanmış tavuk, pirinç pilavı, kapya biber, yoğurt',
+    subtitleEn: 'Shredded chicken, cooked rice, bell pepper, yogurt',
     icon: 'drumstick',
     ingredients: [
-      { id: '1', name: 'Didiklenmiş Haşlanmış Tavuk', category: 'Kalan Yemek', confidence: 0.98, suggestedAction: 'Hemen Tüket' },
-      { id: '2', name: 'Dünden Kalan Pirinç Pilavı', category: 'Kalan Yemek', confidence: 0.95, suggestedAction: 'Hemen Tüket' },
-      { id: '3', name: 'Yarım Kırmızı Kapya Biber', category: 'Sebze & Meyve', confidence: 0.91, suggestedAction: 'Fırınla' },
-      { id: '4', name: 'Yarım Kase Yoğurt', category: 'Süt Ürünleri', confidence: 0.88, suggestedAction: 'Taze' },
-      { id: '5', name: 'Kaşar Peyniri (Kalan Parça)', category: 'Süt Ürünleri', confidence: 0.93, suggestedAction: 'Fırınla' },
+      { id: '1', name: 'Shredded Cooked Chicken', category: 'Kalan Yemek', confidence: 0.98, suggestedAction: 'Hemen Tüket' },
+      { id: '2', name: 'Cooked Rice Leftover', category: 'Kalan Yemek', confidence: 0.95, suggestedAction: 'Hemen Tüket' },
+      { id: '3', name: 'Red Bell Pepper', category: 'Sebze & Meyve', confidence: 0.91, suggestedAction: 'Fırınla' },
+      { id: '4', name: 'Plain Yogurt', category: 'Süt Ürünleri', confidence: 0.88, suggestedAction: 'Taze' },
+      { id: '5', name: 'Cheese Scraps (Cheddar/Kaşar)', category: 'Süt Ürünleri', confidence: 0.93, suggestedAction: 'Fırınla' },
     ],
     recipes: [
       {
         id: 'rec-1',
-        title: 'Fırında Kremamsı Tavuklu Pilav Graten',
-        tagline: 'Kalan pilav ve tavukları lüks bir fırın yemeğine çevirin!',
-        description: 'Dünden kalan pilav ve didiklenmiş tavuk etlerini yoğurtlu-yumurtalı hafif bir sos ve kaşar peyniriyle fırınlayarak 15 dakikada çıtır bir lezzet şölenine dönüştürün.',
+        title: 'Golden Baked Chicken & Rice Gratin',
+        tagline: 'Turn yesterday’s rice & chicken into a bubbly gourmet gratin!',
+        description: 'Combine leftover shredded chicken and cooked rice with a light egg-yogurt emulsion and melt-in-your-mouth cheese crust.',
         prepTimeMinutes: 5,
         cookTimeMinutes: 15,
         difficulty: 'Kolay',
         servings: 2,
         caloriesPerServing: 380,
         wasteSavedGrams: 420,
-        category: 'Fırın & Graten',
-        ingredientsUsed: ['Didiklenmiş Haşlanmış Tavuk', 'Pirinç Pilavı', 'Kaşar Peyniri', 'Yoğurt', 'Kırmızı Kapya Biber'],
-        pantryItemsNeeded: ['1 adet Yumurta', 'Zeytinyağı', 'Karabiber', 'Pul Biber', 'Tuz'],
+        category: 'Oven & Gratin',
+        ingredientsUsed: ['Shredded Cooked Chicken', 'Cooked Rice', 'Cheese Scraps', 'Yogurt', 'Bell Pepper'],
+        pantryItemsNeeded: ['1 Egg', 'Olive Oil', 'Black Pepper', 'Paprika', 'Salt'],
         instructions: [
           {
             stepNumber: 1,
-            title: 'Fırını Isıtın ve Tepsiyi Yağlayın',
-            description: 'Fırını 200°C dereceye getirin. Küçük bir borcam veya fırın kabını 1 tatlı kaşığı zeytinyağı ile hafifçe yağlayın.',
+            title: 'Preheat Oven and Oil Baking Dish',
+            description: 'Set oven to 200°C (400°F). Lightly coat a small baking dish or skillet with 1 tsp olive oil.',
             durationMinutes: 2,
           },
           {
             stepNumber: 2,
-            title: 'Sos Karışımını Hazırlayın',
-            description: 'Bir kasede yarım kase yoğurdu, 1 yumurtayı, tuz, karabiber ve pul biberi çırpın. Bu sos pilavın kurumasını önleyip sufle kıvamı verir.',
+            title: 'Whisk the Golden Binding Sauce',
+            description: 'In a bowl, whisk yogurt, 1 egg, salt, black pepper, and paprika. This keeps the rice delightfully moist and soufflé-like.',
             durationMinutes: 3,
-            tip: 'Dilerseniz içine 1 diş ezilmiş sarımsak ekleyerek lezzeti ikiye katlayabilirsiniz.'
+            tip: 'Add 1 minced garlic clove for an extra burst of savory flavor.'
           },
           {
             stepNumber: 3,
-            title: 'Malzemeleri Birleştirin',
-            description: 'Kalan pilavı, didiklenmiş tavukları ve ince doğranmış kapya biberi kaba dökün. Üzerine hazırladığınız sosu gezdirip hafifçe harmanlayın.',
+            title: 'Combine Leftovers and Sauce',
+            description: 'Fold cooked rice, shredded chicken, and sliced bell pepper together with the sauce. Spread evenly in the baking dish.',
             durationMinutes: 2,
           },
           {
             stepNumber: 4,
-            title: 'Kaşar ile Fırınlayın',
-            description: 'Üzerine rendelenmiş kaşar peynirini serpiştirin. Önceden ısıtılmış fırında üzeri nar gibi kızarana kadar yaklaşık 15 dakika pişirin.',
+            title: 'Top with Cheese & Bake',
+            description: 'Cover top with grated cheese scraps. Bake in preheated oven for 15 minutes until golden bubbly.',
             durationMinutes: 15,
           }
         ],
         chefTips: [
-          'Eğer pilavınız biraz kuruysa sos karışımına 2 yemek kaşığı süt veya su ekleyebilirsiniz.',
-          'Servis ederken üzerine taze kekik veya maydanoz serpiştirin.'
+          'If the rice feels dry, splash 2 tbsp of milk or water into the sauce.',
+          'Garnish with freshly chopped parsley or thyme before serving.'
         ],
         nutritionalHighlights: {
           protein: '32g',
@@ -98,40 +127,40 @@ export const DEMO_PRESETS: {
       },
       {
         id: 'rec-2',
-        title: 'Tavuklu & Yoğurtlu Şifa Yayla Çorbası',
-        tagline: 'Kalan pilav ve tavuk suyunun en lezzetli buluşması',
-        description: 'Dünden kalan pilav taneleri bu çorbada pirinç haşlama derdini ortadan kaldırır. Yoğurt terbiyesi ve tavuk parçalarıyla 10 dakikada hazır.',
+        title: 'Silky Chicken & Yogurt Elixir Soup',
+        tagline: 'Traditional Yayla soup elevated with tender chicken shreds',
+        description: 'Cooked leftover rice skips the boiling step. Whipped yogurt liaison and tender chicken create a soothing bowl in 10 mins.',
         prepTimeMinutes: 3,
         cookTimeMinutes: 10,
         difficulty: 'Kolay',
         servings: 3,
         caloriesPerServing: 220,
         wasteSavedGrams: 300,
-        category: 'Şifalı Çorbalar',
-        ingredientsUsed: ['Pirinç Pilavı', 'Didiklenmiş Haşlanmış Tavuk', 'Yoğurt'],
-        pantryItemsNeeded: ['1 Yumurta Sarısı', '1 Yemek Kaşığı Un', 'Kuru Nane', 'Tereyağı / Zeytinyağı', '3 Su Bardağı Sıcak Su'],
+        category: 'Healing Soup',
+        ingredientsUsed: ['Cooked Rice', 'Shredded Cooked Chicken', 'Plain Yogurt'],
+        pantryItemsNeeded: ['1 Egg Yolk', '1 tbsp Flour', 'Dried Mint', 'Butter or Olive Oil', '3 Cups Hot Water'],
         instructions: [
           {
             stepNumber: 1,
-            title: 'Terbiyeyi Çırpın',
-            description: 'Tencereye yoğurt, yumurta sarısı, un ve 1 bardak ılık suyu alıp pürüzsüz olana kadar tel çırpıcı ile karıştırın.',
+            title: 'Whisk the Yogurt Liaison',
+            description: 'In a pot, whisk yogurt, egg yolk, flour, and 1 cup warm water until completely silky and smooth.',
             durationMinutes: 2,
           },
           {
             stepNumber: 2,
-            title: 'Pilav ve Tavukları Ekleyin',
-            description: 'Kalan 2 bardak sıcak suyu azar azar eklerken karıştırmaya devam edin. Orta ateşte kaynamaya başlayınca hazır pilavı ve didiklenmiş tavukları ekleyin.',
+            title: 'Simmer with Rice & Chicken',
+            description: 'Gradually pour remaining 2 cups hot water while whisking over medium heat. When simmering, add cooked rice and shredded chicken.',
             durationMinutes: 5,
           },
           {
             stepNumber: 3,
-            title: 'Naneli Yağ ile Taçlandırın',
-            description: 'Küçük bir tavada tereyağı veya zeytinyağında kuru naneyi kızdırıp çorbanın üzerine dökün. Sıcak servis yapın.',
+            title: 'Infuse Minted Butter Sizzle',
+            description: 'Sizzle dried mint in melted butter or olive oil for 30 seconds and pour over hot soup.',
             durationMinutes: 3,
           }
         ],
         chefTips: [
-          'Yoğurt kesilmesin diye tuzu çorba piştikten sonra en son ocaktan alırken ekleyin.'
+          'Add salt only after removing from heat to keep yogurt perfectly smooth.'
         ],
         nutritionalHighlights: {
           protein: '22g',
@@ -145,52 +174,54 @@ export const DEMO_PRESETS: {
   {
     id: 'preset-breakfast-veggies',
     name: 'Bayat Ekmek & Kahvaltılıklar 🥖🧀',
-    subtitle: 'Bayat ekmek, beyaz peynir, 2 yumurta, 1 domates, zeytin',
+    nameEn: 'Stale Bread & Pantry Brunch 🥖🧀',
+    subtitle: 'Bayat ekmek, peynir, 2 yumurta, domates, zeytin',
+    subtitleEn: 'Stale bread loaf, cheese, 2 eggs, tomato, olives',
     icon: 'croissant',
     ingredients: [
-      { id: '10', name: 'Yarım Somun Bayat Ekmek', category: 'Bakliyat & Ekmek', confidence: 0.99, suggestedAction: 'Fırınla' },
-      { id: '11', name: 'Beyaz Peynir Kırıntıları', category: 'Süt Ürünleri', confidence: 0.94, suggestedAction: 'Hemen Tüket' },
-      { id: '12', name: '2 adet Yumurta', category: 'Et & Şarküteri', confidence: 0.97, suggestedAction: 'Taze' },
-      { id: '13', name: '1 adet Yumuşamış Domates', category: 'Sebze & Meyve', confidence: 0.89, suggestedAction: 'Fırınla' },
-      { id: '14', name: 'Bir Avuç Çekirdeksiz Zeytin', category: 'Diğer', confidence: 0.92, suggestedAction: 'Taze' },
+      { id: '10', name: 'Stale Bread Slices', category: 'Bakliyat & Ekmek', confidence: 0.99, suggestedAction: 'Fırınla' },
+      { id: '11', name: 'Feta or White Cheese', category: 'Süt Ürünleri', confidence: 0.94, suggestedAction: 'Hemen Tüket' },
+      { id: '12', name: '2 Fresh Eggs', category: 'Et & Şarküteri', confidence: 0.97, suggestedAction: 'Taze' },
+      { id: '13', name: '1 Soft Tomato', category: 'Sebze & Meyve', confidence: 0.89, suggestedAction: 'Fırınla' },
+      { id: '14', name: 'Pitted Olives', category: 'Diğer', confidence: 0.92, suggestedAction: 'Taze' },
     ],
     recipes: [
       {
         id: 'rec-3',
-        title: 'Tava Pizza Böreği (Bayat Ekmek Pizzası)',
-        tagline: 'Fırın yakmadan 10 dakikada tavada nefis çıtır pizza!',
-        description: 'Bayat ekmek dilimlerini çırpılmış yumurtalı sütle yumuşatıp tavaya dizin, üzerine ezilmiş domates, peynir ve zeytinleri ekleyip kapağını kapatın.',
+        title: 'Crispy Skillet Stale-Bread Pizza',
+        tagline: 'No oven needed—crispy 8-minute gourmet pan pizza!',
+        description: 'Dip stale bread cubes in beaten egg, layer in a hot oiled skillet with crushed tomato, cheese and olives, cover and crisp to perfection.',
         prepTimeMinutes: 4,
         cookTimeMinutes: 8,
         difficulty: 'Kolay',
         servings: 2,
         caloriesPerServing: 310,
         wasteSavedGrams: 360,
-        category: 'Pratik & Hızlı',
-        ingredientsUsed: ['Bayat Ekmek', 'Beyaz Peynir', 'Yumurta', 'Domates', 'Zeytin'],
-        pantryItemsNeeded: ['Zeytinyağı', 'Kekik', 'Pul Biber'],
+        category: 'Quick & Easy',
+        ingredientsUsed: ['Stale Bread', 'White Cheese', 'Eggs', 'Tomato', 'Olives'],
+        pantryItemsNeeded: ['Olive Oil', 'Oregano', 'Red Pepper Flakes'],
         instructions: [
           {
             stepNumber: 1,
-            title: 'Ekmek Tabanını Hazırlayın',
-            description: 'Bayat ekmekleri küp küp veya dilim halinde doğrayın. Yumurtaları bir tutam tuz ile çırpıp ekmeklerle harmanlayın.',
+            title: 'Prepare Bread Pizza Crust',
+            description: 'Dice stale bread. Whisk eggs with a pinch of salt and toss with bread cubes.',
             durationMinutes: 2,
           },
           {
             stepNumber: 2,
-            title: 'Tavaya Yayın',
-            description: 'Tavayı 1 yemek kaşığı zeytinyağı ile yağlayın. Ekmekli karışımı tabana bastırarak yayın.',
+            title: 'Press into Skillet',
+            description: 'Heat 1 tbsp olive oil in a pan. Press egg-soaked bread into a solid pizza base.',
             durationMinutes: 2,
           },
           {
             stepNumber: 3,
-            title: 'Üst Malzemeleri Dizip Pişirin',
-            description: 'Rendelenmiş/küp domatesi, ufalanmış peyniri, zeytinleri ve kekiği ekleyin. Tavanın kapağını kapatıp kısık ateşte altı çıtırlaşana kadar 8 dk pişirin.',
+            title: 'Top & Cover',
+            description: 'Layer diced tomato, crumbled cheese, olives, and oregano. Cover with lid and cook over low heat for 8 minutes until crust is crispy and cheese is melted.',
             durationMinutes: 8,
           }
         ],
         chefTips: [
-          'Kapağı kapalı tutmak peynirlerin pizza gibi erimesini sağlar.'
+          'Keeping the lid on traps steam to melt cheese while bottom turns golden crispy.'
         ],
         nutritionalHighlights: {
           protein: '16g',

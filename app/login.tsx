@@ -12,14 +12,16 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChefHat, Mail, Lock, Sparkles, Shield, ArrowRight } from 'lucide-react-native';
+import { ChefHat, Mail, Lock, Sparkles, Shield, ArrowRight, Globe } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { loginWithEmail, loginWithGoogle } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +29,7 @@ export default function LoginScreen() {
 
   const handleEmailLogin = async () => {
     if (!email.trim() || !password) {
-      Alert.alert('Eksik Bilgi', 'Lütfen e-posta ve şifrenizi girin.');
+      Alert.alert(t('auth.loginErrorTitle'), t('auth.missingFields'));
       return;
     }
 
@@ -42,7 +44,7 @@ export default function LoginScreen() {
     if (res.success) {
       router.replace('/(tabs)');
     } else {
-      Alert.alert('Giriş Hatası', res.error || 'Giriş yapılamadı.');
+      Alert.alert(t('auth.loginErrorTitle'), res.error || 'Login failed.');
     }
   };
 
@@ -58,7 +60,7 @@ export default function LoginScreen() {
     if (res.success) {
       router.replace('/(tabs)');
     } else {
-      Alert.alert('Google Girişi', res.error || 'Google ile giriş başarısız.');
+      Alert.alert('Google Sign-In', res.error || 'Google login failed.');
     }
   };
 
@@ -85,6 +87,16 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Language Switcher Pill in Login Top Right */}
+        <TouchableOpacity
+          style={styles.langPillTop}
+          activeOpacity={0.8}
+          onPress={toggleLanguage}
+        >
+          <Globe size={13} color="#0F766E" />
+          <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
+        </TouchableOpacity>
+
         {/* Editorial Luxury Branding Header */}
         <View style={styles.brandBox}>
           <LinearGradient
@@ -95,16 +107,14 @@ export default function LoginScreen() {
           </LinearGradient>
           <Text style={styles.brandTitle}>FridgeChef AI</Text>
           <Text style={styles.brandSubtitle}>
-            Buzdolabındaki kalan yemeklerden yapay zeka ile gurme tarifler 🍳
+            {t('auth.brandSubtitle')}
           </Text>
         </View>
 
         {/* Auth Glass Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Üye Girişi</Text>
-          <Text style={styles.cardSub}>
-            Lütfen devam etmek için hesabınıza giriş yapın.
-          </Text>
+          <Text style={styles.cardTitle}>{t('auth.loginTitle')}</Text>
+          <Text style={styles.cardSub}>{t('auth.loginSub')}</Text>
 
           {/* Google Sign In Button */}
           <TouchableOpacity
@@ -116,23 +126,23 @@ export default function LoginScreen() {
             <View style={styles.googleGBox}>
               <Text style={styles.googleG}>G</Text>
             </View>
-            <Text style={styles.googleBtnText}>Google ile Devam Et</Text>
+            <Text style={styles.googleBtnText}>{t('auth.googleBtn')}</Text>
           </TouchableOpacity>
 
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>veya e-posta ile</Text>
+            <Text style={styles.dividerText}>{t('auth.orEmail')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
           {/* Email Input */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>E-Posta Adresi</Text>
+            <Text style={styles.inputLabel}>{t('auth.emailLabel')}</Text>
             <View style={styles.inputWrapper}>
               <Mail size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="ornek@mail.com"
+                placeholder="chef@mail.com"
                 placeholderTextColor="#9CA3AF"
                 value={email}
                 onChangeText={setEmail}
@@ -145,7 +155,7 @@ export default function LoginScreen() {
 
           {/* Password Input */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Şifre</Text>
+            <Text style={styles.inputLabel}>{t('auth.passwordLabel')}</Text>
             <View style={styles.inputWrapper}>
               <Lock size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
@@ -171,7 +181,7 @@ export default function LoginScreen() {
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <View style={styles.btnRow}>
-                <Text style={styles.submitBtnText}>Giriş Yap</Text>
+                <Text style={styles.submitBtnText}>{t('auth.signInBtn')}</Text>
                 <ArrowRight size={18} color="#FFFFFF" />
               </View>
             )}
@@ -179,16 +189,16 @@ export default function LoginScreen() {
 
           {/* Register Link */}
           <View style={styles.registerPromptRow}>
-            <Text style={styles.promptText}>Henüz üye değil misiniz?</Text>
+            <Text style={styles.promptText}>{t('auth.noAccount')}</Text>
             <TouchableOpacity onPress={() => router.push('/register')}>
-              <Text style={styles.registerLinkText}>Yeni Üye Kaydı</Text>
+              <Text style={styles.registerLinkText}>{t('auth.signUpLink')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Demo Fast Login Box */}
         <View style={styles.demoCard}>
-          <Text style={styles.demoTitle}>⚡ Simülatör Hızlı Test Girişleri</Text>
+          <Text style={styles.demoTitle}>{t('auth.demoTitle')}</Text>
           <View style={styles.demoButtonsRow}>
             <TouchableOpacity
               style={[styles.demoBtn, styles.demoAdminBtn]}
@@ -196,7 +206,7 @@ export default function LoginScreen() {
               onPress={() => handleQuickDemoLogin('admin')}
             >
               <Shield size={15} color="#BE123C" />
-              <Text style={styles.demoAdminBtnText}>👑 Admin Girişi</Text>
+              <Text style={styles.demoAdminBtnText}>{t('auth.adminLoginBtn')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -205,7 +215,7 @@ export default function LoginScreen() {
               onPress={() => handleQuickDemoLogin('user')}
             >
               <ChefHat size={15} color="#0F766E" />
-              <Text style={styles.demoUserBtnText}>👨‍🍳 Şef Girişi</Text>
+              <Text style={styles.demoUserBtnText}>{t('auth.chefLoginBtn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -224,10 +234,27 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  langPillTop: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+    marginBottom: 6,
+  },
+  langPillText: {
+    fontSize: 11.5,
+    fontWeight: '900',
+    color: '#0F766E',
+  },
   brandBox: {
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   logoBadge: {
     width: 78,

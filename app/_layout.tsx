@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { LanguageProvider } from '../context/LanguageContext';
 
 export {
   ErrorBoundary,
@@ -28,10 +29,8 @@ function AuthGuardNavigator() {
     const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
 
     if (!user && !inAuthGroup) {
-      // User is not signed in -> redirect to login screen
       router.replace('/login');
     } else if (user && inAuthGroup) {
-      // User is signed in but on auth screens -> redirect to dashboard
       router.replace('/(tabs)');
     }
   }, [user, isLoading, segments]);
@@ -39,7 +38,7 @@ function AuthGuardNavigator() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-        <ActivityIndicator size="large" color="#10B981" />
+        <ActivityIndicator size="large" color="#0F766E" />
       </View>
     );
   }
@@ -109,7 +108,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <AuthGuardNavigator />
+      <LanguageProvider>
+        <AuthGuardNavigator />
+      </LanguageProvider>
     </AuthProvider>
   );
 }

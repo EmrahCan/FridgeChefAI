@@ -30,10 +30,12 @@ import {
 } from 'lucide-react-native';
 import { Recipe } from '../../types';
 import { StorageService } from '../../services/storageService';
+import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
 export default function RecipeDetailScreen() {
   const router = useRouter();
+  const { language, t } = useLanguage();
   const params = useLocalSearchParams<{ id: string; recipeJson?: string }>();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -71,7 +73,7 @@ export default function RecipeDetailScreen() {
       try {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } catch {}
-      Alert.alert('⏱️ Süre Doldu!', 'Pişirme adımı tamamlandı. Bir sonraki adıma geçebilirsiniz!');
+      Alert.alert(t('recipe.timeUpTitle'), t('recipe.timeUpMsg'));
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timerSeconds]);
@@ -94,7 +96,7 @@ export default function RecipeDetailScreen() {
     if (!recipe) return;
     try {
       await Share.share({
-        message: `🍳 ${recipe.title}\n${recipe.tagline}\n\nFridgeChef AI ile buzdolabımdaki kalan malzemelerle sıfır israfla pişirdim! 🌱`,
+        message: `🍳 ${recipe.title}\n${recipe.tagline}\n\n${t('recipe.shareMsg')}`,
       });
     } catch (e) {
       console.error(e);
@@ -137,11 +139,11 @@ export default function RecipeDetailScreen() {
     await StorageService.recordMealCooked(recipe.wasteSavedGrams || 350);
 
     Alert.alert(
-      '🎉 Tebrikler Şef!',
-      `Bu tarifle ${recipe.wasteSavedGrams}g gıda israfını önlediniz ve mutfağınıza lezzet kattınız! Sıfır israf puanınız arttı. 🌱`,
+      t('recipe.congratsTitle'),
+      `${recipe.wasteSavedGrams}g ${t('recipe.congratsMsg')}`,
       [
         {
-          text: 'Harika!',
+          text: t('recipe.greatBtn'),
           onPress: () => router.push('/(tabs)'),
         },
       ]
@@ -152,7 +154,7 @@ export default function RecipeDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingBox}>
-          <Text>Tarif yükleniyor...</Text>
+          <Text>Loading recipe...</Text>
         </View>
       </SafeAreaView>
     );
@@ -191,7 +193,7 @@ export default function RecipeDetailScreen() {
         <View style={styles.wasteHeroBanner}>
           <Leaf size={14} color="#0F766E" />
           <Text style={styles.wasteHeroText}>
-            🌱 Bu tarifle {recipe.wasteSavedGrams}g gıda kurtarıldı!
+            🌱 {recipe.wasteSavedGrams}{t('common.gramsSaved')}
           </Text>
         </View>
 
@@ -204,17 +206,19 @@ export default function RecipeDetailScreen() {
           <View style={styles.metricTile}>
             <Clock size={16} color="#0F766E" />
             <Text style={styles.metricTileValue}>
-              {recipe.prepTimeMinutes + recipe.cookTimeMinutes} dk
+              {recipe.prepTimeMinutes + recipe.cookTimeMinutes} {t('common.mins')}
             </Text>
-            <Text style={styles.metricTileLabel}>Toplam Süre</Text>
+            <Text style={styles.metricTileLabel}>{t('recipe.totalTime')}</Text>
           </View>
 
           <View style={styles.metricDivider} />
 
           <View style={styles.metricTile}>
             <ChefHat size={16} color="#D97706" />
-            <Text style={styles.metricTileValue}>{recipe.difficulty}</Text>
-            <Text style={styles.metricTileLabel}>Zorluk</Text>
+            <Text style={styles.metricTileValue}>
+              {recipe.difficulty === 'Kolay' ? t('common.kolay') : recipe.difficulty === 'Orta' ? t('common.orta') : t('common.usta')}
+            </Text>
+            <Text style={styles.metricTileLabel}>{t('recipe.difficulty')}</Text>
           </View>
 
           <View style={styles.metricDivider} />
@@ -222,7 +226,7 @@ export default function RecipeDetailScreen() {
           <View style={styles.metricTile}>
             <Flame size={16} color="#EA580C" />
             <Text style={styles.metricTileValue}>{recipe.caloriesPerServing}</Text>
-            <Text style={styles.metricTileLabel}>kcal/Porsiyon</Text>
+            <Text style={styles.metricTileLabel}>{t('recipe.calories')}</Text>
           </View>
         </View>
 
@@ -233,7 +237,7 @@ export default function RecipeDetailScreen() {
             onPress={() => setActiveTab('cook')}
           >
             <Text style={[styles.tabSegmentText, activeTab === 'cook' && styles.tabSegmentTextActive]}>
-              👨‍🍳 Pişirme Adımları
+              {t('recipe.cookTab')}
             </Text>
           </TouchableOpacity>
 
@@ -242,7 +246,7 @@ export default function RecipeDetailScreen() {
             onPress={() => setActiveTab('prep')}
           >
             <Text style={[styles.tabSegmentText, activeTab === 'prep' && styles.tabSegmentTextActive]}>
-              🥗 Malzemeler
+              {t('recipe.prepTab')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -253,7 +257,7 @@ export default function RecipeDetailScreen() {
             <View style={styles.timerTop}>
               <TimerIcon size={18} color="#EA580C" />
               <Text style={styles.timerTopTitle}>
-                Adım {Number(timerStepIndex) + 1} Pişirme Sayacı
+                {t('recipe.timerTitle')} {Number(timerStepIndex) + 1}
               </Text>
             </View>
             <Text style={styles.timerValue}>{formatTimer(timerSeconds)}</Text>
@@ -265,12 +269,12 @@ export default function RecipeDetailScreen() {
                 {isTimerRunning ? (
                   <>
                     <Pause size={15} color="#FFFFFF" />
-                    <Text style={styles.timerPlayBtnText}>Duraklat</Text>
+                    <Text style={styles.timerPlayBtnText}>{t('recipe.pause')}</Text>
                   </>
                 ) : (
                   <>
                     <Play size={15} color="#FFFFFF" />
-                    <Text style={styles.timerPlayBtnText}>Devam Et</Text>
+                    <Text style={styles.timerPlayBtnText}>{t('recipe.resume')}</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -283,7 +287,7 @@ export default function RecipeDetailScreen() {
                 }}
               >
                 <RotateCcw size={15} color="#4B5563" />
-                <Text style={styles.timerResetBtnText}>Kapat</Text>
+                <Text style={styles.timerResetBtnText}>{t('recipe.closeTimer')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -324,7 +328,7 @@ export default function RecipeDetailScreen() {
                   {step.tip && (
                     <View style={styles.tipCapsule}>
                       <Sparkles size={13} color="#D97706" />
-                      <Text style={styles.tipCapsuleText}>Şef Püf Noktası: {step.tip}</Text>
+                      <Text style={styles.tipCapsuleText}>{t('recipe.chefTipLabel')} {step.tip}</Text>
                     </View>
                   )}
 
@@ -335,7 +339,7 @@ export default function RecipeDetailScreen() {
                     >
                       <Clock size={13} color="#0F766E" />
                       <Text style={styles.timerTriggerText}>
-                        ⏱️ {step.durationMinutes} dk Sayacı Başlat
+                        ⏱️ {step.durationMinutes} {t('common.mins')} {t('recipe.startTimerBtn')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -350,7 +354,7 @@ export default function RecipeDetailScreen() {
               onPress={handleCompleteMeal}
             >
               <Award size={20} color="#5EEAD4" />
-              <Text style={styles.completeMealBtnText}>🎉 Yemeği Pişirdim & İsrafı Önledim</Text>
+              <Text style={styles.completeMealBtnText}>{t('recipe.finishBtn')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -360,7 +364,7 @@ export default function RecipeDetailScreen() {
           <View style={styles.prepCard}>
             <View style={styles.prepHeaderRow}>
               <Leaf size={15} color="#0F766E" />
-              <Text style={styles.prepHeaderTitle}>Dolaptan Kurtarılan Malzemeler</Text>
+              <Text style={styles.prepHeaderTitle}>{t('recipe.pantryRecoveredTitle')}</Text>
             </View>
             {recipe.ingredientsUsed.map((ing, idx) => {
               const isChecked = checkedIngredients.includes(ing);
@@ -384,7 +388,7 @@ export default function RecipeDetailScreen() {
 
             <View style={[styles.prepHeaderRow, { marginTop: 22 }]}>
               <ChefHat size={15} color="#EA580C" />
-              <Text style={styles.prepHeaderTitle}>Mutfaktaki Temel Malzemeler</Text>
+              <Text style={styles.prepHeaderTitle}>{t('recipe.pantryBasicsTitle')}</Text>
             </View>
             {recipe.pantryItemsNeeded.map((item, idx) => {
               const isChecked = checkedIngredients.includes(item);
@@ -409,7 +413,7 @@ export default function RecipeDetailScreen() {
             {/* Extra Chef Tips */}
             {recipe.chefTips && recipe.chefTips.length > 0 && (
               <View style={styles.chefTipsBox}>
-                <Text style={styles.chefTipsTitle}>👨‍🍳 Şefin İlave Tavsiyeleri</Text>
+                <Text style={styles.chefTipsTitle}>{t('recipe.extraTipsTitle')}</Text>
                 {recipe.chefTips.map((t, i) => (
                   <Text key={i} style={styles.chefTipBullet}>• {t}</Text>
                 ))}

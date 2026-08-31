@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -20,18 +19,18 @@ import {
   ArrowLeft,
   Activity,
   TrendingUp,
-  AlertTriangle,
   CheckCircle2,
   Lock,
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { AdminService } from '../../services/adminService';
 import { AdminMetrics } from '../../types';
-import * as Haptics from 'expo-haptics';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,15 +55,13 @@ export default function AdminDashboardScreen() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.unauthorizedBox}>
           <Lock size={48} color="#EF4444" />
-          <Text style={styles.unauthorizedTitle}>Yetkisiz Erişim</Text>
-          <Text style={styles.unauthorizedDesc}>
-            Bu sayfayı yalnızca yönetici (admin) rolündeki kullanıcılar görüntüleyebilir.
-          </Text>
+          <Text style={styles.unauthorizedTitle}>{t('admin.unauthorizedTitle')}</Text>
+          <Text style={styles.unauthorizedDesc}>{t('admin.unauthorizedDesc')}</Text>
           <TouchableOpacity
             style={styles.backHomeBtn}
             onPress={() => router.replace('/(tabs)')}
           >
-            <Text style={styles.backHomeBtnText}>Ana Sayfaya Dön</Text>
+            <Text style={styles.backHomeBtnText}>{t('admin.backHome')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -80,7 +77,7 @@ export default function AdminDashboardScreen() {
         </TouchableOpacity>
         <View style={styles.navTitleRow}>
           <Shield size={18} color="#FEF08A" />
-          <Text style={styles.navTitle}>Yönetici (Admin) Paneli</Text>
+          <Text style={styles.navTitle}>{t('admin.title')}</Text>
         </View>
         <View style={{ width: 36 }} />
       </View>
@@ -92,12 +89,12 @@ export default function AdminDashboardScreen() {
         {/* Admin Header Banner */}
         <View style={styles.adminHeaderBanner}>
           <View>
-            <Text style={styles.adminWelcome}>Hoş Geldiniz,</Text>
+            <Text style={styles.adminWelcome}>{t('admin.welcome')}</Text>
             <Text style={styles.adminName}>{user.name}</Text>
           </View>
           <View style={styles.statusBadge}>
             <Activity size={12} color="#10B981" />
-            <Text style={styles.statusBadgeText}>Sistem Aktif</Text>
+            <Text style={styles.statusBadgeText}>{t('admin.systemActive')}</Text>
           </View>
         </View>
 
@@ -112,7 +109,7 @@ export default function AdminDashboardScreen() {
                   <Users size={20} color="#3B82F6" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalUsers}</Text>
-                <Text style={styles.kpiLabel}>Kayıtlı Kullanıcı</Text>
+                <Text style={styles.kpiLabel}>{t('admin.kpiUsers')}</Text>
               </View>
 
               <View style={[styles.kpiCard, { borderColor: '#A7F3D0' }]}>
@@ -120,7 +117,7 @@ export default function AdminDashboardScreen() {
                   <Camera size={20} color="#10B981" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalScans}</Text>
-                <Text style={styles.kpiLabel}>Dolap Taraması</Text>
+                <Text style={styles.kpiLabel}>{t('admin.kpiScans')}</Text>
               </View>
 
               <View style={[styles.kpiCard, { borderColor: '#FDE68A' }]}>
@@ -128,7 +125,7 @@ export default function AdminDashboardScreen() {
                   <Leaf size={20} color="#CA8A04" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalWasteSavedTons} Ton</Text>
-                <Text style={styles.kpiLabel}>Kurtarılan Gıda 🌱</Text>
+                <Text style={styles.kpiLabel}>{t('admin.kpiWasteSaved')}</Text>
               </View>
 
               <View style={[styles.kpiCard, { borderColor: '#DDD6FE' }]}>
@@ -136,7 +133,7 @@ export default function AdminDashboardScreen() {
                   <Sparkles size={20} color="#7C3AED" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.activeAiQueriesToday}</Text>
-                <Text style={styles.kpiLabel}>Bugünkü AI Sorgusu</Text>
+                <Text style={styles.kpiLabel}>{t('admin.kpiAiQueries')}</Text>
               </View>
             </View>
 
@@ -144,16 +141,16 @@ export default function AdminDashboardScreen() {
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <TrendingUp size={18} color="#10B981" />
-                <Text style={styles.sectionTitle}>En Çok İsraf Edilen / Taranan Gıdalar</Text>
+                <Text style={styles.sectionTitle}>{t('admin.popularTitle')}</Text>
               </View>
-              <Text style={styles.sectionSub}>Kullanıcıların buzdolabında en sık kalan ürünler:</Text>
+              <Text style={styles.sectionSub}>{t('admin.popularSub')}</Text>
 
               <View style={styles.chartList}>
                 {metrics.popularIngredients.map((item, idx) => (
                   <View key={idx} style={styles.chartItem}>
                     <View style={styles.chartItemHeader}>
                       <Text style={styles.chartItemName}>{item.name}</Text>
-                      <Text style={styles.chartItemPercent}>%{item.percentage} ({item.count} kez)</Text>
+                      <Text style={styles.chartItemPercent}>%{item.percentage} ({item.count})</Text>
                     </View>
                     <View style={styles.progressBarBg}>
                       <View
@@ -175,7 +172,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Users size={18} color="#3B82F6" />
-                <Text style={styles.sectionTitle}>Son Kullanıcı Aktiviteleri</Text>
+                <Text style={styles.sectionTitle}>{t('admin.recentUsersTitle')}</Text>
               </View>
 
               <View style={styles.userList}>
@@ -189,7 +186,7 @@ export default function AdminDashboardScreen() {
                       <Text style={styles.userEmail}>{u.email}</Text>
                     </View>
                     <View style={styles.userMetaBox}>
-                      <Text style={styles.userScans}>{u.scans} Tarama</Text>
+                      <Text style={styles.userScans}>{u.scans} Scans</Text>
                       <Text style={styles.userDate}>{u.joinedDate}</Text>
                     </View>
                   </View>
@@ -201,11 +198,9 @@ export default function AdminDashboardScreen() {
             <View style={styles.healthCard}>
               <View style={styles.healthHeader}>
                 <CheckCircle2 size={20} color="#059669" />
-                <Text style={styles.healthTitle}>Google Gemini AI Servis Durumu</Text>
+                <Text style={styles.healthTitle}>{t('admin.systemHealthTitle')}</Text>
               </View>
-              <Text style={styles.healthDesc}>
-                Gemini 1.5 Flash Vision ve JSON schema motoru %99.98 uptime ile stabil çalışıyor. Ortalama yanıt süresi: 1.2 sn.
-              </Text>
+              <Text style={styles.healthDesc}>{t('admin.systemHealthDesc')}</Text>
             </View>
           </>
         )}

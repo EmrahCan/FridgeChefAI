@@ -9,13 +9,15 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Heart, ChefHat, Sparkles, ArrowRight } from 'lucide-react-native';
+import { Heart, ChefHat } from 'lucide-react-native';
 import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
+import { useLanguage } from '../../context/LanguageContext';
 import { Recipe } from '../../types';
 
 export default function SavedScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,10 +44,8 @@ export default function SavedScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.title}>❤️ Kaydedilen Tarifler</Text>
-        <Text style={styles.subtitle}>
-          Daha önce kurtardığınız ve beğendiğiniz sıfır israf gurme tarifleri.
-        </Text>
+        <Text style={styles.title}>{t('saved.title')}</Text>
+        <Text style={styles.subtitle}>{t('saved.subtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -54,17 +54,15 @@ export default function SavedScreen() {
             <View style={styles.emptyIconBox}>
               <Heart size={38} color="#E11D48" />
             </View>
-            <Text style={styles.emptyTitle}>Henüz Kayıtlı Tarifiniz Yok</Text>
-            <Text style={styles.emptyDesc}>
-              Buzdolabınızı tarayıp yapay zekanın ürettiği lezzetli tarifleri kalp ikonuna basarak koleksiyonunuza ekleyin.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('saved.emptyTitle')}</Text>
+            <Text style={styles.emptyDesc}>{t('saved.emptyDesc')}</Text>
             <TouchableOpacity
               style={styles.scanBtn}
               activeOpacity={0.88}
               onPress={() => router.push('/(tabs)/scan')}
             >
               <ChefHat size={18} color="#FFFFFF" />
-              <Text style={styles.scanBtnText}>Dolabı Tara & Tarif Yarat</Text>
+              <Text style={styles.scanBtnText}>{t('saved.scanCta')}</Text>
             </TouchableOpacity>
           </View>
         ) : (

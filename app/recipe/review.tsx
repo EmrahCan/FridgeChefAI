@@ -12,25 +12,20 @@ import {
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft, Plus, Sparkles, ChefHat, Flame, Check, Info, Sliders } from 'lucide-react-native';
+import { ArrowLeft, Plus, Sparkles, ChefHat } from 'lucide-react-native';
 import { IngredientTag } from '../../components/IngredientTag';
 import { RecipeCard } from '../../components/RecipeCard';
 import { CookingStyle, DetectedIngredient, Recipe } from '../../types';
 import { GeminiService } from '../../services/geminiService';
 import { StorageService } from '../../services/storageService';
+import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
-const STYLES: { id: CookingStyle; title: string; subtitle: string; icon: string }[] = [
-  { id: 'hepsi', title: 'Tüm Fikirler', subtitle: 'Zengin Şef Seçkisi', icon: '✨' },
-  { id: 'hizli', title: 'Pratik & Hızlı', subtitle: '<15 dk Tava Yemeği', icon: '⚡' },
-  { id: 'firinda', title: 'Fırın & Graten', subtitle: 'Peynirli Altın Kabuk', icon: '🥧' },
-  { id: 'corba', title: 'Şifalı Çorba', subtitle: 'Bağlayıcı İksir', icon: '🍲' },
-  { id: 'fit', title: 'Fit & Düşük Kalori', subtitle: 'Yüksek Protein & Hafif', icon: '🥗' },
-  { id: 'cocuk', title: 'Çocuk Menüsü', subtitle: 'Eğlenceli & Çıtır', icon: '🍕' },
-];
+const STYLE_KEYS: CookingStyle[] = ['hepsi', 'hizli', 'firinda', 'corba', 'fit', 'cocuk'];
 
 export default function ReviewScreen() {
   const router = useRouter();
+  const { language, t } = useLanguage();
   const params = useLocalSearchParams<{
     ingredientsJson?: string;
     summaryText?: string;
@@ -75,7 +70,7 @@ export default function ReviewScreen() {
 
   const handleGenerateRecipes = async () => {
     if (ingredients.length === 0) {
-      Alert.alert('Malzeme Yok', 'Lütfen tarif üretmek için en az 1 adet malzeme ekleyin.');
+      Alert.alert(t('review.noIngredientsAlertTitle'), t('review.noIngredientsAlertMsg'));
       return;
     }
 
@@ -90,14 +85,15 @@ export default function ReviewScreen() {
       const recipes = await GeminiService.generateRecipes(
         ingredientNames,
         selectedStyle,
-        customNote
+        customNote,
+        language
       );
 
       const saved = await StorageService.getSavedRecipes();
       setSavedRecipes(saved);
       setGeneratedRecipes(recipes);
     } catch (err) {
-      Alert.alert('Tarif Hatası', 'Tarifler üretilirken bir sorun oluştu.');
+      Alert.alert('Error', 'Failed to craft recipes.');
     } finally {
       setIsGenerating(false);
     }
@@ -116,7 +112,7 @@ export default function ReviewScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={20} color="#0D1714" />
         </TouchableOpacity>
-        <Text style={styles.navTitle}>Malzeme Laboratuvarı</Text>
+        <Text style={styles.navTitle}>{t('review.navTitle')}</Text>
         <View style={{ width: 36 }} />
       </View>
 
@@ -138,10 +134,8 @@ export default function ReviewScreen() {
         {/* Section 1: Detected Ingredients */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Tespit Edilen Malzemeler & Kalanlar</Text>
-            <Text style={styles.sectionSub}>
-              İstemediğiniz malzemeleri çıkarabilir veya elinizdeki ek malzemeleri ekleyebilirsiniz.
-            </Text>
+            <Text style={styles.sectionTitle}>{t('review.sectionTitle')}</Text>
+            <Text style={styles.sectionSub}>{t('review.sectionSub')}</Text>
           </View>
 
           <View style={styles.tagsWrap}>
@@ -158,7 +152,7 @@ export default function ReviewScreen() {
           <View style={styles.addInputRow}>
             <TextInput
               style={styles.textInput}
-              placeholder="Ek malzeme ekle (örn: 2 yumurta, yarım limon)..."
+              placeholder={t('review.addPlaceholder')}
               placeholderTextColor="#8A9C93"
               value={newIngredientName}
               onChangeText={setNewIngredientName}
@@ -171,7 +165,7 @@ export default function ReviewScreen() {
               disabled={!newIngredientName.trim()}
             >
               <Plus size={16} color="#FFFFFF" />
-              <Text style={styles.addBtnText}>Ekle</Text>
+              <Text style={styles.addBtnText}>{t('review.addBtn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -179,8 +173,8 @@ export default function ReviewScreen() {
         {/* Section 2: Cooking Style Cards (Horizontal Bento) */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>👨‍🍳 Pişirme Tarzı & İlhamı</Text>
-            <Text style={styles.sectionSub}>Yapay zekanın odaklanmasını istediğiniz tarzı seçin:</Text>
+            <Text style={styles.sectionTitle}>{t('review.styleTitle')}</Text>
+            <Text style={styles.sectionSub}>{t('review.styleSub')}</Text>
           </View>
 
           <ScrollView
@@ -188,26 +182,30 @@ export default function ReviewScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.stylesScroll}
           >
-            {STYLES.map((st) => {
-              const isSelected = selectedStyle === st.id;
+            {STYLE_KEYS.map((key) => {
+              const isSelected = selectedStyle === key;
+              const title = t(`review.styles.${key}.title`);
+              const subtitle = t(`review.styles.${key}.sub`);
+              const icon = t(`review.styles.${key}.icon`);
+
               return (
                 <TouchableOpacity
-                  key={st.id}
+                  key={key}
                   style={[styles.styleCard, isSelected && styles.styleCardSelected]}
                   activeOpacity={0.85}
                   onPress={() => {
                     try {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     } catch {}
-                    setSelectedStyle(st.id);
+                    setSelectedStyle(key);
                   }}
                 >
-                  <Text style={styles.styleCardIcon}>{st.icon}</Text>
+                  <Text style={styles.styleCardIcon}>{icon}</Text>
                   <Text style={[styles.styleCardTitle, isSelected && styles.styleCardTitleSelected]}>
-                    {st.title}
+                    {title}
                   </Text>
                   <Text style={[styles.styleCardSub, isSelected && styles.styleCardSubSelected]}>
-                    {st.subtitle}
+                    {subtitle}
                   </Text>
                 </TouchableOpacity>
               );
@@ -217,10 +215,10 @@ export default function ReviewScreen() {
 
         {/* Section 3: Custom Notes */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Şefe Özel Not (İsteğe Bağlı)</Text>
+          <Text style={styles.sectionTitle}>{t('review.noteTitle')}</Text>
           <TextInput
             style={styles.noteInput}
-            placeholder="Örn: Fırınım yok tavada olsun, acı baharat olmasın..."
+            placeholder={t('review.notePlaceholder')}
             placeholderTextColor="#8A9C93"
             value={customNote}
             onChangeText={setCustomNote}
@@ -237,12 +235,12 @@ export default function ReviewScreen() {
           {isGenerating ? (
             <View style={styles.loadingRow}>
               <ActivityIndicator color="#FFFFFF" size="small" />
-              <Text style={styles.generateBtnText}>Şef Tarifleri Tasarlıyor...</Text>
+              <Text style={styles.generateBtnText}>{t('review.generatingBtn')}</Text>
             </View>
           ) : (
             <View style={styles.btnRow}>
               <Sparkles size={18} color="#5EEAD4" />
-              <Text style={styles.generateBtnText}>Sıfır İsraf Tariflerini Yarat</Text>
+              <Text style={styles.generateBtnText}>{t('review.generateBtn')}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -253,7 +251,7 @@ export default function ReviewScreen() {
             <View style={styles.resultsHeader}>
               <ChefHat size={22} color="#0F766E" />
               <Text style={styles.resultsTitle}>
-                Yapay Zeka Şefinin Özel Reçeteleri
+                {t('review.resultsTitle')}
               </Text>
             </View>
 

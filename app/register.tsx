@@ -12,11 +12,20 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChefHat, User as UserIcon, Mail, Lock, Sparkles, ArrowLeft, Check } from 'lucide-react-native';
+import { ChefHat, User as UserIcon, Mail, Lock, ArrowLeft, Check, Globe } from 'lucide-react-native';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
-const DIETARY_CHOICES = [
+const DIETARY_CHOICES_EN = [
+  'Vegetarian 🥬',
+  'Vegan 🌱',
+  'Gluten-Free 🌾',
+  'Lactose-Free 🥛',
+  'Fit & Low Cal 🥗',
+];
+
+const DIETARY_CHOICES_TR = [
   'Vejetaryen 🥬',
   'Vegan 🌱',
   'Glutensiz 🌾',
@@ -27,6 +36,7 @@ const DIETARY_CHOICES = [
 export default function RegisterScreen() {
   const router = useRouter();
   const { register } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -45,7 +55,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password) {
-      Alert.alert('Eksik Alanlar', 'Lütfen tüm zorunlu alanları doldurun.');
+      Alert.alert(t('auth.registerErrorTitle'), t('auth.missingFields'));
       return;
     }
 
@@ -60,9 +70,11 @@ export default function RegisterScreen() {
     if (res.success) {
       router.replace('/(tabs)');
     } else {
-      Alert.alert('Kayıt Hatası', res.error || 'Kayıt işlemi başarısız.');
+      Alert.alert(t('auth.registerErrorTitle'), res.error || 'Registration failed.');
     }
   };
+
+  const dietaryChoices = language === 'en' ? DIETARY_CHOICES_EN : DIETARY_CHOICES_TR;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -71,26 +83,31 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft size={20} color="#0D1714" />
-        </TouchableOpacity>
+        <View style={styles.topNavRow}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <ArrowLeft size={20} color="#0D1714" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.langPillTop} onPress={toggleLanguage}>
+            <Globe size={13} color="#0F766E" />
+            <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.header}>
-          <Text style={styles.title}>Yeni Şef Kaydı 👨‍🍳</Text>
-          <Text style={styles.subtitle}>
-            Kişiselleştirilmiş sıfır israf tariflerine hemen başlayın.
-          </Text>
+          <Text style={styles.title}>{t('auth.registerTitle')}</Text>
+          <Text style={styles.subtitle}>{t('auth.registerSub')}</Text>
         </View>
 
         <View style={styles.card}>
           {/* Full Name */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Ad Soyad</Text>
+            <Text style={styles.inputLabel}>{t('auth.fullNameLabel')}</Text>
             <View style={styles.inputWrapper}>
               <UserIcon size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="Ahmet Yılmaz"
+                placeholder="Alex Chef"
                 placeholderTextColor="#9CA3AF"
                 value={name}
                 onChangeText={setName}
@@ -100,12 +117,12 @@ export default function RegisterScreen() {
 
           {/* Email */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>E-Posta Adresi</Text>
+            <Text style={styles.inputLabel}>{t('auth.emailLabel')}</Text>
             <View style={styles.inputWrapper}>
               <Mail size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="ahmet@mail.com"
+                placeholder="alex@mail.com"
                 placeholderTextColor="#9CA3AF"
                 value={email}
                 onChangeText={setEmail}
@@ -117,12 +134,12 @@ export default function RegisterScreen() {
 
           {/* Password */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Şifre</Text>
+            <Text style={styles.inputLabel}>{t('auth.passwordLabel')}</Text>
             <View style={styles.inputWrapper}>
               <Lock size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="En az 4 karakter"
+                placeholder={t('auth.passwordMinHint')}
                 placeholderTextColor="#9CA3AF"
                 value={password}
                 onChangeText={setPassword}
@@ -133,9 +150,9 @@ export default function RegisterScreen() {
 
           {/* Dietary Options */}
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Beslenme Tercihiniz (İsteğe Bağlı)</Text>
+            <Text style={styles.inputLabel}>{t('auth.dietaryOptional')}</Text>
             <View style={styles.dietaryWrap}>
-              {DIETARY_CHOICES.map((choice) => {
+              {dietaryChoices.map((choice) => {
                 const isSelected = selectedDietary.includes(choice);
                 return (
                   <TouchableOpacity
@@ -143,9 +160,7 @@ export default function RegisterScreen() {
                     style={[styles.dietaryChip, isSelected && styles.dietaryChipSelected]}
                     onPress={() => toggleDietary(choice)}
                   >
-                    <Text
-                      style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}
-                    >
+                    <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
                       {choice}
                     </Text>
                     {isSelected && <Check size={14} color="#0F766E" />}
@@ -165,14 +180,14 @@ export default function RegisterScreen() {
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitBtnText}>Hesabı Oluştur & Başla</Text>
+              <Text style={styles.submitBtnText}>{t('auth.createAccountBtn')}</Text>
             )}
           </TouchableOpacity>
 
           <View style={styles.loginPromptRow}>
-            <Text style={styles.promptText}>Zaten üye misiniz?</Text>
+            <Text style={styles.promptText}>{t('auth.haveAccount')}</Text>
             <TouchableOpacity onPress={() => router.push('/login')}>
-              <Text style={styles.loginLinkText}>Giriş Yap</Text>
+              <Text style={styles.loginLinkText}>{t('auth.signInBtn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -191,10 +206,30 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  backBtn: {
-    padding: 8,
+  topNavRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
-    alignSelf: 'flex-start',
+  },
+  backBtn: {
+    padding: 6,
+  },
+  langPillTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+  },
+  langPillText: {
+    fontSize: 11.5,
+    fontWeight: '900',
+    color: '#0F766E',
   },
   header: {
     marginBottom: 20,

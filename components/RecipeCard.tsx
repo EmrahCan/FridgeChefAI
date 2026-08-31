@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Clock, Flame, Heart, ChefHat, Leaf, ArrowUpRight } from 'lucide-react-native';
 import { Recipe } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
 interface Props {
@@ -17,6 +18,7 @@ export const RecipeCard: React.FC<Props> = ({
   isSaved = false,
   onToggleSave,
 }) => {
+  const { t } = useLanguage();
   const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
 
   const handleFavorite = (e: any) => {
@@ -25,6 +27,12 @@ export const RecipeCard: React.FC<Props> = ({
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
     onToggleSave?.();
+  };
+
+  const getDifficultyLabel = (diff: string) => {
+    if (diff === 'Kolay') return t('common.kolay');
+    if (diff === 'Orta') return t('common.orta');
+    return t('common.usta');
   };
 
   return (
@@ -37,12 +45,12 @@ export const RecipeCard: React.FC<Props> = ({
       <View style={styles.ribbonRow}>
         <View style={styles.wasteRibbon}>
           <Leaf size={12} color="#0F766E" />
-          <Text style={styles.wasteRibbonText}>{recipe.wasteSavedGrams}g Kurtarıldı</Text>
+          <Text style={styles.wasteRibbonText}>{recipe.wasteSavedGrams}{t('common.gramsSaved')}</Text>
         </View>
 
         <View style={styles.topRightActions}>
           <View style={styles.categoryPill}>
-            <Text style={styles.categoryPillText}>{recipe.category || 'Gurme'}</Text>
+            <Text style={styles.categoryPillText}>{recipe.category || 'Gourmet'}</Text>
           </View>
 
           {onToggleSave && (
@@ -76,7 +84,7 @@ export const RecipeCard: React.FC<Props> = ({
       {/* Ingredients Preview Bar */}
       <View style={styles.pantryRow}>
         <View style={styles.pantryLabelBox}>
-          <Text style={styles.pantryLabel}>Kalanlar:</Text>
+          <Text style={styles.pantryLabel}>{t('recipe.prepTab')}:</Text>
         </View>
         <Text style={styles.pantryItems} numberOfLines={1}>
           {recipe.ingredientsUsed.slice(0, 3).join(' • ')}
@@ -88,12 +96,12 @@ export const RecipeCard: React.FC<Props> = ({
       <View style={styles.footerRow}>
         <View style={styles.metricCapsule}>
           <Clock size={13} color="#0F766E" />
-          <Text style={styles.metricCapsuleText}>{totalTime} dk</Text>
+          <Text style={styles.metricCapsuleText}>{totalTime} {t('common.mins')}</Text>
         </View>
 
         <View style={styles.metricCapsule}>
           <ChefHat size={13} color="#D97706" />
-          <Text style={styles.metricCapsuleText}>{recipe.difficulty}</Text>
+          <Text style={styles.metricCapsuleText}>{getDifficultyLabel(recipe.difficulty)}</Text>
         </View>
 
         <View style={styles.metricCapsule}>

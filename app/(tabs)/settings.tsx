@@ -18,14 +18,24 @@ import {
   Leaf,
   Shield,
   LogOut,
-  User as UserIcon,
+  Globe,
   ChevronRight,
 } from 'lucide-react-native';
 import { StorageService } from '../../services/storageService';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
-const DIETARY_OPTIONS = [
+const DIETARY_OPTIONS_EN = [
+  'Vegetarian 🥬',
+  'Vegan 🌱',
+  'Gluten-Free 🌾',
+  'Lactose-Free 🥛',
+  'Low Carb (Keto) 🥑',
+  'Mild / Non-Spicy 🌶️',
+];
+
+const DIETARY_OPTIONS_TR = [
   'Vejetaryen 🥬',
   'Vegan 🌱',
   'Glutensiz 🌾',
@@ -37,6 +47,7 @@ const DIETARY_OPTIONS = [
 export default function SettingsScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const [apiKey, setApiKey] = useState('');
   const [dietary, setDietary] = useState<string[]>([]);
@@ -63,7 +74,7 @@ export default function SettingsScreen() {
 
     setIsSavedSuccess(true);
     setTimeout(() => setIsSavedSuccess(false), 2500);
-    Alert.alert('Başarılı', 'Gemini API anahtarı başarıyla güncellendi.');
+    Alert.alert(t('settings.savedSuccess'), 'Gemini API key updated.');
   };
 
   const toggleDietary = async (option: string) => {
@@ -81,12 +92,12 @@ export default function SettingsScreen() {
 
   const handleLogout = () => {
     Alert.alert(
-      'Çıkış Yap',
-      'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
+      t('settings.logoutConfirmTitle'),
+      t('settings.logoutConfirmMsg'),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('settings.cancel'), style: 'cancel' },
         {
-          text: 'Çıkış Yap',
+          text: t('settings.logoutBtn'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -100,11 +111,13 @@ export default function SettingsScreen() {
     );
   };
 
+  const dietaryChoices = language === 'en' ? DIETARY_OPTIONS_EN : DIETARY_OPTIONS_TR;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.title}>⚙️ Ayarlar & Profil</Text>
-        <Text style={styles.subtitle}>Hesap, AI ve beslenme tercihlerinizi yönetin.</Text>
+        <Text style={styles.title}>{t('settings.title')}</Text>
+        <Text style={styles.subtitle}>{t('settings.subtitle')}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -112,21 +125,21 @@ export default function SettingsScreen() {
         {user && (
           <View style={styles.profileCard}>
             <View style={styles.avatarBox}>
-              <Text style={styles.avatarLetter}>{user.name[0] || 'U'}</Text>
+              <Text style={styles.avatarLetter}>{user.name[0] || 'C'}</Text>
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>{user.name}</Text>
               <Text style={styles.profileEmail}>{user.email}</Text>
               <View style={[styles.roleBadge, user.role === 'admin' ? styles.adminRoleBadge : styles.userRoleBadge]}>
                 <Text style={[styles.roleBadgeText, user.role === 'admin' ? styles.adminRoleText : styles.userRoleText]}>
-                  {user.role === 'admin' ? '👑 Yönetici (Admin)' : '👨‍🍳 Şef Üye'}
+                  {user.role === 'admin' ? '👑 Admin' : '👨‍🍳 Chef Member'}
                 </Text>
               </View>
             </View>
           </View>
         )}
 
-        {/* Admin Dashboard Entry Button (If Admin) */}
+        {/* Admin Dashboard Access (If Admin) */}
         {user?.role === 'admin' && (
           <TouchableOpacity
             style={styles.adminAccessBtn}
@@ -138,29 +151,61 @@ export default function SettingsScreen() {
                 <Shield size={20} color="#FFFFFF" />
               </View>
               <View>
-                <Text style={styles.adminAccessTitle}>Yönetici Paneline Git</Text>
-                <Text style={styles.adminAccessSub}>Kullanıcılar, taramalar ve sistem KPI'ları</Text>
+                <Text style={styles.adminAccessTitle}>{t('settings.adminDashboardBtn')}</Text>
+                <Text style={styles.adminAccessSub}>{t('settings.adminDashboardSub')}</Text>
               </View>
             </View>
             <ChevronRight size={20} color="#FEF08A" />
           </TouchableOpacity>
         )}
 
+        {/* Language Selection Card */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Globe size={18} color="#0F766E" />
+            <Text style={styles.cardTitle}>{t('settings.languageTitle')}</Text>
+          </View>
+
+          <View style={styles.langSwitchRow}>
+            <TouchableOpacity
+              style={[styles.langOptionBtn, language === 'en' && styles.langOptionBtnSelected]}
+              activeOpacity={0.85}
+              onPress={() => setLanguage('en')}
+            >
+              <Text style={styles.langFlag}>🇬🇧</Text>
+              <Text style={[styles.langName, language === 'en' && styles.langNameSelected]}>
+                English (Primary)
+              </Text>
+              {language === 'en' && <Check size={16} color="#0F766E" />}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.langOptionBtn, language === 'tr' && styles.langOptionBtnSelected]}
+              activeOpacity={0.85}
+              onPress={() => setLanguage('tr')}
+            >
+              <Text style={styles.langFlag}>🇹🇷</Text>
+              <Text style={[styles.langName, language === 'tr' && styles.langNameSelected]}>
+                Türkçe
+              </Text>
+              {language === 'tr' && <Check size={16} color="#0F766E" />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Section 1: Gemini AI Key */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Key size={18} color="#10B981" />
-            <Text style={styles.cardTitle}>Google Gemini Vision API</Text>
+            <Key size={18} color="#0F766E" />
+            <Text style={styles.cardTitle}>{t('settings.geminiKeyTitle')}</Text>
           </View>
-          <Text style={styles.cardDesc}>
-            Canlı fotoğraf analizi için kendi ücretsiz Google Gemini API anahtarınızı tanımlayabilirsiniz.
-          </Text>
+          <Text style={styles.cardDesc}>{t('settings.geminiKeyDesc')}</Text>
 
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
               placeholder="AIzaSy..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#8A9C93"
               value={apiKey}
               onChangeText={setApiKey}
               secureTextEntry
@@ -176,10 +221,10 @@ export default function SettingsScreen() {
             {isSavedSuccess ? (
               <View style={styles.btnRow}>
                 <Check size={16} color="#FFFFFF" />
-                <Text style={styles.saveKeyBtnText}>Kaydedildi!</Text>
+                <Text style={styles.saveKeyBtnText}>{t('settings.savedSuccess')}</Text>
               </View>
             ) : (
-              <Text style={styles.saveKeyBtnText}>API Anahtarını Kaydet</Text>
+              <Text style={styles.saveKeyBtnText}>{t('settings.saveKeyBtn')}</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -187,15 +232,13 @@ export default function SettingsScreen() {
         {/* Section 2: Dietary Restrictions */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Sparkles size={18} color="#F97316" />
-            <Text style={styles.cardTitle}>Beslenme & Diyet Tercihleri</Text>
+            <Sparkles size={18} color="#EA580C" />
+            <Text style={styles.cardTitle}>{t('settings.dietaryTitle')}</Text>
           </View>
-          <Text style={styles.cardDesc}>
-            Yapay zekanın üreteceği tariflerde bu tercihleriniz otomatik olarak dikkate alınır:
-          </Text>
+          <Text style={styles.cardDesc}>{t('settings.dietaryDesc')}</Text>
 
           <View style={styles.dietaryList}>
-            {DIETARY_OPTIONS.map((opt) => {
+            {dietaryChoices.map((opt) => {
               const isSelected = dietary.includes(opt);
               return (
                 <TouchableOpacity
@@ -203,15 +246,10 @@ export default function SettingsScreen() {
                   style={[styles.dietaryItem, isSelected && styles.dietaryItemSelected]}
                   onPress={() => toggleDietary(opt)}
                 >
-                  <Text
-                    style={[
-                      styles.dietaryText,
-                      isSelected && styles.dietaryTextSelected,
-                    ]}
-                  >
+                  <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
                     {opt}
                   </Text>
-                  {isSelected && <Check size={16} color="#059669" />}
+                  {isSelected && <Check size={16} color="#0F766E" />}
                 </TouchableOpacity>
               );
             })}
@@ -221,30 +259,30 @@ export default function SettingsScreen() {
         {/* Section 3: App & Store Info */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Leaf size={18} color="#059669" />
-            <Text style={styles.cardTitle}>FridgeChef AI Hakkında</Text>
+            <Leaf size={18} color="#0F766E" />
+            <Text style={styles.cardTitle}>{t('settings.aboutTitle')}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Sürüm</Text>
+            <Text style={styles.infoLabel}>{t('settings.version')}</Text>
             <Text style={styles.infoValue}>1.0.0 (Build 1)</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Platform</Text>
-            <Text style={styles.infoValue}>iOS & Android Ready 📱</Text>
+            <Text style={styles.infoLabel}>{t('settings.platform')}</Text>
+            <Text style={styles.infoValue}>{t('settings.platformValue')}</Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Misyon</Text>
-            <Text style={styles.infoValue}>Sıfır Gıda İsrafı 🌱</Text>
+            <Text style={styles.infoLabel}>{t('settings.mission')}</Text>
+            <Text style={styles.infoValue}>{t('settings.missionValue')}</Text>
           </View>
         </View>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <LogOut size={18} color="#EF4444" />
-          <Text style={styles.logoutBtnText}>Oturumu Kapat (Çıkış Yap)</Text>
+          <LogOut size={18} color="#BE123C" />
+          <Text style={styles.logoutBtnText}>{t('settings.logoutBtn')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -254,29 +292,30 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 14,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#E6EBE8',
     backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#111827',
+    color: '#0D1714',
+    letterSpacing: -0.5,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#556860',
   },
   scrollContent: {
-    padding: 16,
+    padding: 18,
     paddingBottom: 50,
   },
   profileCard: {
@@ -284,16 +323,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
     marginBottom: 16,
   },
   avatarBox: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#10B981',
+    backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
@@ -309,11 +348,11 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0D1714',
   },
   profileEmail: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#687E74',
     marginTop: 2,
     marginBottom: 6,
   },
@@ -324,13 +363,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   adminRoleBadge: {
-    backgroundColor: '#FEE2E2',
-    borderColor: '#FCA5A5',
+    backgroundColor: '#FFE4E6',
+    borderColor: '#FECDD3',
     borderWidth: 1,
   },
   userRoleBadge: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
+    backgroundColor: '#CCFBF1',
+    borderColor: '#99F6E4',
     borderWidth: 1,
   },
   roleBadgeText: {
@@ -338,10 +377,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   adminRoleText: {
-    color: '#DC2626',
+    color: '#BE123C',
   },
   userRoleText: {
-    color: '#059669',
+    color: '#0F766E',
   },
   adminAccessBtn: {
     flexDirection: 'row',
@@ -349,7 +388,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#1E293B',
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 22,
     marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -382,10 +421,10 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
     marginBottom: 16,
   },
   cardHeader: {
@@ -397,40 +436,71 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0D1714',
   },
   cardDesc: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: 12.5,
+    color: '#556860',
     lineHeight: 18,
     marginBottom: 14,
+  },
+  langSwitchRow: {
+    gap: 8,
+  },
+  langOptionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAF8',
+    borderWidth: 1.5,
+    borderColor: '#E1E6DF',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  langOptionBtnSelected: {
+    backgroundColor: '#CCFBF1',
+    borderColor: '#0F766E',
+  },
+  langFlag: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  langName: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2C3E36',
+  },
+  langNameSelected: {
+    color: '#0F766E',
+    fontWeight: '800',
   },
   inputContainer: {
     marginBottom: 12,
   },
   input: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAF8',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
+    borderColor: '#E1E6DF',
+    borderRadius: 16,
     paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingVertical: 11,
     fontSize: 14,
-    color: '#111827',
+    color: '#0D1714',
   },
   saveKeyBtn: {
-    backgroundColor: '#10B981',
-    borderRadius: 14,
-    paddingVertical: 12,
+    backgroundColor: '#0F766E',
+    borderRadius: 16,
+    paddingVertical: 13,
     alignItems: 'center',
   },
   saveKeyBtnSuccess: {
-    backgroundColor: '#059669',
+    backgroundColor: '#0B514B',
   },
   saveKeyBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 13.5,
+    fontWeight: '800',
   },
   btnRow: {
     flexDirection: 'row',
@@ -444,57 +514,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAF8',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
+    borderColor: '#E1E6DF',
+    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   dietaryItemSelected: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#10B981',
+    backgroundColor: '#CCFBF1',
+    borderColor: '#0F766E',
   },
   dietaryText: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '600',
-    color: '#374151',
+    color: '#2C3E36',
   },
   dietaryTextSelected: {
-    color: '#065F46',
-    fontWeight: '700',
+    color: '#0F766E',
+    fontWeight: '800',
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#F3F6F4',
   },
   infoLabel: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#687E74',
     fontWeight: '500',
   },
   infoValue: {
     fontSize: 13,
-    color: '#111827',
-    fontWeight: '700',
+    color: '#0D1714',
+    fontWeight: '800',
   },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FFE4E6',
     borderWidth: 1.5,
-    borderColor: '#FCA5A5',
-    paddingVertical: 14,
-    borderRadius: 16,
+    borderColor: '#FECDD3',
+    paddingVertical: 15,
+    borderRadius: 18,
     marginTop: 6,
   },
   logoutBtnText: {
-    color: '#DC2626',
+    color: '#BE123C',
     fontWeight: '800',
     fontSize: 14,
   },

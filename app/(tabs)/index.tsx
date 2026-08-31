@@ -19,13 +19,14 @@ import {
   ChefHat,
   Leaf,
   ScanLine,
-  ArrowUpRight,
+  Globe,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ZeroWasteStatCard } from '../../components/ZeroWasteStatCard';
 import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { DEMO_PRESETS, ZERO_WASTE_TIPS } from '../../constants/MockData';
 import { Recipe, UserStats } from '../../types';
 import * as Haptics from 'expo-haptics';
@@ -33,6 +34,8 @@ import * as Haptics from 'expo-haptics';
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
+
   const [stats, setStats] = useState<UserStats>({
     totalMealsCooked: 3,
     totalWasteSavedKg: 1.4,
@@ -55,13 +58,15 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadData();
-    setRandomTipIndex(Math.floor(Math.random() * ZERO_WASTE_TIPS.length));
-  }, []);
+    const tipsList = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
+    setRandomTipIndex(Math.floor(Math.random() * tipsList.length));
+  }, [language]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await loadData();
-    setRandomTipIndex((prev) => (prev + 1) % ZERO_WASTE_TIPS.length);
+    const tipsList = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
+    setRandomTipIndex((prev) => (prev + 1) % tipsList.length);
     setRefreshing(false);
   };
 
@@ -85,12 +90,17 @@ export default function HomeScreen() {
       pathname: '/recipe/review',
       params: {
         ingredientsJson: JSON.stringify(preset.ingredients),
-        summaryText: `${preset.name} malzemeleri inceleniyor.`,
+        summaryText: language === 'en'
+          ? `${preset.nameEn} loaded for culinary review.`
+          : `${preset.name} malzemeleri inceleniyor.`,
       },
     });
   };
 
-  const currentTip = ZERO_WASTE_TIPS[randomTipIndex];
+  const currentTips = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
+  const currentTip = currentTips[randomTipIndex] || currentTips[0];
+
+  const dateLocale = language === 'en' ? 'en-US' : 'tr-TR';
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -106,21 +116,33 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <View>
             <Text style={styles.dateLabel}>
-              {new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
+              {new Date().toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
             </Text>
             <Text style={styles.greetingText}>
-              Merhaba, {user?.name?.split(' ')[0] || 'Şef'} 👋
+              {t('home.greeting')} {user?.name?.split(' ')[0] || t('home.defaultChef')} 👋
             </Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.profileBadge}
-            onPress={() => router.push('/(tabs)/settings')}
-          >
-            <View style={styles.profileAvatar}>
-              <Text style={styles.profileAvatarLetter}>{user?.name?.[0] || 'Ş'}</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.topRightRow}>
+            {/* Quick Language Toggle Pill */}
+            <TouchableOpacity
+              style={styles.langPill}
+              activeOpacity={0.8}
+              onPress={toggleLanguage}
+            >
+              <Globe size={13} color="#0F766E" />
+              <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.profileBadge}
+              onPress={() => router.push('/(tabs)/settings')}
+            >
+              <View style={styles.profileAvatar}>
+                <Text style={styles.profileAvatarLetter}>{user?.name?.[0] || 'C'}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* BENTO HERO: THE SCAN CHAMBER */}
@@ -141,24 +163,22 @@ export default function HomeScreen() {
             <View style={styles.scanChamberTop}>
               <View style={styles.aiTag}>
                 <Sparkles size={12} color="#5EEAD4" />
-                <Text style={styles.aiTagText}>Gemini 1.5 Vision</Text>
+                <Text style={styles.aiTagText}>{t('home.scanChamberBadge')}</Text>
               </View>
               <View style={styles.pulseRadar}>
                 <ScanLine size={18} color="#5EEAD4" />
               </View>
             </View>
 
-            <Text style={styles.scanChamberTitle}>Dolabını Fotoğrafla & İsrafı Durdur</Text>
-            <Text style={styles.scanChamberSub}>
-              Kalan yemekleri ve sebzeleri yapay zekaya gösterin, 10 saniyede sıfır israflı gurme menüler hazırlasın.
-            </Text>
+            <Text style={styles.scanChamberTitle}>{t('home.scanChamberTitle')}</Text>
+            <Text style={styles.scanChamberSub}>{t('home.scanChamberSub')}</Text>
 
             <View style={styles.scanCtaRow}>
               <View style={styles.scanCtaButton}>
                 <Camera size={18} color="#042F2E" />
-                <Text style={styles.scanCtaText}>Kamerayı Başlat</Text>
+                <Text style={styles.scanCtaText}>{t('home.launchCamera')}</Text>
               </View>
-              <Text style={styles.scanHint}>veya galeriden yükle 📸</Text>
+              <Text style={styles.scanHint}>{t('home.orUpload')}</Text>
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -172,7 +192,7 @@ export default function HomeScreen() {
           <View style={styles.bentoTileLeft}>
             <View style={styles.bentoTileHeader}>
               <Lightbulb size={16} color="#D97706" />
-              <Text style={styles.bentoTileTag}>Günün İpucu</Text>
+              <Text style={styles.bentoTileTag}>{t('home.tipOfTheDay')}</Text>
             </View>
             <Text style={styles.tipTitleText} numberOfLines={2}>{currentTip.title}</Text>
             <Text style={styles.tipDescText} numberOfLines={3}>{currentTip.description}</Text>
@@ -186,12 +206,16 @@ export default function HomeScreen() {
           >
             <View style={styles.bentoTileHeader}>
               <ChefHat size={16} color="#0F766E" />
-              <Text style={[styles.bentoTileTag, { color: '#0F766E' }]}>Hızlı Menü</Text>
+              <Text style={[styles.bentoTileTag, { color: '#0F766E' }]}>{t('home.quickMenu')}</Text>
             </View>
-            <Text style={styles.presetTitleText} numberOfLines={2}>Tavuk & Pilav Kurtarma</Text>
-            <Text style={styles.presetDescText}>Dünden kalanları 15 dakikada lüks fırın gratenine dönüştürün.</Text>
+            <Text style={styles.presetTitleText} numberOfLines={2}>
+              {language === 'en' ? DEMO_PRESETS[0].nameEn : DEMO_PRESETS[0].name}
+            </Text>
+            <Text style={styles.presetDescText}>
+              {language === 'en' ? DEMO_PRESETS[0].subtitleEn : DEMO_PRESETS[0].subtitle}
+            </Text>
             <View style={styles.presetLinkRow}>
-              <Text style={styles.presetLinkText}>Hemen İncele</Text>
+              <Text style={styles.presetLinkText}>{t('home.inspectNow')}</Text>
               <ArrowRight size={13} color="#0F766E" />
             </View>
           </TouchableOpacity>
@@ -201,11 +225,11 @@ export default function HomeScreen() {
         <View style={styles.recipesSection}>
           <View style={styles.sectionHeaderRow}>
             <View>
-              <Text style={styles.sectionTitle}>Şefin Kurtarma Seçkisi 👨‍🍳</Text>
-              <Text style={styles.sectionSub}>Günün öne çıkan sıfır israf tarifleri</Text>
+              <Text style={styles.sectionTitle}>{t('home.featuredTitle')}</Text>
+              <Text style={styles.sectionSub}>{t('home.featuredSub')}</Text>
             </View>
             <TouchableOpacity onPress={handleStartScan}>
-              <Text style={styles.sectionActionText}>Tümünü Gör</Text>
+              <Text style={styles.sectionActionText}>{t('home.seeAll')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -264,6 +288,27 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#0D1714',
     letterSpacing: -0.5,
+  },
+  topRightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  langPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+  },
+  langPillText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#0F766E',
   },
   profileBadge: {
     padding: 3,
