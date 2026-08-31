@@ -33,7 +33,14 @@ import {
   Share2,
   X,
   Flame,
+  Plus,
+  Calendar,
+  Check,
+  Zap,
 } from 'lucide-react-native';
+import { TextInput, Alert, ActivityIndicator } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { GeminiService } from '../../services/geminiService';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ZeroWasteStatCard } from '../../components/ZeroWasteStatCard';
 import { RecipeCard } from '../../components/RecipeCard';
@@ -64,6 +71,11 @@ export default function HomeScreen() {
   const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
   const [groceryModalVisible, setGroceryModalVisible] = useState(false);
   const [tipModalVisible, setTipModalVisible] = useState(false);
+  const [isAddRadarModalOpen, setIsAddRadarModalOpen] = useState(false);
+  const [customRadarName, setCustomRadarName] = useState('');
+  const [customRadarDays, setCustomRadarDays] = useState(4);
+  const [customRadarIsOpened, setCustomRadarIsOpened] = useState(false);
+  const [isScanningOCR, setIsScanningOCR] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [randomTipIndex, setRandomTipIndex] = useState(0);
 
@@ -99,6 +111,74 @@ export default function HomeScreen() {
     const tipsList = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
     setRandomTipIndex((prev) => (prev + 1) % tipsList.length);
     setRefreshing(false);
+  };
+
+  const handleToggleOpened = async (item: ExpiryItem) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    const updated = await PantryRadarService.toggleOpenedStatus(item.id, language);
+    setRadarItems(updated);
+  };
+
+  const handleAddManualRadarItem = async () => {
+    if (!customRadarName.trim()) return;
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch {}
+    const updated = await PantryRadarService.addManualItem(
+      {
+        name: customRadarName.trim(),
+        daysRemaining: customRadarDays,
+        isOpened: customRadarIsOpened,
+      },
+      language
+    );
+    setRadarItems(updated);
+    setCustomRadarName('');
+    setCustomRadarDays(4);
+    setCustomRadarIsOpened(false);
+    setIsAddRadarModalOpen(false);
+  };
+
+  const handleScanSKTWithCamera = async () => {
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          language === 'en' ? 'Camera Permission' : 'Kamera İzni',
+          language === 'en'
+            ? 'Camera permission is required to scan expiration date.'
+            : 'Son kullanma tarihini okumak için kamera izni gereklidir.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0].base64) {
+        setIsScanningOCR(true);
+        const res = await GeminiService.scanExpiryDateFromImage(result.assets[0].base64, language);
+        setIsScanningOCR(false);
+
+        if (res.daysRemaining) {
+          setCustomRadarDays(res.daysRemaining);
+          Alert.alert(
+            language === 'en' ? 'SKT Detected! 🎯' : 'SKT Okundu! 🎯',
+            language === 'en'
+              ? `Expiry Date: ${res.dateStr || ''} (${res.daysRemaining} days remaining set)`
+              : `Son Kullanma Tarihi: ${res.dateStr || ''} (${res.daysRemaining} gün kaldı olarak ayarlandı)`
+          );
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setIsScanningOCR(false);
+    }
   };
 
   const handleToggleSave = async (recipe: Recipe) => {
@@ -250,6 +330,18 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
+
+              {/* Add / OCR SKT Trigger Button */}
+              <TouchableOpacity
+                style={styles.addRadarHeaderBtn}
+                activeOpacity={0.85}
+                onPress={() => setIsAddRadarModalOpen(true)}
+              >
+                <Plus size={13} color="#5EEAD4" />
+                <Text style={styles.addRadarHeaderBtnText}>
+                  {language === 'en' ? '+ Add / 📷 OCR' : '+ Ekle / 📷 SKT'}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <ScrollView
@@ -267,7 +359,7 @@ export default function HomeScreen() {
                   activeOpacity={0.88}
                   onPress={handleStartScan}
                 >
-                  {/* Card Top: Food Avatar & Urgency Pill */}
+                  {/* Card Top: Food Avatar, Opened Toggle & Urgency Pill */}
                   <View style={styles.radarCardHeader}>
                     <View style={styles.foodAvatarCircle}>
                       <Text style={styles.foodAvatarEmoji}>{item.icon || '🍲'}</Text>
@@ -299,6 +391,22 @@ export default function HomeScreen() {
                   <Text style={styles.radarItemName} numberOfLines={2}>
                     {item.name}
                   </Text>
+
+                  {/* 1-Tap Opened Package Status Switcher */}
+                  <TouchableOpacity
+                    style={[styles.openStatusPill, item.isOpened && styles.openStatusPillActive]}
+                    activeOpacity={0.8}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleToggleOpened(item);
+                    }}
+                  >
+                    <Text style={[styles.openStatusPillText, item.isOpened && styles.openStatusPillTextActive]}>
+                      {item.isOpened
+                        ? (language === 'en' ? '🔓 Opened (4d)' : '🔓 Kapağı Açıldı')
+                        : (language === 'en' ? '🔒 Sealed Pack' : '🔒 Kapağı Kapalı')}
+                    </Text>
+                  </TouchableOpacity>
 
                   {/* Tactile Mini Action Button */}
                   <View style={styles.cookActionPill}>
@@ -633,6 +741,127 @@ export default function HomeScreen() {
               <Camera size={18} color="#042F2E" />
               <Text style={styles.tipsScanCtaBtnText}>
                 {language === 'en' ? 'Scan My Fridge Now' : 'Dolabımı Tara & Uygula'} 📸
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ADD PANTRY RADAR & OCR SKT MODAL */}
+      <Modal
+        visible={isAddRadarModalOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsAddRadarModalOpen(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.radarModalCard}>
+            <View style={styles.groceryModalHeader}>
+              <View>
+                <Text style={styles.radarModalTitle}>
+                  {language === 'en' ? 'Add Item to Radar' : 'Dolap Radarına Ekle'} ⏳
+                </Text>
+                <Text style={styles.radarModalSub}>
+                  {language === 'en'
+                    ? 'Enter item or scan expiration date from packaging'
+                    : 'Ürün girin veya ambalajındaki SKT tarihini okutun'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => setIsAddRadarModalOpen(false)}
+              >
+                <X size={20} color="#0D1714" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 380 }}>
+              {/* Product Name Input */}
+              <Text style={styles.modalInputLabel}>
+                {language === 'en' ? 'Product Name' : 'Ürün Adı'}
+              </Text>
+              <TextInput
+                style={styles.modalTextInput}
+                placeholder={language === 'en' ? 'e.g. Whole Milk, Aged Cheese, Tomato Paste...' : 'örn: Tam Yağlı Süt, Kaşar Peyniri, Salça...'}
+                placeholderTextColor="#8A9C93"
+                value={customRadarName}
+                onChangeText={setCustomRadarName}
+              />
+
+              {/* Opened Package Switch */}
+              <TouchableOpacity
+                style={[styles.modalToggleCard, customRadarIsOpened && styles.modalToggleCardActive]}
+                activeOpacity={0.85}
+                onPress={() => {
+                  const nextState = !customRadarIsOpened;
+                  setCustomRadarIsOpened(nextState);
+                  if (nextState && customRadarDays > 4) {
+                    setCustomRadarDays(4);
+                  }
+                }}
+              >
+                <View style={styles.modalToggleLeft}>
+                  <Text style={styles.modalToggleTitle}>
+                    {language === 'en' ? '🥛 Package is Opened' : '🥛 Kapağı Açıldı / Tüketiliyor'}
+                  </Text>
+                  <Text style={styles.modalToggleSub}>
+                    {language === 'en'
+                      ? 'Automatically reduces shelf-life (3-5 days)'
+                      : 'Kapağı açılmış ürünler için raf ömrünü otomatik 3-5 güne çeker'}
+                  </Text>
+                </View>
+                <View style={[styles.toggleCheckbox, customRadarIsOpened && styles.toggleCheckboxActive]}>
+                  {customRadarIsOpened && <Check size={14} color="#FFFFFF" />}
+                </View>
+              </TouchableOpacity>
+
+              {/* Days Remaining Fast Selector */}
+              <Text style={styles.modalInputLabel}>
+                {language === 'en' ? 'Days Remaining Before Decay' : 'Bozulmadan Önce Kalan Gün'}
+              </Text>
+              <View style={styles.daysSelectorRow}>
+                {[1, 2, 3, 5, 7].map((d) => (
+                  <TouchableOpacity
+                    key={d}
+                    style={[styles.daySelectChip, customRadarDays === d && styles.daySelectChipActive]}
+                    onPress={() => setCustomRadarDays(d)}
+                  >
+                    <Text style={[styles.daySelectChipText, customRadarDays === d && styles.daySelectChipTextActive]}>
+                      {d === 1 ? (language === 'en' ? '🔥 1d (Urgent)' : '🔥 1 Gün (Acil)') : `${d} ${language === 'en' ? 'Days' : 'Gün'}`}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* OCR Camera Scan Expiry Date Button */}
+              <TouchableOpacity
+                style={styles.ocrScanBtn}
+                activeOpacity={0.88}
+                onPress={handleScanSKTWithCamera}
+                disabled={isScanningOCR}
+              >
+                {isScanningOCR ? (
+                  <ActivityIndicator size="small" color="#0F766E" />
+                ) : (
+                  <>
+                    <Camera size={16} color="#0F766E" />
+                    <Text style={styles.ocrScanBtnText}>
+                      {language === 'en' ? '📸 Scan Expiration Date (OCR Camera)' : '📸 Ambalajdaki SKT Tarihini Oku (OCR)'}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Save to Radar CTA */}
+            <TouchableOpacity
+              style={[styles.saveRadarCtaBtn, !customRadarName.trim() && { opacity: 0.5 }]}
+              activeOpacity={0.88}
+              onPress={handleAddManualRadarItem}
+              disabled={!customRadarName.trim()}
+            >
+              <Text style={styles.saveRadarCtaBtnText}>
+                {language === 'en' ? 'Save to Freshness Radar ⏳' : 'Tazelik Radarına Ekle ⏳'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1388,10 +1617,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: '#5EEAD4',
-    paddingVertical: 14,
-    borderRadius: 18,
-    shadowColor: '#5EEAD4',
-    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 3,
@@ -1400,5 +1625,188 @@ const styles = StyleSheet.create({
     color: '#042F2E',
     fontSize: 14,
     fontWeight: '800',
+  },
+  addRadarHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(15, 118, 110, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.45)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  addRadarHeaderBtnText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#5EEAD4',
+  },
+  openStatusPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  openStatusPillActive: {
+    backgroundColor: 'rgba(234, 88, 12, 0.20)',
+    borderColor: 'rgba(251, 146, 60, 0.45)',
+  },
+  openStatusPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#9CA3AF',
+  },
+  openStatusPillTextActive: {
+    color: '#FDBA74',
+    fontWeight: '800',
+  },
+  radarModalCard: {
+    backgroundColor: '#062C26',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 20,
+    maxHeight: '85%',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.3)',
+  },
+  radarModalTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  radarModalSub: {
+    fontSize: 12,
+    color: '#A7F3D0',
+    marginTop: 2,
+  },
+  modalInputLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#5EEAD4',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+    marginTop: 10,
+  },
+  modalTextInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.20)',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
+  modalToggleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 18,
+    padding: 14,
+    marginVertical: 8,
+  },
+  modalToggleCardActive: {
+    backgroundColor: 'rgba(15, 118, 110, 0.40)',
+    borderColor: '#5EEAD4',
+  },
+  modalToggleLeft: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  modalToggleTitle: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  modalToggleSub: {
+    fontSize: 11,
+    color: '#CCFBF1',
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  toggleCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  toggleCheckboxActive: {
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
+  },
+  daysSelectorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 14,
+  },
+  daySelectChip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+  },
+  daySelectChipActive: {
+    backgroundColor: '#0F766E',
+    borderColor: '#5EEAD4',
+  },
+  daySelectChipText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#CCFBF1',
+  },
+  daySelectChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+  },
+  ocrScanBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(204, 251, 241, 0.20)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.45)',
+    paddingVertical: 13,
+    borderRadius: 16,
+    marginVertical: 8,
+  },
+  ocrScanBtnText: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#5EEAD4',
+  },
+  saveRadarCtaBtn: {
+    backgroundColor: '#0F766E',
+    borderRadius: 18,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  saveRadarCtaBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
   },
 });

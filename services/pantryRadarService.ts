@@ -10,9 +10,38 @@ export interface ExpiryItem {
   daysRemaining: number;
   urgency: 'critical' | 'warning' | 'fresh';
   scannedAt: string;
+  isOpened?: boolean;
+  openedAt?: string;
+  expiryDate?: string;
 }
 
-const PANTRY_RADAR_KEY = '@fridge_chef_pantry_radar_v3';
+const PANTRY_RADAR_KEY = '@fridge_chef_pantry_radar_v4';
+
+export const OPENED_DECAY_DAYS: Record<string, number> = {
+  süt: 4,
+  milk: 4,
+  yoğurt: 7,
+  yogurt: 7,
+  peynir: 7,
+  cheese: 7,
+  kaşar: 7,
+  salça: 10,
+  sos: 7,
+  sauce: 7,
+  tavuk: 2,
+  chicken: 2,
+  et: 2,
+  meat: 2,
+  balık: 2,
+  fish: 2,
+  pilav: 3,
+  rice: 3,
+  makarna: 3,
+  pasta: 3,
+  domates: 3,
+  tomato: 3,
+  default: 4,
+};
 
 export function getIngredientIcon(name: string, category: string = ''): string {
   const text = `${name} ${category}`.toLowerCase();
@@ -25,6 +54,7 @@ export function getIngredientIcon(name: string, category: string = ''): string {
   if (text.includes('balık') || text.includes('fish') || text.includes('somon')) return '🐟';
   if (text.includes('yumurta') || text.includes('egg')) return '🥚';
   if (text.includes('yoğurt') || text.includes('yogurt') || text.includes('süt') || text.includes('milk')) return '🥛';
+  if (text.includes('salça') || text.includes('sauce') || text.includes('sos')) return '🥫';
   if (text.includes('biber') || text.includes('pepper')) return '🫑';
   if (text.includes('havuç') || text.includes('carrot')) return '🥕';
   if (text.includes('patates') || text.includes('potato')) return '🥔';
@@ -32,6 +62,16 @@ export function getIngredientIcon(name: string, category: string = ''): string {
   if (text.includes('makarna') || text.includes('pasta')) return '🍝';
   if (text.includes('sebze') || text.includes('veggie') || text.includes('yeşillik')) return '🥬';
   return '🍲';
+}
+
+export function calculateOpenedDecay(name: string, category: string = ''): number {
+  const text = `${name} ${category}`.toLowerCase();
+  for (const [key, days] of Object.entries(OPENED_DECAY_DAYS)) {
+    if (text.includes(key)) {
+      return days;
+    }
+  }
+  return OPENED_DECAY_DAYS.default;
 }
 
 const DEFAULT_RADAR_EN: ExpiryItem[] = [
@@ -43,6 +83,7 @@ const DEFAULT_RADAR_EN: ExpiryItem[] = [
     daysRemaining: 1,
     urgency: 'critical',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-2',
@@ -52,15 +93,17 @@ const DEFAULT_RADAR_EN: ExpiryItem[] = [
     daysRemaining: 2,
     urgency: 'critical',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-3',
-    name: 'Soft Heirloom Tomatoes',
-    category: 'Produce',
-    icon: '🍅',
+    name: 'Whole Milk (Opened 🥛)',
+    category: 'Dairy',
+    icon: '🥛',
     daysRemaining: 3,
     urgency: 'warning',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-4',
@@ -70,6 +113,7 @@ const DEFAULT_RADAR_EN: ExpiryItem[] = [
     daysRemaining: 6,
     urgency: 'fresh',
     scannedAt: new Date().toISOString(),
+    isOpened: false,
   },
 ];
 
@@ -82,6 +126,7 @@ const DEFAULT_RADAR_TR: ExpiryItem[] = [
     daysRemaining: 1,
     urgency: 'critical',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-2',
@@ -91,15 +136,17 @@ const DEFAULT_RADAR_TR: ExpiryItem[] = [
     daysRemaining: 2,
     urgency: 'critical',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-3',
-    name: 'Yumuşamış Domates',
-    category: 'Sebze & Meyve',
-    icon: '🍅',
+    name: 'Tam Yağlı Süt (Açıldı 🥛)',
+    category: 'Süt Ürünleri',
+    icon: '🥛',
     daysRemaining: 3,
     urgency: 'warning',
     scannedAt: new Date().toISOString(),
+    isOpened: true,
   },
   {
     id: 'rad-4',
@@ -109,6 +156,7 @@ const DEFAULT_RADAR_TR: ExpiryItem[] = [
     daysRemaining: 6,
     urgency: 'fresh',
     scannedAt: new Date().toISOString(),
+    isOpened: false,
   },
 ];
 
@@ -171,6 +219,7 @@ export const PantryRadarService = {
             daysRemaining: days,
             urgency,
             scannedAt: new Date().toISOString(),
+            isOpened: false,
           };
         });
 
@@ -179,6 +228,73 @@ export const PantryRadarService = {
       return merged;
     } catch (e) {
       console.error('Failed to register scanned ingredients in radar', e);
+      return [];
+    }
+  },
+
+  async addManualItem(
+    item: {
+      name: string;
+      category?: string;
+      daysRemaining?: number;
+      isOpened?: boolean;
+      expiryDate?: string;
+    },
+    lang: SupportedLanguage = 'en'
+  ): Promise<ExpiryItem[]> {
+    try {
+      const current = await this.getRadarItems(lang);
+      const days = item.daysRemaining ?? (item.isOpened ? calculateOpenedDecay(item.name, item.category) : 5);
+      const urgency: 'critical' | 'warning' | 'fresh' =
+        days <= 2 ? 'critical' : days <= 4 ? 'warning' : 'fresh';
+
+      const newItem: ExpiryItem = {
+        id: `rad-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        name: item.name,
+        category: item.category || (lang === 'en' ? 'Pantry' : 'Dolap'),
+        icon: getIngredientIcon(item.name, item.category),
+        daysRemaining: days,
+        urgency,
+        scannedAt: new Date().toISOString(),
+        isOpened: item.isOpened ?? false,
+        openedAt: item.isOpened ? new Date().toISOString() : undefined,
+        expiryDate: item.expiryDate,
+      };
+
+      const updated = [newItem, ...current];
+      await AsyncStorage.setItem(`${PANTRY_RADAR_KEY}_${lang}`, JSON.stringify(updated));
+      return updated;
+    } catch (e) {
+      console.error('Failed to add manual radar item', e);
+      return [];
+    }
+  },
+
+  async toggleOpenedStatus(id: string, lang: SupportedLanguage = 'en'): Promise<ExpiryItem[]> {
+    try {
+      const current = await this.getRadarItems(lang);
+      const updated = current.map((item) => {
+        if (item.id === id) {
+          const nextOpened = !item.isOpened;
+          const decayDays = nextOpened ? calculateOpenedDecay(item.name, item.category) : 6;
+          const urgency: 'critical' | 'warning' | 'fresh' =
+            decayDays <= 2 ? 'critical' : decayDays <= 4 ? 'warning' : 'fresh';
+
+          return {
+            ...item,
+            isOpened: nextOpened,
+            daysRemaining: decayDays,
+            urgency,
+            openedAt: nextOpened ? new Date().toISOString() : undefined,
+          };
+        }
+        return item;
+      });
+
+      await AsyncStorage.setItem(`${PANTRY_RADAR_KEY}_${lang}`, JSON.stringify(updated));
+      return updated;
+    } catch (e) {
+      console.error('Failed to toggle opened status', e);
       return [];
     }
   },
