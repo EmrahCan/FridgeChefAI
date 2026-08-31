@@ -57,7 +57,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
   const [apiKey, setApiKey] = useState('');
@@ -181,6 +181,46 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             await logout();
+            router.replace('/login');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    } catch {}
+
+    if (Platform.OS === 'web') {
+      const confirmDelete = typeof window !== 'undefined' && window.confirm
+        ? window.confirm(
+            language === 'en'
+              ? 'WARNING: This will permanently delete your account and all saved recipes & stats. Are you sure?'
+              : 'DİKKAT: Bu işlem hesabınızı, tüm kayıtlı tariflerinizi ve istatistiklerinizi kalıcı olarak silecektir. Emin misiniz?'
+          )
+        : true;
+
+      if (confirmDelete) {
+        deleteAccount();
+        router.replace('/login');
+      }
+      return;
+    }
+
+    Alert.alert(
+      language === 'en' ? 'Delete Account Permanently' : 'Hesabı Kalıcı Olarak Sil',
+      language === 'en'
+        ? 'This action cannot be undone. All your saved recipes, pantry radar items, and streak stats will be erased.'
+        : 'Bu işlem geri alınamaz. Kayıtlı tüm tarifleriniz, dolap radarı verileriniz ve şef rozetleriniz silinecektir.',
+      [
+        { text: t('settings.cancel'), style: 'cancel' },
+        {
+          text: language === 'en' ? 'Delete Everything' : 'Her Şeyi Sil',
+          style: 'destructive',
+          onPress: async () => {
+            await deleteAccount();
             router.replace('/login');
           },
         },
@@ -522,6 +562,17 @@ export default function SettingsScreen() {
         <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.88} onPress={handleLogout}>
           <LogOut size={17} color="#BE123C" />
           <Text style={styles.logoutBtnText}>{t('settings.logoutBtn')}</Text>
+        </TouchableOpacity>
+
+        {/* APPLE COMPLIANCE: DELETE ACCOUNT BUTTON */}
+        <TouchableOpacity
+          style={styles.deleteAccountBtn}
+          activeOpacity={0.88}
+          onPress={handleDeleteAccount}
+        >
+          <Text style={styles.deleteAccountBtnText}>
+            {language === 'en' ? 'Delete Account & All Data' : 'Hesabımı ve Tüm Verilerimi Sil'}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -1021,5 +1072,17 @@ const styles = StyleSheet.create({
     color: '#BE123C',
     fontWeight: '800',
     fontSize: 14,
+  },
+  deleteAccountBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    marginTop: 4,
+  },
+  deleteAccountBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#9CA3AF',
+    textDecorationLine: 'underline',
   },
 });

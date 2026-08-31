@@ -9,6 +9,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, pass: string, dietary?: string[]) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   loginWithGoogle: async () => ({ success: false }),
   register: async () => ({ success: false }),
   logout: async () => {},
+  deleteAccount: async () => {},
   refreshUser: async () => {},
 });
 
@@ -73,6 +75,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const deleteAccount = async () => {
+    await AuthService.deleteAccount();
+    setUser(null);
+  };
+
   const refreshUser = async () => {
     await loadUser();
   };
@@ -86,6 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         register,
         logout,
+        deleteAccount,
         refreshUser,
       }}
     >

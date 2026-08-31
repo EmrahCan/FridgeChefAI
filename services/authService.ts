@@ -143,13 +143,31 @@ export const AuthService = {
   },
 
   /**
-   * Log out
+   * Logs out the user and clears session
    */
   async logout(): Promise<void> {
     try {
       await AsyncStorage.removeItem(AUTH_USER_KEY);
     } catch (e) {
-      console.error('Error during logout', e);
+      console.error('Error clearing session', e);
+    }
+  },
+
+  /**
+   * Permanently deletes user account and local data (Apple App Store Guideline 5.1.1(v) Compliant)
+   */
+  async deleteAccount(): Promise<void> {
+    try {
+      await AsyncStorage.multiRemove([
+        AUTH_USER_KEY,
+        '@fridge_chef_saved_recipes',
+        '@fridge_chef_user_preferences',
+        '@fridge_chef_user_stats',
+        '@fridge_chef_groceries_v2',
+        '@fridge_chef_gamification_v2',
+      ]);
+    } catch (e) {
+      console.error('Error deleting account', e);
     }
   },
 
