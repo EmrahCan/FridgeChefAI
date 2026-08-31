@@ -100,13 +100,13 @@ export default function LoginScreen() {
       {/* FULL-SCREEN CINEMATIC GOURMET BACKGROUND */}
       <Image
         source={{
-          uri: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1200&q=80',
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
         }}
         style={styles.backgroundImage}
       />
       <LinearGradient
-        colors={['rgba(4, 31, 26, 0.50)', 'rgba(4, 47, 46, 0.82)', '#041F1A']}
-        locations={[0, 0.45, 0.95]}
+        colors={['rgba(4, 47, 46, 0.75)', 'rgba(6, 30, 25, 0.92)', '#041F1A']}
+        locations={[0, 0.45, 1]}
         style={styles.gradientOverlay}
       />
 
