@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Clock, Flame, Sparkles, Heart, ChefHat, Leaf } from 'lucide-react-native';
+import { Clock, Flame, Heart, ChefHat, Leaf, ArrowUpRight } from 'lucide-react-native';
 import { Recipe } from '../types';
-import { Colors } from '../constants/Colors';
 import * as Haptics from 'expo-haptics';
 
 interface Props {
@@ -20,7 +19,7 @@ export const RecipeCard: React.FC<Props> = ({
 }) => {
   const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
 
-  const handleFavoritePress = (e: any) => {
+  const handleFavorite = (e: any) => {
     e.stopPropagation();
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -30,64 +29,76 @@ export const RecipeCard: React.FC<Props> = ({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.88}
+      activeOpacity={0.9}
       onPress={onPress}
-      style={styles.card}
+      style={styles.cardContainer}
     >
-      {/* Header Bar with Waste Badge and Favorite Button */}
-      <View style={styles.topRow}>
-        <View style={styles.wasteBadge}>
-          <Leaf size={13} color="#059669" />
-          <Text style={styles.wasteText}>🌱 {recipe.wasteSavedGrams}g İsraf Kurtarıldı</Text>
+      {/* Top Banner Ribbon */}
+      <View style={styles.ribbonRow}>
+        <View style={styles.wasteRibbon}>
+          <Leaf size={12} color="#0F766E" />
+          <Text style={styles.wasteRibbonText}>{recipe.wasteSavedGrams}g Kurtarıldı</Text>
         </View>
 
-        {onToggleSave && (
-          <TouchableOpacity
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            onPress={handleFavoritePress}
-            style={styles.favButton}
-          >
-            <Heart
-              size={20}
-              color={isSaved ? '#EF4444' : '#9CA3AF'}
-              fill={isSaved ? '#EF4444' : 'transparent'}
-            />
-          </TouchableOpacity>
-        )}
+        <View style={styles.topRightActions}>
+          <View style={styles.categoryPill}>
+            <Text style={styles.categoryPillText}>{recipe.category || 'Gurme'}</Text>
+          </View>
+
+          {onToggleSave && (
+            <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              onPress={handleFavorite}
+              style={styles.favBtn}
+            >
+              <Heart
+                size={18}
+                color={isSaved ? '#E11D48' : '#9CA3AF'}
+                fill={isSaved ? '#E11D48' : 'transparent'}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
-      {/* Title & Tagline */}
-      <Text style={styles.title}>{recipe.title}</Text>
-      <Text style={styles.tagline} numberOfLines={2}>{recipe.tagline || recipe.description}</Text>
+      {/* Main Recipe Title & Tagline */}
+      <View style={styles.titleRow}>
+        <Text style={styles.titleText}>{recipe.title}</Text>
+        <View style={styles.arrowBox}>
+          <ArrowUpRight size={16} color="#0F766E" />
+        </View>
+      </View>
 
-      {/* Ingredients Used Pills */}
-      <View style={styles.ingredientsRow}>
-        <Text style={styles.ingredientsLabel}>Kullanılan Kalanlar:</Text>
-        <Text style={styles.ingredientsList} numberOfLines={1}>
-          {recipe.ingredientsUsed.slice(0, 3).join(', ')}
-          {recipe.ingredientsUsed.length > 3 ? ` +${recipe.ingredientsUsed.length - 3}` : ''}
+      <Text style={styles.taglineText} numberOfLines={2}>
+        {recipe.tagline || recipe.description}
+      </Text>
+
+      {/* Ingredients Preview Bar */}
+      <View style={styles.pantryRow}>
+        <View style={styles.pantryLabelBox}>
+          <Text style={styles.pantryLabel}>Kalanlar:</Text>
+        </View>
+        <Text style={styles.pantryItems} numberOfLines={1}>
+          {recipe.ingredientsUsed.slice(0, 3).join(' • ')}
+          {recipe.ingredientsUsed.length > 3 ? ` (+${recipe.ingredientsUsed.length - 3})` : ''}
         </Text>
       </View>
 
       {/* Footer Metrics */}
       <View style={styles.footerRow}>
-        <View style={styles.metaItem}>
-          <Clock size={14} color="#6B7280" />
-          <Text style={styles.metaText}>{totalTime} dk</Text>
+        <View style={styles.metricCapsule}>
+          <Clock size={13} color="#0F766E" />
+          <Text style={styles.metricCapsuleText}>{totalTime} dk</Text>
         </View>
 
-        <View style={styles.metaItem}>
-          <ChefHat size={14} color="#6B7280" />
-          <Text style={styles.metaText}>{recipe.difficulty}</Text>
+        <View style={styles.metricCapsule}>
+          <ChefHat size={13} color="#D97706" />
+          <Text style={styles.metricCapsuleText}>{recipe.difficulty}</Text>
         </View>
 
-        <View style={styles.metaItem}>
-          <Flame size={14} color="#F97316" />
-          <Text style={styles.metaText}>{recipe.caloriesPerServing} kcal</Text>
-        </View>
-
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{recipe.category || 'Pratik'}</Text>
+        <View style={styles.metricCapsule}>
+          <Flame size={13} color="#EA580C" />
+          <Text style={styles.metricCapsuleText}>{recipe.caloriesPerServing} kcal</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -95,105 +106,133 @@ export const RecipeCard: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  card: {
+  cardContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 24,
+    padding: 18,
     marginBottom: 16,
-    shadowColor: '#000',
+    borderWidth: 1,
+    borderColor: '#E6EBE8',
+    shadowColor: '#0F261E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 3,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
   },
-  topRow: {
+  ribbonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  wasteBadge: {
+  wasteRibbon: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#CCFBF1',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 4.5,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
-  wasteText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#059669',
+  wasteRibbonText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#0F766E',
+    letterSpacing: 0.2,
   },
-  favButton: {
-    padding: 4,
-  },
-  title: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 4,
-    lineHeight: 22,
-  },
-  tagline: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 12,
-    lineHeight: 18,
-  },
-  ingredientsRow: {
+  topRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    gap: 8,
+  },
+  categoryPill: {
+    backgroundColor: '#F3F5F3',
+    paddingHorizontal: 9,
+    paddingVertical: 3.5,
     borderRadius: 10,
-    marginBottom: 12,
   },
-  ingredientsLabel: {
-    fontSize: 11,
+  categoryPillText: {
+    fontSize: 10.5,
     fontWeight: '700',
-    color: '#4B5563',
-    marginRight: 4,
+    color: '#4B6358',
   },
-  ingredientsList: {
+  favBtn: {
+    padding: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 6,
+  },
+  titleText: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0F1F1A',
+    lineHeight: 22,
+    letterSpacing: -0.3,
+  },
+  arrowBox: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#EFF6F3',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  taglineText: {
+    fontSize: 13,
+    color: '#556860',
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  pantryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAF8',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#EFF2EE',
+  },
+  pantryLabelBox: {
+    marginRight: 6,
+  },
+  pantryLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#0F766E',
+  },
+  pantryItems: {
     flex: 1,
     fontSize: 11,
-    color: '#10B981',
+    color: '#3F524A',
     fontWeight: '600',
   },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 10,
+    gap: 8,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: '#F3F6F4',
   },
-  metaItem: {
+  metricCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 4.5,
+    backgroundColor: '#F7FAF8',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
-  metaText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4B5563',
-  },
-  categoryBadge: {
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  categoryText: {
-    fontSize: 11,
+  metricCapsuleText: {
+    fontSize: 11.5,
     fontWeight: '700',
-    color: '#EA580C',
+    color: '#2C3E36',
   },
 });

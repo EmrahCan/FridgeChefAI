@@ -13,7 +13,17 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { Camera, Image as ImageIcon, Sparkles, RefreshCw, CheckCircle, Info, ChefHat } from 'lucide-react-native';
+import {
+  Camera,
+  Image as ImageIcon,
+  Sparkles,
+  ScanLine,
+  Info,
+  ChefHat,
+  Zap,
+  ArrowRight,
+} from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { GeminiService } from '../../services/geminiService';
 import { DEMO_PRESETS } from '../../constants/MockData';
 import * as Haptics from 'expo-haptics';
@@ -83,14 +93,13 @@ export default function ScanScreen() {
     } catch {}
 
     setIsAnalyzing(true);
-    setAnalysisStatus('Dolaptaki malzemeler ve kalan yemekler taranıyor...');
+    setAnalysisStatus('Dolaptaki kalan yemekler & sebzeler taranıyor...');
 
     try {
       const result = await GeminiService.analyzeFridgeImage(base64Data);
 
-      setAnalysisStatus('Tarifler için malzemeler hazırlanıyor...');
+      setAnalysisStatus('Sıfır israf şef reçeteleri hazırlanıyor...');
 
-      // Small delay for smooth UX
       setTimeout(() => {
         setIsAnalyzing(false);
         router.push({
@@ -104,7 +113,7 @@ export default function ScanScreen() {
       }, 700);
     } catch (err) {
       setIsAnalyzing(false);
-      Alert.alert('Analiz Hatası', 'Görsel taranırken bir sorun oluştu. Lütfen tekrar deneyin.');
+      Alert.alert('Analiz Hatası', 'Görsel taranırken bir sorun oluştu.');
     }
   };
 
@@ -126,78 +135,110 @@ export default function ScanScreen() {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>📸 Dolabı / Masayı Tara</Text>
+          <View style={styles.badgeRow}>
+            <View style={styles.visionPill}>
+              <Sparkles size={12} color="#0F766E" />
+              <Text style={styles.visionPillText}>AI Vision Scanner</Text>
+            </View>
+          </View>
+          <Text style={styles.title}>Dolap & Masa Tarama</Text>
           <Text style={styles.subtitle}>
-            Buzdolabınızı, kilerinizi veya yemek masasını fotoğraflayın. Yapay zeka tüm kalanları tanısın.
+            Buzdolabınızı veya kalan yemekleri vizöre yerleştirin, yapay zeka anında analiz etsin.
           </Text>
         </View>
 
-        {/* Viewfinder Preview Box */}
-        <View style={styles.viewfinderCard}>
-          {selectedImage ? (
-            <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-          ) : (
-            <View style={styles.emptyViewfinder}>
-              <View style={styles.scanTargetRing}>
-                <Camera size={44} color="#10B981" />
-              </View>
-              <Text style={styles.emptyText}>Net ve aydınlık bir fotoğraf çekin</Text>
-              <Text style={styles.emptySubtext}>Kalan yemek kapları, sebzeler veya açık paketler</Text>
-            </View>
-          )}
+        {/* CYBER-ORGANIC VIEWFINDER */}
+        <View style={styles.viewfinderWrapper}>
+          <View style={styles.viewfinderCard}>
+            {selectedImage ? (
+              <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+            ) : (
+              <View style={styles.viewfinderEmpty}>
+                {/* 4 Framing Reticle Corners */}
+                <View style={[styles.cornerBracket, styles.bracketTL]} />
+                <View style={[styles.cornerBracket, styles.bracketTR]} />
+                <View style={[styles.cornerBracket, styles.bracketBL]} />
+                <View style={[styles.cornerBracket, styles.bracketBR]} />
 
-          {isAnalyzing && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator size="large" color="#10B981" />
-              <Text style={styles.loadingTitle}>Yapay Zeka İnceliyor 🧠</Text>
-              <Text style={styles.loadingStatus}>{analysisStatus}</Text>
-            </View>
-          )}
+                {/* Center Target Lens */}
+                <View style={styles.centerLensOuter}>
+                  <View style={styles.centerLensInner}>
+                    <ScanLine size={32} color="#0F766E" />
+                  </View>
+                </View>
+
+                <Text style={styles.viewfinderHint}>Malzemeleri çerçeve içine alın</Text>
+                <Text style={styles.viewfinderSub}>Kalan tencere yemekleri, pörsümüş sebzeler veya açık peynirler</Text>
+              </View>
+            )}
+
+            {/* Analysis In-Progress Glass Overlay */}
+            {isAnalyzing && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#0F766E" />
+                <Text style={styles.loadingTitle}>Yapay Zeka Analiz Ediyor 🧠</Text>
+                <Text style={styles.loadingStatus}>{analysisStatus}</Text>
+              </View>
+            )}
+          </View>
         </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionRow}>
+        {/* FLOATING ACTION DECK */}
+        <View style={styles.actionDeck}>
           <TouchableOpacity
-            style={[styles.actionBtn, styles.cameraBtn]}
+            style={styles.primaryCameraBtn}
+            activeOpacity={0.88}
             onPress={takePhotoWithCamera}
             disabled={isAnalyzing}
           >
             <Camera size={20} color="#FFFFFF" />
-            <Text style={styles.cameraBtnText}>Kamera ile Çek</Text>
+            <Text style={styles.primaryCameraBtnText}>Fotoğraf Çek</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionBtn, styles.galleryBtn]}
+            style={styles.secondaryGalleryBtn}
+            activeOpacity={0.88}
             onPress={pickImageFromGallery}
             disabled={isAnalyzing}
           >
-            <ImageIcon size={20} color="#374151" />
-            <Text style={styles.galleryBtnText}>Galeriden Seç</Text>
+            <ImageIcon size={18} color="#0F766E" />
+            <Text style={styles.secondaryGalleryBtnText}>Galeriden Seç</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Photo Tips Box */}
-        <View style={styles.tipsBox}>
-          <View style={styles.tipTitleRow}>
-            <Info size={16} color="#059669" />
-            <Text style={styles.tipBoxTitle}>En İyi Sonuç İçin İpuçları:</Text>
+        {/* TIPS PILL CARD */}
+        <View style={styles.tipsCard}>
+          <View style={styles.tipHeaderRow}>
+            <Info size={15} color="#0F766E" />
+            <Text style={styles.tipCardTitle}>Şefin Tarama Tavsiyeleri</Text>
           </View>
-          <Text style={styles.tipItem}>• Buzdolabı kapağını açıp rafı geniş açıyla çekin.</Text>
-          <Text style={styles.tipItem}>• Kalan yemeklerin üzerindeki kapakları açın.</Text>
-          <Text style={styles.tipItem}>• Birden fazla malzemeyi aynı karede toplayabilirsiniz.</Text>
+          <Text style={styles.tipLine}>• Saklama kaplarının kapaklarını açık tutun.</Text>
+          <Text style={styles.tipLine}>• Rafı geniş açıyla, aydınlık bir ortamda çekin.</Text>
+          <Text style={styles.tipLine}>• Birden fazla kalan malzemeyi aynı kareye toplayabilirsiniz.</Text>
         </View>
 
-        {/* Simulator / Quick Presets */}
-        <View style={styles.presetsSection}>
-          <Text style={styles.presetSectionTitle}>💡 Simülatörde Test Etmek İçin Hazır Örnekler:</Text>
+        {/* INSTANT PANTRY TEST PRESETS */}
+        <View style={styles.presetsWrapper}>
+          <View style={styles.presetsHeader}>
+            <Zap size={14} color="#D97706" />
+            <Text style={styles.presetsTitle}>Fotoğrafsız Test Etmek İçin Örnekler</Text>
+          </View>
+
           {DEMO_PRESETS.map((preset) => (
             <TouchableOpacity
               key={preset.id}
-              style={styles.presetChip}
+              style={styles.presetCard}
+              activeOpacity={0.85}
               onPress={() => handleUsePreset(preset)}
             >
-              <ChefHat size={16} color="#10B981" />
-              <Text style={styles.presetChipText}>{preset.name}</Text>
+              <View style={styles.presetIconBox}>
+                <ChefHat size={18} color="#0F766E" />
+              </View>
+              <View style={styles.presetInfo}>
+                <Text style={styles.presetName}>{preset.name}</Text>
+                <Text style={styles.presetSubtitle} numberOfLines={1}>{preset.subtitle}</Text>
+              </View>
+              <ArrowRight size={16} color="#9CA3AF" />
             </TouchableOpacity>
           ))}
         </View>
@@ -209,65 +250,139 @@ export default function ScanScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   container: {
-    padding: 20,
+    padding: 18,
     paddingBottom: 40,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  badgeRow: {
+    marginBottom: 8,
+  },
+  visionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#CCFBF1',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+  },
+  visionPillText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#0F766E',
+    letterSpacing: 0.3,
   },
   title: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#111827',
-    marginBottom: 6,
+    color: '#0D1714',
+    letterSpacing: -0.5,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
+    fontSize: 13,
+    color: '#556860',
+    lineHeight: 18,
+  },
+  viewfinderWrapper: {
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
   },
   viewfinderCard: {
-    height: 260,
+    height: 280,
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 28,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E1E6DF',
     position: 'relative',
   },
-  emptyViewfinder: {
+  viewfinderEmpty: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
+    backgroundColor: '#FAFBF9',
   },
-  scanTargetRing: {
+  cornerBracket: {
+    position: 'absolute',
+    width: 24,
+    height: 24,
+    borderColor: '#0F766E',
+  },
+  bracketTL: {
+    top: 18,
+    left: 18,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderTopLeftRadius: 8,
+  },
+  bracketTR: {
+    top: 18,
+    right: 18,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+    borderTopRightRadius: 8,
+  },
+  bracketBL: {
+    bottom: 18,
+    left: 18,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+    borderBottomLeftRadius: 8,
+  },
+  bracketBR: {
+    bottom: 18,
+    right: 18,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderBottomRightRadius: 8,
+  },
+  centerLensOuter: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#CCFBF1',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
-    borderWidth: 2,
-    borderColor: '#A7F3D0',
   },
-  emptyText: {
+  centerLensInner: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  viewfinderHint: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: '800',
+    color: '#0D1714',
     marginBottom: 4,
   },
-  emptySubtext: {
+  viewfinderSub: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: '#687E74',
     textAlign: 'center',
+    paddingHorizontal: 16,
+    lineHeight: 16,
   },
   previewImage: {
     width: '100%',
@@ -275,7 +390,11 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   loadingOverlay: {
-    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.94)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -284,102 +403,129 @@ const styles = StyleSheet.create({
   loadingTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0D1714',
     marginTop: 14,
     marginBottom: 4,
   },
   loadingStatus: {
     fontSize: 13,
-    color: '#059669',
+    color: '#0F766E',
+    fontWeight: '700',
     textAlign: 'center',
-    fontWeight: '600',
   },
-  actionRow: {
+  actionDeck: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 18,
   },
-  actionBtn: {
-    flex: 1,
+  primaryCameraBtn: {
+    flex: 1.3,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 14,
-    borderRadius: 16,
-  },
-  cameraBtn: {
-    backgroundColor: '#10B981',
-    shadowColor: '#10B981',
+    backgroundColor: '#0F766E',
+    paddingVertical: 15,
+    borderRadius: 18,
+    shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
     elevation: 4,
   },
-  cameraBtnText: {
+  primaryCameraBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '800',
   },
-  galleryBtn: {
+  secondaryGalleryBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-  },
-  galleryBtnText: {
-    color: '#374151',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  tipsBox: {
-    backgroundColor: '#ECFDF5',
-    padding: 16,
+    borderColor: '#D1DCD6',
+    paddingVertical: 15,
     borderRadius: 18,
+  },
+  secondaryGalleryBtnText: {
+    color: '#0F766E',
+    fontSize: 13.5,
+    fontWeight: '800',
+  },
+  tipsCard: {
+    backgroundColor: '#EFF5F2',
+    padding: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#D8E2DC',
     marginBottom: 20,
   },
-  tipTitleRow: {
+  tipHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     marginBottom: 8,
   },
-  tipBoxTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#065F46',
-  },
-  tipItem: {
+  tipCardTitle: {
     fontSize: 12,
-    color: '#047857',
+    fontWeight: '800',
+    color: '#0F766E',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  tipLine: {
+    fontSize: 12,
+    color: '#34473F',
     lineHeight: 18,
     marginBottom: 2,
   },
-  presetsSection: {
-    marginTop: 6,
-  },
-  presetSectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#6B7280',
-    marginBottom: 10,
-  },
-  presetChip: {
+  presetsWrapper: {},
+  presetsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 8,
+    gap: 6,
+    marginBottom: 10,
   },
-  presetChipText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1F2937',
+  presetsTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#7D9087',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  presetCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E6EBE8',
+  },
+  presetIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: '#CCFBF1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  presetInfo: {
+    flex: 1,
+  },
+  presetName: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0D1714',
+    marginBottom: 2,
+  },
+  presetSubtitle: {
+    fontSize: 11.5,
+    color: '#687E74',
   },
 });

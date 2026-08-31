@@ -26,6 +26,7 @@ import {
   RotateCcw,
   Sparkles,
   Award,
+  Timer as TimerIcon,
 } from 'lucide-react-native';
 import { Recipe } from '../../types';
 import { StorageService } from '../../services/storageService';
@@ -39,10 +40,9 @@ export default function RecipeDetailScreen() {
   const [isSaved, setIsSaved] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'prep' | 'cook'>('cook');
-  const [isCookedDone, setIsCookedDone] = useState(false);
+  const [activeTab, setActiveTab] = useState<'cook' | 'prep'>('cook');
 
-  // Simple step timer state
+  // Interactive step timer state
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerStepIndex, setTimerStepIndex] = useState<number | null>(null);
@@ -111,6 +111,9 @@ export default function RecipeDetailScreen() {
   };
 
   const toggleIngredient = (name: string) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
     setCheckedIngredients((prev) =>
       prev.includes(name) ? prev.filter((i) => i !== name) : [...prev, name]
     );
@@ -118,7 +121,7 @@ export default function RecipeDetailScreen() {
 
   const startTimer = (minutes: number, stepIndex: number) => {
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {}
     setTimerStepIndex(stepIndex);
     setTimerSeconds(minutes * 60);
@@ -132,7 +135,6 @@ export default function RecipeDetailScreen() {
     } catch {}
 
     await StorageService.recordMealCooked(recipe.wasteSavedGrams || 350);
-    setIsCookedDone(true);
 
     Alert.alert(
       '🎉 Tebrikler Şef!',
@@ -164,178 +166,175 @@ export default function RecipeDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Navbar */}
+      {/* Top Navbar */}
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.navBtn}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={20} color="#0D1714" />
         </TouchableOpacity>
 
         <View style={styles.navActions}>
-          <TouchableOpacity onPress={handleShare} style={styles.navBtn}>
-            <Share2 size={20} color="#4B5563" />
+          <TouchableOpacity onPress={handleShare} style={styles.navIconBtn}>
+            <Share2 size={19} color="#3E5049" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleToggleFavorite} style={styles.navBtn}>
+          <TouchableOpacity onPress={handleToggleFavorite} style={styles.navIconBtn}>
             <Heart
-              size={22}
-              color={isSaved ? '#EF4444' : '#4B5563'}
-              fill={isSaved ? '#EF4444' : 'transparent'}
+              size={21}
+              color={isSaved ? '#E11D48' : '#3E5049'}
+              fill={isSaved ? '#E11D48' : 'transparent'}
             />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Waste Saved Hero Badge */}
+        {/* Waste Saved Badge */}
         <View style={styles.wasteHeroBanner}>
-          <Leaf size={16} color="#059669" />
+          <Leaf size={14} color="#0F766E" />
           <Text style={styles.wasteHeroText}>
-            Bu tarifle {recipe.wasteSavedGrams}g gıdanın çöpe gitmesi önlendi! 🌱
+            🌱 Bu tarifle {recipe.wasteSavedGrams}g gıda kurtarıldı!
           </Text>
         </View>
 
-        {/* Title & Tagline */}
-        <Text style={styles.title}>{recipe.title}</Text>
-        <Text style={styles.tagline}>{recipe.tagline || recipe.description}</Text>
+        {/* Master Title & Tagline */}
+        <Text style={styles.titleText}>{recipe.title}</Text>
+        <Text style={styles.taglineText}>{recipe.tagline || recipe.description}</Text>
 
-        {/* Key Metrics Bar */}
-        <View style={styles.metricsBar}>
-          <View style={styles.metricItem}>
-            <Clock size={16} color="#10B981" />
-            <Text style={styles.metricValue}>
+        {/* Bento Metrics Strip */}
+        <View style={styles.metricsStrip}>
+          <View style={styles.metricTile}>
+            <Clock size={16} color="#0F766E" />
+            <Text style={styles.metricTileValue}>
               {recipe.prepTimeMinutes + recipe.cookTimeMinutes} dk
             </Text>
-            <Text style={styles.metricLabel}>Toplam Süre</Text>
+            <Text style={styles.metricTileLabel}>Toplam Süre</Text>
           </View>
 
-          <View style={styles.metricSeparator} />
+          <View style={styles.metricDivider} />
 
-          <View style={styles.metricItem}>
-            <ChefHat size={16} color="#F97316" />
-            <Text style={styles.metricValue}>{recipe.difficulty}</Text>
-            <Text style={styles.metricLabel}>Zorluk</Text>
+          <View style={styles.metricTile}>
+            <ChefHat size={16} color="#D97706" />
+            <Text style={styles.metricTileValue}>{recipe.difficulty}</Text>
+            <Text style={styles.metricTileLabel}>Zorluk</Text>
           </View>
 
-          <View style={styles.metricSeparator} />
+          <View style={styles.metricDivider} />
 
-          <View style={styles.metricItem}>
-            <Flame size={16} color="#EF4444" />
-            <Text style={styles.metricValue}>{recipe.caloriesPerServing}</Text>
-            <Text style={styles.metricLabel}>kcal / Porsiyon</Text>
+          <View style={styles.metricTile}>
+            <Flame size={16} color="#EA580C" />
+            <Text style={styles.metricTileValue}>{recipe.caloriesPerServing}</Text>
+            <Text style={styles.metricTileLabel}>kcal/Porsiyon</Text>
           </View>
         </View>
 
-        {/* Tab Switcher: Cook vs Prep */}
-        <View style={styles.tabSwitcher}>
+        {/* Tab Switcher: Cook Timeline vs Ingredients */}
+        <View style={styles.tabBarWrapper}>
           <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'cook' && styles.tabBtnActive]}
+            style={[styles.tabSegment, activeTab === 'cook' && styles.tabSegmentActive]}
             onPress={() => setActiveTab('cook')}
           >
-            <Text style={[styles.tabBtnText, activeTab === 'cook' && styles.tabBtnTextActive]}>
+            <Text style={[styles.tabSegmentText, activeTab === 'cook' && styles.tabSegmentTextActive]}>
               👨‍🍳 Pişirme Adımları
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.tabBtn, activeTab === 'prep' && styles.tabBtnActive]}
+            style={[styles.tabSegment, activeTab === 'prep' && styles.tabSegmentActive]}
             onPress={() => setActiveTab('prep')}
           >
-            <Text style={[styles.tabBtnText, activeTab === 'prep' && styles.tabBtnTextActive]}>
+            <Text style={[styles.tabSegmentText, activeTab === 'prep' && styles.tabSegmentTextActive]}>
               🥗 Malzemeler
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Active Timer Box if running */}
+        {/* FLOATING TIMER CAPSULE (When Active) */}
         {timerSeconds !== null && (
-          <View style={styles.activeTimerCard}>
-            <View style={styles.timerHeader}>
-              <Clock size={18} color="#EA580C" />
-              <Text style={styles.timerTitle}>
-                Adım {Number(timerStepIndex) + 1} Zamanlayıcısı
+          <View style={styles.floatingTimerCard}>
+            <View style={styles.timerTop}>
+              <TimerIcon size={18} color="#EA580C" />
+              <Text style={styles.timerTopTitle}>
+                Adım {Number(timerStepIndex) + 1} Pişirme Sayacı
               </Text>
             </View>
             <Text style={styles.timerValue}>{formatTimer(timerSeconds)}</Text>
-            <View style={styles.timerControlRow}>
+            <View style={styles.timerActionsRow}>
               <TouchableOpacity
-                style={styles.timerActionBtn}
+                style={styles.timerPlayBtn}
                 onPress={() => setIsTimerRunning(!isTimerRunning)}
               >
                 {isTimerRunning ? (
                   <>
-                    <Pause size={16} color="#FFFFFF" />
-                    <Text style={styles.timerActionText}>Duraklat</Text>
+                    <Pause size={15} color="#FFFFFF" />
+                    <Text style={styles.timerPlayBtnText}>Duraklat</Text>
                   </>
                 ) : (
                   <>
-                    <Play size={16} color="#FFFFFF" />
-                    <Text style={styles.timerActionText}>Devam Et</Text>
+                    <Play size={15} color="#FFFFFF" />
+                    <Text style={styles.timerPlayBtnText}>Devam Et</Text>
                   </>
                 )}
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.timerActionBtn, styles.timerResetBtn]}
+                style={styles.timerResetBtn}
                 onPress={() => {
                   setTimerSeconds(null);
                   setIsTimerRunning(false);
                 }}
               >
-                <RotateCcw size={16} color="#4B5563" />
-                <Text style={[styles.timerActionText, { color: '#4B5563' }]}>Sıfırla</Text>
+                <RotateCcw size={15} color="#4B5563" />
+                <Text style={styles.timerResetBtnText}>Kapat</Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* TAB 1: COOKING STEPS */}
+        {/* TAB 1: MASTERCLASS COOKING TIMELINE */}
         {activeTab === 'cook' && (
-          <View style={styles.stepsContainer}>
+          <View style={styles.timelineContainer}>
             {recipe.instructions.map((step, idx) => {
               const isCompleted = completedSteps.includes(step.stepNumber);
               return (
                 <TouchableOpacity
                   key={step.stepNumber}
-                  activeOpacity={0.9}
+                  activeOpacity={0.92}
                   onPress={() => toggleStep(step.stepNumber)}
-                  style={[styles.stepCard, isCompleted && styles.stepCardCompleted]}
+                  style={[styles.stepCard, isCompleted && styles.stepCardDone]}
                 >
-                  <View style={styles.stepHeader}>
-                    <View style={styles.stepNumBadge}>
-                      <Text style={styles.stepNumText}>{step.stepNumber}</Text>
+                  <View style={styles.stepCardHeader}>
+                    <View style={[styles.stepNode, isCompleted && styles.stepNodeDone]}>
+                      <Text style={[styles.stepNodeNumber, isCompleted && styles.stepNodeNumberDone]}>
+                        {step.stepNumber}
+                      </Text>
                     </View>
-                    <Text style={[styles.stepTitle, isCompleted && styles.stepTitleCompleted]}>
+                    <Text style={[styles.stepTitle, isCompleted && styles.stepTitleDone]}>
                       {step.title}
                     </Text>
                     {isCompleted ? (
-                      <CheckCircle2 size={22} color="#10B981" />
+                      <CheckCircle2 size={22} color="#0F766E" />
                     ) : (
-                      <Circle size={22} color="#D1D5DB" />
+                      <Circle size={22} color="#C4D1CB" />
                     )}
                   </View>
 
-                  <Text
-                    style={[
-                      styles.stepDescription,
-                      isCompleted && styles.stepDescriptionCompleted,
-                    ]}
-                  >
+                  <Text style={[styles.stepDesc, isCompleted && styles.stepDescDone]}>
                     {step.description}
                   </Text>
 
                   {step.tip && (
-                    <View style={styles.stepTipBox}>
-                      <Sparkles size={14} color="#D97706" />
-                      <Text style={styles.stepTipText}>Şef İpucu: {step.tip}</Text>
+                    <View style={styles.tipCapsule}>
+                      <Sparkles size={13} color="#D97706" />
+                      <Text style={styles.tipCapsuleText}>Şef Püf Noktası: {step.tip}</Text>
                     </View>
                   )}
 
                   {step.durationMinutes && step.durationMinutes > 0 && (
                     <TouchableOpacity
-                      style={styles.stepTimerTrigger}
+                      style={styles.timerTriggerBtn}
                       onPress={() => startTimer(step.durationMinutes!, idx)}
                     >
-                      <Clock size={14} color="#059669" />
-                      <Text style={styles.stepTimerTriggerText}>
+                      <Clock size={13} color="#0F766E" />
+                      <Text style={styles.timerTriggerText}>
                         ⏱️ {step.durationMinutes} dk Sayacı Başlat
                       </Text>
                     </TouchableOpacity>
@@ -344,73 +343,75 @@ export default function RecipeDetailScreen() {
               );
             })}
 
-            {/* Complete Cook Action */}
-            <TouchableOpacity style={styles.finishBtn} onPress={handleCompleteMeal}>
-              <Award size={20} color="#FFFFFF" />
-              <Text style={styles.finishBtnText}>🎉 Yemeği Pişirdim! (İsrafı Önledim)</Text>
+            {/* CELEBRATION FINISH BUTTON */}
+            <TouchableOpacity
+              style={styles.completeMealBtn}
+              activeOpacity={0.9}
+              onPress={handleCompleteMeal}
+            >
+              <Award size={20} color="#5EEAD4" />
+              <Text style={styles.completeMealBtnText}>🎉 Yemeği Pişirdim & İsrafı Önledim</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* TAB 2: INGREDIENTS CHECKLIST */}
         {activeTab === 'prep' && (
-          <View style={styles.ingredientsContainer}>
-            <View style={styles.ingSectionHeader}>
-              <Leaf size={16} color="#059669" />
-              <Text style={styles.ingSectionTitle}>Dolaptan Kurtarılan Malzemeler</Text>
+          <View style={styles.prepCard}>
+            <View style={styles.prepHeaderRow}>
+              <Leaf size={15} color="#0F766E" />
+              <Text style={styles.prepHeaderTitle}>Dolaptan Kurtarılan Malzemeler</Text>
             </View>
             {recipe.ingredientsUsed.map((ing, idx) => {
               const isChecked = checkedIngredients.includes(ing);
               return (
                 <TouchableOpacity
                   key={`used-${idx}`}
-                  style={styles.ingItem}
+                  style={styles.checkItemRow}
                   onPress={() => toggleIngredient(ing)}
                 >
                   {isChecked ? (
-                    <CheckCircle2 size={18} color="#10B981" />
+                    <CheckCircle2 size={18} color="#0F766E" />
                   ) : (
-                    <Circle size={18} color="#9CA3AF" />
+                    <Circle size={18} color="#A7B7AF" />
                   )}
-                  <Text style={[styles.ingItemText, isChecked && styles.ingItemTextChecked]}>
+                  <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
                     {ing}
                   </Text>
                 </TouchableOpacity>
               );
             })}
 
-            <View style={[styles.ingSectionHeader, { marginTop: 20 }]}>
-              <ChefHat size={16} color="#F97316" />
-              <Text style={styles.ingSectionTitle}>Mutfaktaki Temel Malzemeler</Text>
+            <View style={[styles.prepHeaderRow, { marginTop: 22 }]}>
+              <ChefHat size={15} color="#EA580C" />
+              <Text style={styles.prepHeaderTitle}>Mutfaktaki Temel Malzemeler</Text>
             </View>
             {recipe.pantryItemsNeeded.map((item, idx) => {
               const isChecked = checkedIngredients.includes(item);
               return (
                 <TouchableOpacity
                   key={`pantry-${idx}`}
-                  style={styles.ingItem}
+                  style={styles.checkItemRow}
                   onPress={() => toggleIngredient(item)}
                 >
                   {isChecked ? (
-                    <CheckCircle2 size={18} color="#10B981" />
+                    <CheckCircle2 size={18} color="#0F766E" />
                   ) : (
-                    <Circle size={18} color="#9CA3AF" />
+                    <Circle size={18} color="#A7B7AF" />
                   )}
-                  <Text style={[styles.ingItemText, isChecked && styles.ingItemTextChecked]}>
+                  <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
                     {item}
                   </Text>
                 </TouchableOpacity>
               );
             })}
 
-            {/* Chef Tips List */}
+            {/* Extra Chef Tips */}
             {recipe.chefTips && recipe.chefTips.length > 0 && (
-              <View style={styles.chefTipsContainer}>
-                <Text style={styles.chefTipsHeader}>👨‍🍳 Şefin Ekstra Tavsiyeleri</Text>
-                {recipe.chefTips.map((tip, idx) => (
-                  <Text key={idx} style={styles.chefTipItem}>
-                    • {tip}
-                  </Text>
+              <View style={styles.chefTipsBox}>
+                <Text style={styles.chefTipsTitle}>👨‍🍳 Şefin İlave Tavsiyeleri</Text>
+                {recipe.chefTips.map((t, i) => (
+                  <Text key={i} style={styles.chefTipBullet}>• {t}</Text>
                 ))}
               </View>
             )}
@@ -424,7 +425,7 @@ export default function RecipeDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   loadingBox: {
@@ -436,11 +437,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#E6EBE8',
   },
   navBtn: {
     padding: 6,
@@ -449,308 +450,343 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
+  navIconBtn: {
+    padding: 6,
+  },
   scrollContent: {
-    padding: 16,
+    padding: 18,
     paddingBottom: 50,
   },
   wasteHeroBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
+    alignSelf: 'flex-start',
     marginBottom: 12,
   },
   wasteHeroText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#059669',
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0F766E',
   },
-  title: {
-    fontSize: 22,
+  titleText: {
+    fontSize: 24,
     fontWeight: '900',
-    color: '#111827',
+    color: '#0D1714',
+    letterSpacing: -0.6,
+    lineHeight: 30,
     marginBottom: 6,
-    lineHeight: 28,
   },
-  tagline: {
+  taglineText: {
     fontSize: 14,
-    color: '#4B5563',
+    color: '#556860',
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: 18,
   },
-  metricsBar: {
+  metricsStrip: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 12,
+    borderRadius: 20,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     justifyContent: 'space-around',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6EBE8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
     marginBottom: 20,
   },
-  metricItem: {
+  metricTile: {
     alignItems: 'center',
   },
-  metricValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#111827',
-    marginTop: 2,
+  metricTileValue: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: '#0D1714',
+    marginTop: 3,
   },
-  metricLabel: {
-    fontSize: 11,
-    color: '#6B7280',
+  metricTileLabel: {
+    fontSize: 10.5,
+    color: '#7D9087',
+    fontWeight: '600',
   },
-  metricSeparator: {
+  metricDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: '#E5E7EB',
+    height: 26,
+    backgroundColor: '#E6EBE8',
   },
-  tabSwitcher: {
+  tabBarWrapper: {
     flexDirection: 'row',
-    backgroundColor: '#E5E7EB',
-    borderRadius: 14,
+    backgroundColor: '#E6EBE8',
+    borderRadius: 16,
     padding: 4,
     marginBottom: 18,
   },
-  tabBtn: {
+  tabSegment: {
     flex: 1,
     paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 12,
   },
-  tabBtnActive: {
+  tabSegmentActive: {
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     elevation: 2,
   },
-  tabBtnText: {
+  tabSegmentText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#6B7280',
+    color: '#687E74',
   },
-  tabBtnTextActive: {
-    color: '#111827',
+  tabSegmentTextActive: {
+    color: '#0D1714',
+    fontWeight: '800',
   },
-  activeTimerCard: {
+  floatingTimerCard: {
     backgroundColor: '#FFF7ED',
     borderWidth: 1.5,
     borderColor: '#FDBA74',
-    borderRadius: 18,
+    borderRadius: 22,
     padding: 16,
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 20,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  timerHeader: {
+  timerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  timerTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#EA580C',
+  timerTopTitle: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#C2410C',
   },
   timerValue: {
-    fontSize: 34,
+    fontSize: 36,
     fontWeight: '900',
     color: '#9A3412',
     letterSpacing: 2,
     marginVertical: 4,
   },
-  timerControlRow: {
+  timerActionsRow: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 6,
+    marginTop: 4,
   },
-  timerActionBtn: {
+  timerPlayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#EA580C',
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 14,
+  },
+  timerPlayBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 12,
   },
   timerResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: '#E5E7EB',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 14,
   },
-  timerActionText: {
-    color: '#FFFFFF',
+  timerResetBtnText: {
+    color: '#4B5563',
     fontWeight: '700',
     fontSize: 12,
   },
-  stepsContainer: {
+  timelineContainer: {
     gap: 12,
   },
   stepCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 22,
+    padding: 18,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6EBE8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  stepCardCompleted: {
-    backgroundColor: '#F9FAFB',
-    borderColor: '#A7F3D0',
+  stepCardDone: {
+    backgroundColor: '#F5F7F6',
+    borderColor: '#CCFBF1',
     opacity: 0.85,
   },
-  stepHeader: {
+  stepCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
   },
-  stepNumBadge: {
+  stepNode: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#CCFBF1',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 10,
   },
-  stepNumText: {
+  stepNodeDone: {
+    backgroundColor: '#0F766E',
+  },
+  stepNodeNumber: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '900',
+    color: '#0F766E',
+  },
+  stepNodeNumberDone: {
+    color: '#FFFFFF',
   },
   stepTitle: {
     flex: 1,
     fontSize: 15,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0D1714',
   },
-  stepTitleCompleted: {
-    color: '#6B7280',
+  stepTitleDone: {
+    color: '#7D9087',
     textDecorationLine: 'line-through',
   },
-  stepDescription: {
+  stepDesc: {
     fontSize: 13,
-    color: '#4B5563',
+    color: '#3E5049',
     lineHeight: 20,
     marginBottom: 8,
   },
-  stepDescriptionCompleted: {
-    color: '#9CA3AF',
+  stepDescDone: {
+    color: '#8A9C93',
   },
-  stepTipBox: {
+  tipCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     backgroundColor: '#FEF3C7',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
     marginTop: 4,
   },
-  stepTipText: {
+  tipCapsuleText: {
     flex: 1,
-    fontSize: 11,
+    fontSize: 11.5,
     color: '#92400E',
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  stepTimerTrigger: {
+  timerTriggerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     alignSelf: 'flex-start',
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
     marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
-  stepTimerTriggerText: {
+  timerTriggerText: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#059669',
+    fontWeight: '800',
+    color: '#0F766E',
   },
-  finishBtn: {
+  completeMealBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#10B981',
-    paddingVertical: 16,
-    borderRadius: 18,
+    backgroundColor: '#0F766E',
+    paddingVertical: 17,
+    borderRadius: 22,
     marginTop: 14,
-    shadowColor: '#10B981',
+    shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 6,
   },
-  finishBtnText: {
+  completeMealBtnText: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 15.5,
+    fontWeight: '900',
   },
-  ingredientsContainer: {
+  prepCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 24,
+    padding: 18,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E6EBE8',
   },
-  ingSectionHeader: {
+  prepHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  ingSectionTitle: {
+  prepHeaderTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#111827',
+    color: '#0D1714',
   },
-  ingItem: {
+  checkItemRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#F3F6F4',
   },
-  ingItemText: {
-    fontSize: 13,
-    color: '#374151',
+  checkItemText: {
+    fontSize: 13.5,
+    color: '#2C3E36',
     fontWeight: '600',
   },
-  ingItemTextChecked: {
+  checkItemTextChecked: {
     color: '#9CA3AF',
     textDecorationLine: 'line-through',
   },
-  chefTipsContainer: {
+  chefTipsBox: {
     marginTop: 20,
     backgroundColor: '#FFFBEB',
     padding: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#FEF3C7',
   },
-  chefTipsHeader: {
+  chefTipsTitle: {
     fontSize: 13,
     fontWeight: '800',
     color: '#B45309',
     marginBottom: 6,
   },
-  chefTipItem: {
+  chefTipBullet: {
     fontSize: 12,
     color: '#92400E',
     lineHeight: 18,
-    marginBottom: 2,
+    marginBottom: 3,
   },
 });

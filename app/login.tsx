@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChefHat, Mail, Lock, Sparkles, Shield, ArrowRight } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import * as Haptics from 'expo-haptics';
 
@@ -84,31 +85,35 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Branding & Logo */}
+        {/* Editorial Luxury Branding Header */}
         <View style={styles.brandBox}>
-          <View style={styles.iconCircle}>
-            <ChefHat size={42} color="#FFFFFF" />
-          </View>
+          <LinearGradient
+            colors={['#0F766E', '#064E3B']}
+            style={styles.logoBadge}
+          >
+            <ChefHat size={40} color="#5EEAD4" />
+          </LinearGradient>
           <Text style={styles.brandTitle}>FridgeChef AI</Text>
           <Text style={styles.brandSubtitle}>
             Buzdolabındaki kalan yemeklerden yapay zeka ile gurme tarifler 🍳
           </Text>
         </View>
 
-        {/* Auth Card */}
+        {/* Auth Glass Card */}
         <View style={styles.card}>
-          <Text style={styles.cardHeaderTitle}>Üye Girişi</Text>
-          <Text style={styles.cardHeaderSub}>
+          <Text style={styles.cardTitle}>Üye Girişi</Text>
+          <Text style={styles.cardSub}>
             Lütfen devam etmek için hesabınıza giriş yapın.
           </Text>
 
           {/* Google Sign In Button */}
           <TouchableOpacity
             style={styles.googleBtn}
+            activeOpacity={0.85}
             onPress={handleGoogleLogin}
             disabled={isLoading}
           >
-            <View style={styles.googleIconBadge}>
+            <View style={styles.googleGBox}>
               <Text style={styles.googleG}>G</Text>
             </View>
             <Text style={styles.googleBtnText}>Google ile Devam Et</Text>
@@ -124,7 +129,7 @@ export default function LoginScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>E-Posta Adresi</Text>
             <View style={styles.inputWrapper}>
-              <Mail size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <Mail size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="ornek@mail.com"
@@ -142,7 +147,7 @@ export default function LoginScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Şifre</Text>
             <View style={styles.inputWrapper}>
-              <Lock size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <Lock size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="••••••••"
@@ -158,6 +163,7 @@ export default function LoginScreen() {
           {/* Submit Button */}
           <TouchableOpacity
             style={[styles.submitBtn, isLoading && styles.submitBtnDisabled]}
+            activeOpacity={0.88}
             onPress={handleEmailLogin}
             disabled={isLoading}
           >
@@ -173,7 +179,7 @@ export default function LoginScreen() {
 
           {/* Register Link */}
           <View style={styles.registerPromptRow}>
-            <Text style={styles.promptText}>Hesabınız yok mu?</Text>
+            <Text style={styles.promptText}>Henüz üye değil misiniz?</Text>
             <TouchableOpacity onPress={() => router.push('/register')}>
               <Text style={styles.registerLinkText}>Yeni Üye Kaydı</Text>
             </TouchableOpacity>
@@ -181,22 +187,24 @@ export default function LoginScreen() {
         </View>
 
         {/* Demo Fast Login Box */}
-        <View style={styles.demoBox}>
+        <View style={styles.demoCard}>
           <Text style={styles.demoTitle}>⚡ Simülatör Hızlı Test Girişleri</Text>
           <View style={styles.demoButtonsRow}>
             <TouchableOpacity
               style={[styles.demoBtn, styles.demoAdminBtn]}
+              activeOpacity={0.8}
               onPress={() => handleQuickDemoLogin('admin')}
             >
-              <Shield size={16} color="#DC2626" />
+              <Shield size={15} color="#BE123C" />
               <Text style={styles.demoAdminBtnText}>👑 Admin Girişi</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.demoBtn, styles.demoUserBtn]}
+              activeOpacity={0.8}
               onPress={() => handleQuickDemoLogin('user')}
             >
-              <ChefHat size={16} color="#059669" />
+              <ChefHat size={15} color="#0F766E" />
               <Text style={styles.demoUserBtnText}>👨‍🍳 Şef Girişi</Text>
             </TouchableOpacity>
           </View>
@@ -209,7 +217,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   scrollContent: {
@@ -221,55 +229,56 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 24,
   },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#10B981',
+  logoBadge: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
+    marginBottom: 14,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
     elevation: 6,
   },
   brandTitle: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#111827',
+    color: '#0D1714',
+    letterSpacing: -0.8,
     marginBottom: 4,
   },
   brandSubtitle: {
     fontSize: 13,
-    color: '#4B5563',
+    color: '#556860',
     textAlign: 'center',
     lineHeight: 18,
     paddingHorizontal: 20,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 28,
     padding: 22,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowRadius: 14,
     elevation: 3,
-    marginBottom: 20,
+    marginBottom: 18,
   },
-  cardHeaderTitle: {
+  cardTitle: {
     fontSize: 20,
-    fontWeight: '800',
-    color: '#111827',
+    fontWeight: '900',
+    color: '#0D1714',
+    letterSpacing: -0.3,
     marginBottom: 4,
   },
-  cardHeaderSub: {
+  cardSub: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#687E74',
     marginBottom: 18,
   },
   googleBtn: {
@@ -279,12 +288,12 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
     paddingVertical: 13,
-    borderRadius: 16,
+    borderRadius: 18,
     marginBottom: 18,
   },
-  googleIconBadge: {
+  googleGBox: {
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -298,7 +307,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   googleBtnText: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '700',
     color: '#1F2937',
   },
@@ -310,12 +319,12 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#E1E6DF',
   },
   dividerText: {
     paddingHorizontal: 10,
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: 11.5,
+    color: '#8A9C93',
     fontWeight: '600',
   },
   inputGroup: {
@@ -323,17 +332,17 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#374151',
+    fontWeight: '800',
+    color: '#2C3E36',
     marginBottom: 6,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAF8',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
+    borderColor: '#E1E6DF',
+    borderRadius: 16,
     paddingHorizontal: 12,
   },
   inputIcon: {
@@ -343,22 +352,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#111827',
+    color: '#0D1714',
   },
   submitBtn: {
-    backgroundColor: '#10B981',
-    paddingVertical: 15,
-    borderRadius: 16,
+    backgroundColor: '#0F766E',
+    paddingVertical: 16,
+    borderRadius: 18,
     alignItems: 'center',
     marginTop: 6,
-    shadowColor: '#10B981',
+    shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     elevation: 4,
   },
   submitBtnDisabled: {
-    backgroundColor: '#6EE7B7',
+    backgroundColor: '#5EEAD4',
   },
   btnRow: {
     flexDirection: 'row',
@@ -368,7 +377,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   registerPromptRow: {
     flexDirection: 'row',
@@ -379,24 +388,24 @@ const styles = StyleSheet.create({
   },
   promptText: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#687E74',
   },
   registerLinkText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#10B981',
+    color: '#0F766E',
   },
-  demoBox: {
+  demoCard: {
     backgroundColor: '#FFFFFF',
     padding: 16,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
   },
   demoTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#6B7280',
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#7D9087',
     marginBottom: 10,
     textAlign: 'center',
     textTransform: 'uppercase',
@@ -416,23 +425,23 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   demoAdminBtn: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FFE4E6',
     borderWidth: 1,
-    borderColor: '#FCA5A5',
+    borderColor: '#FECDD3',
   },
   demoAdminBtnText: {
-    color: '#DC2626',
-    fontWeight: '700',
-    fontSize: 13,
+    color: '#BE123C',
+    fontWeight: '800',
+    fontSize: 12.5,
   },
   demoUserBtn: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#CCFBF1',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#99F6E4',
   },
   demoUserBtnText: {
-    color: '#059669',
-    fontWeight: '700',
-    fontSize: 13,
+    color: '#0F766E',
+    fontWeight: '800',
+    fontSize: 12.5,
   },
 });

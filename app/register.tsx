@@ -72,7 +72,7 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
       >
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft size={22} color="#111827" />
+          <ArrowLeft size={20} color="#0D1714" />
         </TouchableOpacity>
 
         <View style={styles.header}>
@@ -87,7 +87,7 @@ export default function RegisterScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Ad Soyad</Text>
             <View style={styles.inputWrapper}>
-              <UserIcon size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <UserIcon size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="Ahmet Yılmaz"
@@ -102,7 +102,7 @@ export default function RegisterScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>E-Posta Adresi</Text>
             <View style={styles.inputWrapper}>
-              <Mail size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <Mail size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="ahmet@mail.com"
@@ -119,7 +119,7 @@ export default function RegisterScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Şifre</Text>
             <View style={styles.inputWrapper}>
-              <Lock size={18} color="#9CA3AF" style={styles.inputIcon} />
+              <Lock size={17} color="#7D9087" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="En az 4 karakter"
@@ -148,7 +148,7 @@ export default function RegisterScreen() {
                     >
                       {choice}
                     </Text>
-                    {isSelected && <Check size={14} color="#059669" />}
+                    {isSelected && <Check size={14} color="#0F766E" />}
                   </TouchableOpacity>
                 );
               })}
@@ -158,6 +158,7 @@ export default function RegisterScreen() {
           {/* Submit */}
           <TouchableOpacity
             style={[styles.submitBtn, isLoading && styles.submitBtnDisabled]}
+            activeOpacity={0.88}
             onPress={handleRegister}
             disabled={isLoading}
           >
@@ -183,7 +184,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   scrollContent: {
@@ -201,37 +202,43 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#111827',
-    marginBottom: 6,
+    color: '#0D1714',
+    letterSpacing: -0.6,
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#556860',
     lineHeight: 18,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
+    borderRadius: 28,
+    padding: 22,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E1E6DF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    elevation: 3,
   },
   inputGroup: {
     marginBottom: 16,
   },
   inputLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#374151',
+    fontWeight: '800',
+    color: '#2C3E36',
     marginBottom: 6,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAF8',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
+    borderColor: '#E1E6DF',
+    borderRadius: 16,
     paddingHorizontal: 12,
   },
   inputIcon: {
@@ -241,7 +248,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 14,
-    color: '#111827',
+    color: '#0D1714',
   },
   dietaryWrap: {
     flexDirection: 'row',
@@ -252,45 +259,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAF8',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 10,
+    borderColor: '#E1E6DF',
+    paddingHorizontal: 11,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 14,
   },
   dietaryChipSelected: {
-    backgroundColor: '#ECFDF5',
-    borderColor: '#10B981',
+    backgroundColor: '#CCFBF1',
+    borderColor: '#0F766E',
   },
   dietaryText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#4B5563',
+    fontWeight: '700',
+    color: '#3E5049',
   },
   dietaryTextSelected: {
-    color: '#065F46',
-    fontWeight: '700',
+    color: '#0F766E',
   },
   submitBtn: {
-    backgroundColor: '#10B981',
-    paddingVertical: 15,
-    borderRadius: 16,
+    backgroundColor: '#0F766E',
+    paddingVertical: 16,
+    borderRadius: 18,
     alignItems: 'center',
     marginTop: 8,
-    shadowColor: '#10B981',
+    shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     elevation: 4,
   },
   submitBtnDisabled: {
-    backgroundColor: '#6EE7B7',
+    backgroundColor: '#5EEAD4',
   },
   submitBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '900',
   },
   loginPromptRow: {
     flexDirection: 'row',
@@ -301,11 +307,11 @@ const styles = StyleSheet.create({
   },
   promptText: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#687E74',
   },
   loginLinkText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#10B981',
+    color: '#0F766E',
   },
 });

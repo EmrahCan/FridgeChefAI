@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Leaf, Award, TrendingUp, Utensils } from 'lucide-react-native';
+import { Leaf, Sparkles, TrendingUp, Utensils, ShieldCheck } from 'lucide-react-native';
 import { UserStats } from '../types';
 
 interface Props {
@@ -10,128 +10,234 @@ interface Props {
 
 export const ZeroWasteStatCard: React.FC<Props> = ({ stats }) => {
   return (
-    <LinearGradient
-      colors={['#059669', '#10B981']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
-      <View style={styles.header}>
-        <View style={styles.badgePill}>
-          <Leaf size={14} color="#059669" />
-          <Text style={styles.badgeText}>Sıfır İsraf Etkisi</Text>
-        </View>
-        <Award size={20} color="#FEF08A" />
-      </View>
+    <View style={styles.outerContainer}>
+      <LinearGradient
+        colors={['#0F4A3E', '#062B23']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.container}
+      >
+        {/* Ambient Glow Orb Behind */}
+        <View style={styles.glowOrb} />
 
-      <Text style={styles.heroNumber}>
-        {stats.totalWasteSavedKg.toFixed(1)} <Text style={styles.heroUnit}>kg</Text>
-      </Text>
-      <Text style={styles.heroLabel}>Gıda İsrafı Önlenerek Kurtarıldı 🌱</Text>
-
-      <View style={styles.divider} />
-
-      <View style={styles.subStatsRow}>
-        <View style={styles.subStat}>
-          <Utensils size={15} color="#D1FAE5" />
-          <View>
-            <Text style={styles.subStatValue}>{stats.totalMealsCooked}</Text>
-            <Text style={styles.subStatLabel}>Pişirilen Tarif</Text>
+        {/* Top Header Pill */}
+        <View style={styles.topHeader}>
+          <View style={styles.ecoPill}>
+            <Leaf size={12} color="#34D399" />
+            <Text style={styles.ecoPillText}>Sıfır İsraf Etkisi</Text>
+          </View>
+          <View style={styles.liveIndicator}>
+            <View style={styles.liveDot} />
+            <Text style={styles.liveText}>Canlı Sayaç</Text>
           </View>
         </View>
 
-        <View style={styles.statSeparator} />
+        {/* Main Bento Hero Stat */}
+        <View style={styles.heroRow}>
+          <View style={styles.heroLeft}>
+            <Text style={styles.heroNumber}>
+              {stats.totalWasteSavedKg.toFixed(1)}
+              <Text style={styles.heroUnit}> kg</Text>
+            </Text>
+            <Text style={styles.heroDescription}>
+              Buzdolabından kurtarılan gıda 🌱
+            </Text>
+          </View>
 
-        <View style={styles.subStat}>
-          <TrendingUp size={15} color="#FEF08A" />
-          <View>
-            <Text style={styles.subStatValue}>~₺{stats.estimatedMoneySavedTL}</Text>
-            <Text style={styles.subStatLabel}>Tasarruf Edildi</Text>
+          {/* Eco Badge Ring */}
+          <View style={styles.ecoRingWrapper}>
+            <View style={styles.ecoRingOuter}>
+              <View style={styles.ecoRingInner}>
+                <Sparkles size={20} color="#34D399" />
+              </View>
+            </View>
           </View>
         </View>
-      </View>
-    </LinearGradient>
+
+        {/* Hairline Divider */}
+        <View style={styles.hairline} />
+
+        {/* Two Bento Sub-Tiles */}
+        <View style={styles.subGrid}>
+          <View style={styles.subTile}>
+            <View style={[styles.subTileIconBox, { backgroundColor: 'rgba(52, 211, 153, 0.15)' }]}>
+              <Utensils size={14} color="#34D399" />
+            </View>
+            <View>
+              <Text style={styles.subTileValue}>{stats.totalMealsCooked} Öğün</Text>
+              <Text style={styles.subTileLabel}>Pişirilen Tarif</Text>
+            </View>
+          </View>
+
+          <View style={styles.tileSeparator} />
+
+          <View style={styles.subTile}>
+            <View style={[styles.subTileIconBox, { backgroundColor: 'rgba(251, 146, 60, 0.15)' }]}>
+              <TrendingUp size={14} color="#FB923C" />
+            </View>
+            <View>
+              <Text style={styles.subTileValue}>~₺{stats.estimatedMoneySavedTL}</Text>
+              <Text style={styles.subTileLabel}>Bütçe Tasarrufu</Text>
+            </View>
+          </View>
+        </View>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 24,
-    padding: 20,
-    marginHorizontal: 16,
+  outerContainer: {
+    marginHorizontal: 18,
     marginBottom: 20,
-    shadowColor: '#059669',
-    shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#052F26',
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  header: {
+  container: {
+    borderRadius: 28,
+    padding: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  glowOrb: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(20, 184, 166, 0.25)',
+  },
+  topHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  badgePill: {
+  ecoPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
-  badgeText: {
+  ecoPillText: {
+    color: '#E6FAF2',
     fontSize: 11,
     fontWeight: '800',
-    color: '#059669',
-    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#34D399',
+  },
+  liveText: {
+    color: '#A7F3D0',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  heroRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  heroLeft: {
+    flex: 1,
   },
   heroNumber: {
-    fontSize: 38,
+    fontSize: 42,
     fontWeight: '900',
     color: '#FFFFFF',
-    lineHeight: 42,
+    letterSpacing: -1.5,
+    lineHeight: 46,
   },
   heroUnit: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#D1FAE5',
+    color: '#6EE7B7',
+    letterSpacing: 0,
   },
-  heroLabel: {
+  heroDescription: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#ECFDF5',
+    color: '#D1FAE5',
     marginTop: 2,
-    marginBottom: 14,
   },
-  divider: {
+  ecoRingWrapper: {
+    marginLeft: 14,
+  },
+  ecoRingOuter: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    borderWidth: 2,
+    borderColor: 'rgba(52, 211, 153, 0.4)',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ecoRingInner: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hairline: {
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    marginBottom: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    marginBottom: 16,
   },
-  subStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  subStat: {
+  subGrid: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
   },
-  statSeparator: {
-    width: 1,
-    height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  subTile: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
-  subStatValue: {
-    fontSize: 15,
+  subTileIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 11,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  subTileValue: {
+    fontSize: 14,
     fontWeight: '800',
     color: '#FFFFFF',
   },
-  subStatLabel: {
-    fontSize: 11,
-    color: '#D1FAE5',
+  subTileLabel: {
+    fontSize: 10.5,
+    color: '#A7F3D0',
+    fontWeight: '500',
+  },
+  tileSeparator: {
+    width: 1,
+    height: 26,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    marginHorizontal: 12,
   },
 });

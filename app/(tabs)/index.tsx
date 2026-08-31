@@ -15,19 +15,24 @@ import {
   Sparkles,
   Lightbulb,
   ArrowRight,
-  TrendingUp,
   Flame,
   ChefHat,
+  Leaf,
+  ScanLine,
+  ArrowUpRight,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ZeroWasteStatCard } from '../../components/ZeroWasteStatCard';
 import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
+import { useAuth } from '../../context/AuthContext';
 import { DEMO_PRESETS, ZERO_WASTE_TIPS } from '../../constants/MockData';
 import { Recipe, UserStats } from '../../types';
 import * as Haptics from 'expo-haptics';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [stats, setStats] = useState<UserStats>({
     totalMealsCooked: 3,
     totalWasteSavedKg: 1.4,
@@ -76,12 +81,11 @@ export default function HomeScreen() {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
-    // Navigate to review screen with serialized detected ingredients
     router.push({
       pathname: '/recipe/review',
       params: {
         ingredientsJson: JSON.stringify(preset.ingredients),
-        summaryText: `${preset.name} üzerinden malzemeler aktarıldı.`,
+        summaryText: `${preset.name} malzemeleri inceleniyor.`,
       },
     });
   };
@@ -95,93 +99,114 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10B981" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0F766E" />
         }
       >
-        {/* Top Header */}
-        <View style={styles.header}>
+        {/* Editorial Top Bar */}
+        <View style={styles.topBar}>
           <View>
-            <Text style={styles.greeting}>Hoş Geldin Şef 👨‍🍳</Text>
-            <Text style={styles.appTitle}>FridgeChef AI</Text>
+            <Text style={styles.dateLabel}>
+              {new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}
+            </Text>
+            <Text style={styles.greetingText}>
+              Merhaba, {user?.name?.split(' ')[0] || 'Şef'} 👋
+            </Text>
           </View>
 
-          <TouchableOpacity style={styles.scanHeaderBtn} onPress={handleStartScan}>
-            <Camera size={18} color="#FFFFFF" />
-            <Text style={styles.scanHeaderBtnText}>Tara</Text>
+          <TouchableOpacity
+            style={styles.profileBadge}
+            onPress={() => router.push('/(tabs)/settings')}
+          >
+            <View style={styles.profileAvatar}>
+              <Text style={styles.profileAvatarLetter}>{user?.name?.[0] || 'Ş'}</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
-        {/* User Stats Card */}
-        <ZeroWasteStatCard stats={stats} />
-
-        {/* Big Quick Scan Banner */}
+        {/* BENTO HERO: THE SCAN CHAMBER */}
         <TouchableOpacity
-          activeOpacity={0.9}
-          style={styles.heroBanner}
+          activeOpacity={0.92}
           onPress={handleStartScan}
+          style={styles.scanChamberCard}
         >
-          <View style={styles.heroContent}>
-            <View style={styles.heroBadge}>
-              <Sparkles size={13} color="#EA580C" />
-              <Text style={styles.heroBadgeText}>AI Görüntü Analizi</Text>
+          <LinearGradient
+            colors={['#0F766E', '#115E59', '#042F2E']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.scanChamberGradient}
+          >
+            {/* Holographic light sphere */}
+            <View style={styles.ambientSphere} />
+
+            <View style={styles.scanChamberTop}>
+              <View style={styles.aiTag}>
+                <Sparkles size={12} color="#5EEAD4" />
+                <Text style={styles.aiTagText}>Gemini 1.5 Vision</Text>
+              </View>
+              <View style={styles.pulseRadar}>
+                <ScanLine size={18} color="#5EEAD4" />
+              </View>
             </View>
-            <Text style={styles.heroTitle}>Dolaptaki Kalanları Fotoğrafla</Text>
-            <Text style={styles.heroSubtitle}>
-              Kalan yemeklerin ve sebzelerin fotoğrafını çekin, yapay zeka sıfır israflı gurme tariflere dönüştürsün.
+
+            <Text style={styles.scanChamberTitle}>Dolabını Fotoğrafla & İsrafı Durdur</Text>
+            <Text style={styles.scanChamberSub}>
+              Kalan yemekleri ve sebzeleri yapay zekaya gösterin, 10 saniyede sıfır israflı gurme menüler hazırlasın.
             </Text>
 
-            <View style={styles.heroButtonRow}>
-              <View style={styles.heroCta}>
-                <Camera size={16} color="#FFFFFF" />
-                <Text style={styles.heroCtaText}>Hemen Fotoğraf Çek</Text>
-                <ArrowRight size={16} color="#FFFFFF" />
+            <View style={styles.scanCtaRow}>
+              <View style={styles.scanCtaButton}>
+                <Camera size={18} color="#042F2E" />
+                <Text style={styles.scanCtaText}>Kamerayı Başlat</Text>
               </View>
+              <Text style={styles.scanHint}>veya galeriden yükle 📸</Text>
             </View>
-          </View>
+          </LinearGradient>
         </TouchableOpacity>
 
-        {/* Quick Presets / Test Scenarios */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>⚡ Hızlı Örnek Senaryolar</Text>
-            <Text style={styles.sectionSubtitle}>Fotoğrafsız hemen test edin</Text>
+        {/* BENTO ECO IMPACT STATS WIDGET */}
+        <ZeroWasteStatCard stats={stats} />
+
+        {/* BENTO 2-COLUMN TILES: TIPS & QUICK ACTIONS */}
+        <View style={styles.bentoGridRow}>
+          {/* Tile 1: Tip of the day */}
+          <View style={styles.bentoTileLeft}>
+            <View style={styles.bentoTileHeader}>
+              <Lightbulb size={16} color="#D97706" />
+              <Text style={styles.bentoTileTag}>Günün İpucu</Text>
+            </View>
+            <Text style={styles.tipTitleText} numberOfLines={2}>{currentTip.title}</Text>
+            <Text style={styles.tipDescText} numberOfLines={3}>{currentTip.description}</Text>
           </View>
 
-          {DEMO_PRESETS.map((preset) => (
-            <TouchableOpacity
-              key={preset.id}
-              style={styles.presetCard}
-              activeOpacity={0.8}
-              onPress={() => handleSelectPreset(preset)}
-            >
-              <View style={styles.presetIconBox}>
-                <ChefHat size={22} color="#10B981" />
-              </View>
-              <View style={styles.presetTextBox}>
-                <Text style={styles.presetName}>{preset.name}</Text>
-                <Text style={styles.presetSubtitle} numberOfLines={1}>
-                  {preset.subtitle}
-                </Text>
-              </View>
-              <ArrowRight size={18} color="#9CA3AF" />
+          {/* Tile 2: Instant Chef Preset */}
+          <TouchableOpacity
+            style={styles.bentoTileRight}
+            activeOpacity={0.88}
+            onPress={() => handleSelectPreset(DEMO_PRESETS[0])}
+          >
+            <View style={styles.bentoTileHeader}>
+              <ChefHat size={16} color="#0F766E" />
+              <Text style={[styles.bentoTileTag, { color: '#0F766E' }]}>Hızlı Menü</Text>
+            </View>
+            <Text style={styles.presetTitleText} numberOfLines={2}>Tavuk & Pilav Kurtarma</Text>
+            <Text style={styles.presetDescText}>Dünden kalanları 15 dakikada lüks fırın gratenine dönüştürün.</Text>
+            <View style={styles.presetLinkRow}>
+              <Text style={styles.presetLinkText}>Hemen İncele</Text>
+              <ArrowRight size={13} color="#0F766E" />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* SECTION: FEATURED ZERO WASTE RECIPES */}
+        <View style={styles.recipesSection}>
+          <View style={styles.sectionHeaderRow}>
+            <View>
+              <Text style={styles.sectionTitle}>Şefin Kurtarma Seçkisi 👨‍🍳</Text>
+              <Text style={styles.sectionSub}>Günün öne çıkan sıfır israf tarifleri</Text>
+            </View>
+            <TouchableOpacity onPress={handleStartScan}>
+              <Text style={styles.sectionActionText}>Tümünü Gör</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Zero Waste Tip of the Day */}
-        <View style={styles.tipCard}>
-          <View style={styles.tipHeader}>
-            <Lightbulb size={20} color="#F59E0B" />
-            <Text style={styles.tipHeaderTitle}>Günün Sıfır İsraf İpucu</Text>
-          </View>
-          <Text style={styles.tipTitle}>{currentTip.title}</Text>
-          <Text style={styles.tipDescription}>{currentTip.description}</Text>
-        </View>
-
-        {/* Featured / Sample Recipes */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>🍳 Öne Çıkan Kurtarma Tarifleri</Text>
           </View>
 
           {DEMO_PRESETS[0].recipes.map((recipe) => {
@@ -210,188 +235,261 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   container: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
-  header: {
+  topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     paddingTop: 12,
     paddingBottom: 16,
   },
-  greeting: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  dateLabel: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#0F766E',
+    letterSpacing: 1.2,
+    marginBottom: 2,
   },
-  appTitle: {
-    fontSize: 24,
+  greetingText: {
+    fontSize: 22,
     fontWeight: '900',
-    color: '#111827',
+    color: '#0D1714',
+    letterSpacing: -0.5,
   },
-  scanHeaderBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#10B981',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+  profileBadge: {
+    padding: 3,
+  },
+  profileAvatar: {
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    backgroundColor: '#0F766E',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
   },
-  scanHeaderBtnText: {
+  profileAvatarLetter: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 13,
+    fontWeight: '800',
+    fontSize: 16,
   },
-  heroBanner: {
-    backgroundColor: '#FFFBEB',
-    marginHorizontal: 16,
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1.5,
-    borderColor: '#FEF3C7',
+  scanChamberCard: {
+    marginHorizontal: 18,
+    borderRadius: 28,
     marginBottom: 20,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.28,
+    shadowRadius: 20,
+    elevation: 8,
   },
-  heroContent: {},
-  heroBadge: {
+  scanChamberGradient: {
+    borderRadius: 28,
+    padding: 22,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  ambientSphere: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(94, 234, 212, 0.22)',
+  },
+  scanChamberTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  aiTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#FFEDD5',
-    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  heroBadgeText: {
+  aiTagText: {
+    color: '#CCFBF1',
     fontSize: 11,
     fontWeight: '800',
-    color: '#EA580C',
+    letterSpacing: 0.3,
   },
-  heroTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#1E293B',
-    marginBottom: 6,
+  pulseRadar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  heroSubtitle: {
+  scanChamberTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+    lineHeight: 28,
+    marginBottom: 8,
+  },
+  scanChamberSub: {
     fontSize: 13,
-    color: '#4B5563',
+    color: '#CCFBF1',
     lineHeight: 18,
-    marginBottom: 16,
+    marginBottom: 20,
+    opacity: 0.9,
   },
-  heroButtonRow: {
+  scanCtaRow: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
   },
-  heroCta: {
+  scanCtaButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#EA580C',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
-  },
-  heroCtaText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  section: {
-    paddingHorizontal: 16,
-    marginBottom: 20,
-  },
-  sectionHeader: {
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#111827',
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 2,
-  },
-  presetCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#5EEAD4',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 16,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  presetIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#ECFDF5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+  scanCtaText: {
+    color: '#042F2E',
+    fontSize: 13.5,
+    fontWeight: '800',
   },
-  presetTextBox: {
-    flex: 1,
-  },
-  presetName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 2,
-  },
-  presetSubtitle: {
+  scanHint: {
+    color: 'rgba(255, 255, 255, 0.75)',
     fontSize: 12,
-    color: '#6B7280',
+    fontWeight: '600',
   },
-  tipCard: {
-    backgroundColor: '#FEF9C3',
-    marginHorizontal: 16,
-    padding: 16,
-    borderRadius: 20,
+  bentoGridRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 18,
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#FEF08A',
   },
-  tipHeader: {
+  bentoTileLeft: {
+    flex: 1,
+    backgroundColor: '#FFFBEB',
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+    shadowColor: '#D97706',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  bentoTileRight: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E6EBE8',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  bentoTileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     marginBottom: 8,
   },
-  tipHeaderTitle: {
-    fontSize: 12,
+  bentoTileTag: {
+    fontSize: 10.5,
     fontWeight: '800',
     color: '#B45309',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  tipTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  tipTitleText: {
+    fontSize: 13.5,
+    fontWeight: '800',
     color: '#78350F',
     marginBottom: 4,
-  },
-  tipDescription: {
-    fontSize: 13,
-    color: '#92400E',
     lineHeight: 18,
+  },
+  tipDescText: {
+    fontSize: 11.5,
+    color: '#92400E',
+    lineHeight: 16,
+  },
+  presetTitleText: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0D1714',
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  presetDescText: {
+    fontSize: 11.5,
+    color: '#556860',
+    lineHeight: 16,
+    marginBottom: 10,
+  },
+  presetLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 'auto',
+  },
+  presetLinkText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0F766E',
+  },
+  recipesSection: {
+    paddingHorizontal: 18,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0D1714',
+    letterSpacing: -0.3,
+  },
+  sectionSub: {
+    fontSize: 12,
+    color: '#687E74',
+    marginTop: 2,
+  },
+  sectionActionText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#0F766E',
   },
 });

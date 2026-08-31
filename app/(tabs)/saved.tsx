@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Heart, ChefHat, Sparkles, Trash2, ArrowRight } from 'lucide-react-native';
+import { Heart, ChefHat, Sparkles, ArrowRight } from 'lucide-react-native';
 import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
 import { Recipe } from '../../types';
@@ -44,7 +44,7 @@ export default function SavedScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>❤️ Kaydedilen Tarifler</Text>
         <Text style={styles.subtitle}>
-          Daha önce oluşturduğunuz ve beğendiğiniz sıfır israf tarifleri.
+          Daha önce kurtardığınız ve beğendiğiniz sıfır israf gurme tarifleri.
         </Text>
       </View>
 
@@ -52,14 +52,15 @@ export default function SavedScreen() {
         {savedRecipes.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={styles.emptyIconBox}>
-              <Heart size={40} color="#F87171" />
+              <Heart size={38} color="#E11D48" />
             </View>
             <Text style={styles.emptyTitle}>Henüz Kayıtlı Tarifiniz Yok</Text>
             <Text style={styles.emptyDesc}>
-              Buzdolabınızı tarayıp yapay zekanın ürettiği lezzetli tarifleri kalp ikonuna basarak buraya ekleyebilirsiniz.
+              Buzdolabınızı tarayıp yapay zekanın ürettiği lezzetli tarifleri kalp ikonuna basarak koleksiyonunuza ekleyin.
             </Text>
             <TouchableOpacity
               style={styles.scanBtn}
+              activeOpacity={0.88}
               onPress={() => router.push('/(tabs)/scan')}
             >
               <ChefHat size={18} color="#FFFFFF" />
@@ -90,75 +91,76 @@ export default function SavedScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F7F8F6',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingTop: 14,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#E6EBE8',
     backgroundColor: '#FFFFFF',
   },
   title: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#111827',
+    color: '#0D1714',
+    letterSpacing: -0.5,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#556860',
   },
   scrollContent: {
-    padding: 16,
+    padding: 18,
     paddingBottom: 40,
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 20,
+    paddingVertical: 70,
+    paddingHorizontal: 24,
   },
   emptyIconBox: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#FFE4E6',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 8,
+    fontWeight: '900',
+    color: '#0D1714',
+    marginBottom: 6,
   },
   emptyDesc: {
     fontSize: 13,
-    color: '#6B7280',
+    color: '#687E74',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 19,
     marginBottom: 24,
   },
   scanBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#10B981',
-    paddingHorizontal: 20,
+    backgroundColor: '#0F766E',
+    paddingHorizontal: 22,
     paddingVertical: 14,
-    borderRadius: 16,
-    shadowColor: '#10B981',
+    borderRadius: 18,
+    shadowColor: '#0F766E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     elevation: 4,
   },
   scanBtnText: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 14,
   },
 });

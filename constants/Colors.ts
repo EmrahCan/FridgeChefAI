@@ -1,66 +1,71 @@
 export const Colors = {
   light: {
-    text: '#111827',
-    textSecondary: '#4B5563',
-    textMuted: '#9CA3AF',
-    background: '#F9FAFB',
+    // Rich editorial tones
+    text: '#0D1714',            // Deep Pine Obsidian
+    textSecondary: '#3E5049',   // Forest Charcoal
+    textMuted: '#7D9087',       // Sage Gray
+    background: '#F7F8F6',      // Warm Nordic Paper
     surface: '#FFFFFF',
-    surfaceSubtle: '#F3F4F6',
-    border: '#E5E7EB',
-    borderLight: '#F3F4F6',
+    surfaceSubtle: '#EFF2EE',
+    surfaceElevated: '#FFFFFF',
+    border: '#E1E6DF',
+    borderLight: '#EDF1EB',
     
-    // Brand Colors
-    primary: '#10B981',       // Emerald Green (Zero waste & freshness)
-    primaryDark: '#059669',
-    primaryLight: '#D1FAE5',
+    // Brand - Botanical & Zero-Waste Emerald
+    primary: '#0F766E',         // Deep Artisan Teal / Emerald
+    primaryDark: '#0B514B',
+    primaryLight: '#CCFBF1',
+    primaryGlow: 'rgba(15, 118, 110, 0.15)',
     
-    accent: '#F97316',        // Warm Orange (Cooking & appetizing)
-    accentDark: '#EA580C',
+    // Warm Culinary Accent - Terracotta & Saffron
+    accent: '#EA580C',          // Spiced Terracotta
+    accentDark: '#C2410C',
     accentLight: '#FFEDD5',
+    accentGlow: 'rgba(234, 88, 12, 0.15)',
     
-    warning: '#F59E0B',
-    warningLight: '#FEF3C7',
-    danger: '#EF4444',
-    dangerLight: '#FEE2E2',
-    info: '#3B82F6',
-    infoLight: '#DBEAFE',
+    // Secondary Luxe Badges
+    gold: '#D97706',
+    goldLight: '#FEF3C7',
+    danger: '#E11D48',          // Rose Madder
+    dangerLight: '#FFE4E6',
+    info: '#0284C7',
+    infoLight: '#E0F2FE',
 
-    cardGradientStart: '#10B981',
-    cardGradientEnd: '#059669',
-    tint: '#10B981',
-    tabIconDefault: '#9CA3AF',
-    tabIconSelected: '#10B981',
+    tint: '#0F766E',
+    tabIconDefault: '#8A9C93',
+    tabIconSelected: '#0F766E',
   },
   dark: {
-    text: '#F9FAFB',
-    textSecondary: '#D1D5DB',
-    textMuted: '#6B7280',
-    background: '#0F172A',
-    surface: '#1E293B',
-    surfaceSubtle: '#334155',
-    border: '#334155',
-    borderLight: '#1E293B',
+    text: '#F4F7F5',
+    textSecondary: '#A9BDB4',
+    textMuted: '#687E74',
+    background: '#0B1512',      // Midnight Forest Obsidian
+    surface: '#12231E',
+    surfaceSubtle: '#18302A',
+    surfaceElevated: '#1D3B33',
+    border: '#1F3C34',
+    borderLight: '#162C26',
     
-    primary: '#10B981',
-    primaryDark: '#059669',
-    primaryLight: '#064E3B',
+    primary: '#14B8A6',
+    primaryDark: '#0D9488',
+    primaryLight: '#042F2E',
+    primaryGlow: 'rgba(20, 184, 166, 0.25)',
     
     accent: '#FB923C',
     accentDark: '#EA580C',
-    accentLight: '#7C2D12',
+    accentLight: '#431407',
+    accentGlow: 'rgba(251, 146, 60, 0.25)',
     
-    warning: '#FBBF24',
-    warningLight: '#78350F',
-    danger: '#F87171',
-    dangerLight: '#7F1D1D',
-    info: '#60A5FA',
-    infoLight: '#1E3A8A',
+    gold: '#FBBF24',
+    goldLight: '#451A03',
+    danger: '#FB7185',
+    dangerLight: '#4C0519',
+    info: '#38BDF8',
+    infoLight: '#082F49',
 
-    cardGradientStart: '#059669',
-    cardGradientEnd: '#047857',
-    tint: '#10B981',
-    tabIconDefault: '#6B7280',
-    tabIconSelected: '#10B981',
+    tint: '#14B8A6',
+    tabIconDefault: '#687E74',
+    tabIconSelected: '#14B8A6',
   },
 };
 
