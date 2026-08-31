@@ -166,7 +166,7 @@ export default function RecipeDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingBox}>
-          <Text>Loading recipe...</Text>
+          <Text>{language === 'en' ? 'Loading recipe...' : 'Tarif yükleniyor...'}</Text>
         </View>
       </SafeAreaView>
     );

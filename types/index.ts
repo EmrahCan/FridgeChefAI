@@ -60,7 +60,19 @@ export interface Recipe {
 export interface DetectedIngredient {
   id: string;
   name: string;
-  category: 'Kalan Yemek' | 'Sebze & Meyve' | 'Et & Şarküteri' | 'Süt Ürünleri' | 'Bakliyat & Ekmek' | 'Diğer';
+  category:
+    | 'Kalan Yemek'
+    | 'Sebze & Meyve'
+    | 'Et & Şarküteri'
+    | 'Süt Ürünleri'
+    | 'Bakliyat & Ekmek'
+    | 'Diğer'
+    | 'Leftover Dish'
+    | 'Produce & Veggies'
+    | 'Meat & Deli'
+    | 'Dairy'
+    | 'Bakery & Bread'
+    | 'Other';
   confidence: number;
   suggestedAction?: 'Hemen Tüket' | 'Fırınla' | 'Çorba Yap' | 'Taze';
 }

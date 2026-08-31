@@ -1,6 +1,6 @@
 import { AnalysisResponse, CookingStyle, DetectedIngredient, Recipe } from '../types';
 import { StorageService } from './storageService';
-import { DEMO_PRESETS } from '../constants/MockData';
+import { getDemoPresets } from '../constants/MockData';
 import { SupportedLanguage } from '../constants/Translations';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
@@ -88,8 +88,9 @@ Return output ONLY as valid JSON matching this schema:
       }
     }
 
+    const fallbackPreset = getDemoPresets(lang)[0];
     return {
-      detectedIngredients: DEMO_PRESETS[0].ingredients,
+      detectedIngredients: fallbackPreset.ingredients,
       fridgeSummary: lang === 'en'
         ? 'Great news! Your fridge has cooked chicken, leftover rice, and fresh vegetables ready for a delicious zero-waste meal! 🌱'
         : 'Dolabınızda değerlendirilmeyi bekleyen haşlanmış tavuk, dünden kalan pilav ve taze sebzeler tespit edildi! 🌱',
@@ -202,6 +203,7 @@ Return strictly a JSON array matching:
       }
     }
 
-    return DEMO_PRESETS[0].recipes;
+    const fallbackPreset = getDemoPresets(lang)[0];
+    return fallbackPreset.recipes;
   },
 };

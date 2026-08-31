@@ -15,9 +15,7 @@ import {
   Sparkles,
   Lightbulb,
   ArrowRight,
-  Flame,
   ChefHat,
-  Leaf,
   ScanLine,
   Globe,
 } from 'lucide-react-native';
@@ -27,7 +25,7 @@ import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { DEMO_PRESETS, ZERO_WASTE_TIPS } from '../../constants/MockData';
+import { getDemoPresets, ZERO_WASTE_TIPS, DemoPreset } from '../../constants/MockData';
 import { Recipe, UserStats } from '../../types';
 import * as Haptics from 'expo-haptics';
 
@@ -44,6 +42,9 @@ export default function HomeScreen() {
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [randomTipIndex, setRandomTipIndex] = useState(0);
+
+  const presets = getDemoPresets(language);
+  const currentPreset = presets[0];
 
   const loadData = async () => {
     try {
@@ -82,7 +83,7 @@ export default function HomeScreen() {
     router.push('/(tabs)/scan');
   };
 
-  const handleSelectPreset = (preset: typeof DEMO_PRESETS[0]) => {
+  const handleSelectPreset = (preset: DemoPreset) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
@@ -91,7 +92,7 @@ export default function HomeScreen() {
       params: {
         ingredientsJson: JSON.stringify(preset.ingredients),
         summaryText: language === 'en'
-          ? `${preset.nameEn} loaded for culinary review.`
+          ? `${preset.name} loaded for culinary review.`
           : `${preset.name} malzemeleri inceleniyor.`,
       },
     });
@@ -202,17 +203,17 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.bentoTileRight}
             activeOpacity={0.88}
-            onPress={() => handleSelectPreset(DEMO_PRESETS[0])}
+            onPress={() => handleSelectPreset(currentPreset)}
           >
             <View style={styles.bentoTileHeader}>
               <ChefHat size={16} color="#0F766E" />
               <Text style={[styles.bentoTileTag, { color: '#0F766E' }]}>{t('home.quickMenu')}</Text>
             </View>
             <Text style={styles.presetTitleText} numberOfLines={2}>
-              {language === 'en' ? DEMO_PRESETS[0].nameEn : DEMO_PRESETS[0].name}
+              {currentPreset.name}
             </Text>
-            <Text style={styles.presetDescText}>
-              {language === 'en' ? DEMO_PRESETS[0].subtitleEn : DEMO_PRESETS[0].subtitle}
+            <Text style={styles.presetDescText} numberOfLines={2}>
+              {currentPreset.subtitle}
             </Text>
             <View style={styles.presetLinkRow}>
               <Text style={styles.presetLinkText}>{t('home.inspectNow')}</Text>
@@ -233,7 +234,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {DEMO_PRESETS[0].recipes.map((recipe) => {
+          {currentPreset.recipes.map((recipe) => {
             const isSaved = savedRecipes.some((r) => r.id === recipe.id);
             return (
               <RecipeCard

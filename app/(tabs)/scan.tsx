@@ -25,7 +25,7 @@ import {
 } from 'lucide-react-native';
 import { GeminiService } from '../../services/geminiService';
 import { useLanguage } from '../../context/LanguageContext';
-import { DEMO_PRESETS } from '../../constants/MockData';
+import { getDemoPresets, DemoPreset } from '../../constants/MockData';
 import * as Haptics from 'expo-haptics';
 
 export default function ScanScreen() {
@@ -34,6 +34,8 @@ export default function ScanScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisStatus, setAnalysisStatus] = useState<string>('');
+
+  const presets = getDemoPresets(language);
 
   const pickImageFromGallery = async () => {
     try {
@@ -118,7 +120,7 @@ export default function ScanScreen() {
     }
   };
 
-  const handleUsePreset = (preset: typeof DEMO_PRESETS[0]) => {
+  const handleUsePreset = (preset: DemoPreset) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
@@ -127,7 +129,7 @@ export default function ScanScreen() {
       params: {
         ingredientsJson: JSON.stringify(preset.ingredients),
         summaryText: language === 'en'
-          ? `${preset.nameEn} loaded for review.`
+          ? `${preset.name} loaded for review.`
           : `${preset.name} başarıyla yüklendi.`,
       },
     });
@@ -225,7 +227,7 @@ export default function ScanScreen() {
             <Text style={styles.presetsTitle}>{t('scan.presetsTitle')}</Text>
           </View>
 
-          {DEMO_PRESETS.map((preset) => (
+          {presets.map((preset) => (
             <TouchableOpacity
               key={preset.id}
               style={styles.presetCard}
@@ -237,10 +239,10 @@ export default function ScanScreen() {
               </View>
               <View style={styles.presetInfo}>
                 <Text style={styles.presetName}>
-                  {language === 'en' ? preset.nameEn : preset.name}
+                  {preset.name}
                 </Text>
                 <Text style={styles.presetSubtitle} numberOfLines={1}>
-                  {language === 'en' ? preset.subtitleEn : preset.subtitle}
+                  {preset.subtitle}
                 </Text>
               </View>
               <ArrowRight size={16} color="#9CA3AF" />

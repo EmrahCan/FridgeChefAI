@@ -52,7 +52,7 @@ export default function ReviewScreen() {
     const newItem: DetectedIngredient = {
       id: `custom-${Date.now()}`,
       name: newIngredientName.trim(),
-      category: 'Kalan Yemek',
+      category: language === 'en' ? 'Leftover Dish' : 'Kalan Yemek',
       confidence: 1.0,
       suggestedAction: 'Hemen Tüket',
     };
@@ -93,7 +93,7 @@ export default function ReviewScreen() {
       setSavedRecipes(saved);
       setGeneratedRecipes(recipes);
     } catch (err) {
-      Alert.alert('Error', 'Failed to craft recipes.');
+      Alert.alert(language === 'en' ? 'Error' : 'Hata', language === 'en' ? 'Failed to craft recipes.' : 'Tarifler oluşturulamadı.');
     } finally {
       setIsGenerating(false);
     }
