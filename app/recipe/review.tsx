@@ -21,12 +21,14 @@ import { StorageService } from '../../services/storageService';
 import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PantryRadarService } from '../../services/pantryRadarService';
 
 const STYLE_KEYS: CookingStyle[] = ['hepsi', 'hizli', 'firinda', 'corba', 'fit', 'cocuk'];
 
 export default function ReviewScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { language, t } = useLanguage();
   const params = useLocalSearchParams<{
     ingredientsJson?: string;
@@ -114,18 +116,18 @@ export default function ReviewScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={[styles.safeArea, { paddingTop: Math.max(insets.top, 20) + 6 }]}>
       {/* Editorial Navbar */}
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={20} color="#0D1714" />
         </TouchableOpacity>
-        <Text style={styles.navTitle}>{t('review.navTitle')}</Text>
+        <Text style={styles.navTitle}>{language === 'en' ? 'Culinary Review' : 'Malzeme İnceleme'}</Text>
         <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 20) + 40 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -283,7 +285,7 @@ export default function ReviewScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

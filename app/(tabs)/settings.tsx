@@ -52,8 +52,11 @@ const DIETARY_ITEMS: DietaryItem[] = [
   { id: 'mild', key: 'settings.dietary.mild' },
 ];
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function SettingsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
@@ -169,9 +172,15 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 20) + 8,
+            paddingBottom: Math.max(insets.bottom, 20) + 80,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* TOP HEADER */}
@@ -498,7 +507,7 @@ export default function SettingsScreen() {
           <Text style={styles.logoutBtnText}>{t('settings.logoutBtn')}</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

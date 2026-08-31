@@ -46,8 +46,11 @@ import { getDemoPresets, ZERO_WASTE_TIPS, DemoPreset } from '../../constants/Moc
 import { Recipe, UserStats } from '../../types';
 import * as Haptics from 'expo-haptics';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
 
@@ -155,10 +158,16 @@ export default function HomeScreen() {
   const dateLocale = language === 'en' ? 'en-US' : 'tr-TR';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 20) + 8,
+            paddingBottom: Math.max(insets.bottom, 20) + 80,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0F766E" />
@@ -513,7 +522,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -28,8 +28,11 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Recipe } from '../../types';
 import * as Haptics from 'expo-haptics';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function SavedScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { language, t } = useLanguage();
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
@@ -82,9 +85,15 @@ export default function SavedScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 20) + 8,
+            paddingBottom: Math.max(insets.bottom, 20) + 80,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* TOP HEADER */}
@@ -235,7 +244,7 @@ export default function SavedScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

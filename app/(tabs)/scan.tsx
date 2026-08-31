@@ -31,8 +31,11 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getDemoPresets, DemoPreset } from '../../constants/MockData';
 import * as Haptics from 'expo-haptics';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function ScanScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { language, t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -139,8 +142,17 @@ export default function ScanScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: Math.max(insets.top, 20) + 8,
+            paddingBottom: Math.max(insets.bottom, 20) + 80,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* CINEMATIC HERO COVER BANNER */}
         <View style={styles.heroCoverCard}>
           <Image
@@ -282,7 +294,7 @@ export default function ScanScreen() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -6,13 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChefHat, Mail, Lock, Sparkles, Shield, ArrowRight, Globe } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChefHat, Mail, Lock, Sparkles, Shield, ArrowRight, Globe, Leaf } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -20,6 +21,7 @@ import * as Haptics from 'expo-haptics';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { loginWithEmail, loginWithGoogle } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
 
@@ -81,54 +83,76 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
+      {/* FULL-SCREEN CINEMATIC GOURMET BACKGROUND */}
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80' }}
+        style={styles.backgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 47, 46, 0.75)', 'rgba(6, 30, 25, 0.92)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.gradientOverlay}
+      />
+
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 20) + 12,
+            paddingBottom: Math.max(insets.bottom, 20) + 24,
+          },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Language Switcher Pill in Login Top Right */}
-        <TouchableOpacity
-          style={styles.langPillTop}
-          activeOpacity={0.8}
-          onPress={toggleLanguage}
-        >
-          <Globe size={13} color="#0F766E" />
-          <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
-        </TouchableOpacity>
+        {/* Top Language Switcher Pill */}
+        <View style={styles.topBar}>
+          <View style={styles.brandEcoBadge}>
+            <Leaf size={12} color="#5EEAD4" />
+            <Text style={styles.brandEcoText}>Zero-Waste AI</Text>
+          </View>
 
-        {/* Editorial Luxury Branding Header */}
-        <View style={styles.brandBox}>
-          <LinearGradient
-            colors={['#0F766E', '#064E3B']}
-            style={styles.logoBadge}
+          <TouchableOpacity
+            style={styles.langPillTop}
+            activeOpacity={0.8}
+            onPress={toggleLanguage}
           >
-            <ChefHat size={40} color="#5EEAD4" />
-          </LinearGradient>
-          <Text style={styles.brandTitle}>FridgeChef AI</Text>
-          <Text style={styles.brandSubtitle}>
-            {t('auth.brandSubtitle')}
-          </Text>
+            <Globe size={13} color="#0F766E" />
+            <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Auth Glass Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('auth.loginTitle')}</Text>
+        {/* Cinematic Branding Hero */}
+        <View style={styles.brandHeader}>
+          <View style={styles.logoCircleOuter}>
+            <View style={styles.logoCircleInner}>
+              <ChefHat size={36} color="#5EEAD4" />
+            </View>
+          </View>
+          <Text style={styles.brandTitle}>FridgeChef AI</Text>
+          <Text style={styles.brandSubtitle}>{t('auth.brandSubtitle')}</Text>
+        </View>
+
+        {/* GLASSMORPHIIC LOGIN CARD */}
+        <View style={styles.glassCard}>
+          <Text style={styles.cardHeading}>{t('auth.loginTitle')}</Text>
           <Text style={styles.cardSub}>{t('auth.loginSub')}</Text>
 
-          {/* Google Sign In Button */}
+          {/* Google 1-Tap Login */}
           <TouchableOpacity
             style={styles.googleBtn}
-            activeOpacity={0.85}
+            activeOpacity={0.88}
             onPress={handleGoogleLogin}
             disabled={isLoading}
           >
-            <View style={styles.googleGBox}>
-              <Text style={styles.googleG}>G</Text>
+            <View style={styles.googleIconBadge}>
+              <Text style={styles.googleIconLetter}>G</Text>
             </View>
             <Text style={styles.googleBtnText}>{t('auth.googleBtn')}</Text>
           </TouchableOpacity>
 
+          {/* Divider */}
           <View style={styles.dividerRow}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>{t('auth.orEmail')}</Text>
@@ -139,11 +163,11 @@ export default function LoginScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>{t('auth.emailLabel')}</Text>
             <View style={styles.inputWrapper}>
-              <Mail size={17} color="#7D9087" style={styles.inputIcon} />
+              <Mail size={17} color="#8A9C93" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="chef@mail.com"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#687E74"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -157,85 +181,126 @@ export default function LoginScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>{t('auth.passwordLabel')}</Text>
             <View style={styles.inputWrapper}>
-              <Lock size={17} color="#7D9087" style={styles.inputIcon} />
+              <Lock size={17} color="#8A9C93" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder="••••••••"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#687E74"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                autoCapitalize="none"
               />
             </View>
           </View>
 
-          {/* Submit Button */}
+          {/* Primary Submit Button */}
           <TouchableOpacity
-            style={[styles.submitBtn, isLoading && styles.submitBtnDisabled]}
-            activeOpacity={0.88}
+            style={[styles.primaryBtn, isLoading && styles.primaryBtnDisabled]}
+            activeOpacity={0.9}
             onPress={handleEmailLogin}
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#042F2E" />
             ) : (
-              <View style={styles.btnRow}>
-                <Text style={styles.submitBtnText}>{t('auth.signInBtn')}</Text>
-                <ArrowRight size={18} color="#FFFFFF" />
+              <View style={styles.btnContentRow}>
+                <Text style={styles.primaryBtnText}>{t('auth.signInBtn')}</Text>
+                <ArrowRight size={17} color="#042F2E" />
               </View>
             )}
           </TouchableOpacity>
 
           {/* Register Link */}
-          <View style={styles.registerPromptRow}>
-            <Text style={styles.promptText}>{t('auth.noAccount')}</Text>
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>{t('auth.noAccount')} </Text>
             <TouchableOpacity onPress={() => router.push('/register')}>
-              <Text style={styles.registerLinkText}>{t('auth.signUpLink')}</Text>
+              <Text style={styles.footerLink}>{t('auth.signUpLink')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Demo Fast Login Box */}
-        <View style={styles.demoCard}>
-          <Text style={styles.demoTitle}>{t('auth.demoTitle')}</Text>
+        {/* QUICK DEMO TESTING WIDGET */}
+        <View style={styles.demoWidget}>
+          <View style={styles.demoHeader}>
+            <Sparkles size={14} color="#5EEAD4" />
+            <Text style={styles.demoTitle}>{t('auth.demoTitle')}</Text>
+          </View>
+
           <View style={styles.demoButtonsRow}>
             <TouchableOpacity
-              style={[styles.demoBtn, styles.demoAdminBtn]}
-              activeOpacity={0.8}
+              style={styles.demoBtnAdmin}
+              activeOpacity={0.85}
               onPress={() => handleQuickDemoLogin('admin')}
+              disabled={isLoading}
             >
-              <Shield size={15} color="#BE123C" />
-              <Text style={styles.demoAdminBtnText}>{t('auth.adminLoginBtn')}</Text>
+              <Shield size={14} color="#FECDD3" />
+              <Text style={styles.demoBtnAdminText}>{t('auth.adminLoginBtn')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.demoBtn, styles.demoUserBtn]}
-              activeOpacity={0.8}
+              style={styles.demoBtnChef}
+              activeOpacity={0.85}
               onPress={() => handleQuickDemoLogin('user')}
+              disabled={isLoading}
             >
-              <ChefHat size={15} color="#0F766E" />
-              <Text style={styles.demoUserBtnText}>{t('auth.chefLoginBtn')}</Text>
+              <ChefHat size={14} color="#5EEAD4" />
+              <Text style={styles.demoBtnChefText}>{t('auth.chefLoginBtn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
-    paddingTop: Platform.OS === 'android' ? 30 : 0,
+    backgroundColor: '#041F1A',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 20,
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  brandEcoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.3)',
+  },
+  brandEcoText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#CCFBF1',
   },
   langPillTop: {
-    alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -243,69 +308,76 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#99F6E4',
-    marginBottom: 6,
   },
   langPillText: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '900',
     color: '#0F766E',
   },
-  brandBox: {
+  brandHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 22,
   },
-  logoBadge: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
+  logoCircleOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: 'rgba(94, 234, 212, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 14,
-    shadowColor: '#0F766E',
-    shadowOffset: { width: 0, height: 8 },
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
+  },
+  logoCircleInner: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#0F766E',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 14,
-    elevation: 6,
+    shadowRadius: 10,
+    elevation: 4,
   },
   brandTitle: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '900',
-    color: '#0D1714',
-    letterSpacing: -0.8,
+    color: '#FFFFFF',
+    letterSpacing: -0.6,
     marginBottom: 4,
   },
   brandSubtitle: {
     fontSize: 13,
-    color: '#556860',
+    color: '#CCFBF1',
     textAlign: 'center',
+    paddingHorizontal: 16,
     lineHeight: 18,
-    paddingHorizontal: 20,
+    opacity: 0.9,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
+  glassCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
     borderRadius: 28,
     padding: 22,
-    borderWidth: 1,
-    borderColor: '#E1E6DF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    elevation: 3,
-    marginBottom: 18,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 8,
+    marginBottom: 16,
   },
-  cardTitle: {
+  cardHeading: {
     fontSize: 20,
     fontWeight: '900',
     color: '#0D1714',
-    letterSpacing: -0.3,
-    marginBottom: 4,
+    letterSpacing: -0.4,
+    marginBottom: 3,
   },
   cardSub: {
-    fontSize: 13,
-    color: '#687E74',
+    fontSize: 12.5,
+    color: '#556860',
     marginBottom: 18,
   },
   googleBtn: {
@@ -316,52 +388,56 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: '#E1E6DF',
-    paddingVertical: 13,
     borderRadius: 18,
-    marginBottom: 18,
+    paddingVertical: 13,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  googleGBox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  googleIconBadge: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#4285F4',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  googleG: {
+  googleIconLetter: {
     color: '#FFFFFF',
     fontWeight: '900',
     fontSize: 13,
   },
   googleBtnText: {
     fontSize: 13.5,
-    fontWeight: '700',
-    color: '#1F2937',
+    fontWeight: '800',
+    color: '#1E293B',
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    marginVertical: 16,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E1E6DF',
+    backgroundColor: '#E5E7EB',
   },
   dividerText: {
-    paddingHorizontal: 10,
+    marginHorizontal: 12,
     fontSize: 11.5,
-    color: '#8A9C93',
+    color: '#9CA3AF',
     fontWeight: '600',
   },
   inputGroup: {
-    marginBottom: 14,
+    marginBottom: 13,
   },
   inputLabel: {
     fontSize: 12,
     fontWeight: '800',
     color: '#2C3E36',
-    marginBottom: 6,
+    marginBottom: 5,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -377,64 +453,69 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 14,
+    paddingVertical: 11,
+    fontSize: 13.5,
     color: '#0D1714',
   },
-  submitBtn: {
-    backgroundColor: '#0F766E',
-    paddingVertical: 16,
+  primaryBtn: {
+    backgroundColor: '#5EEAD4',
     borderRadius: 18,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 6,
-    shadowColor: '#0F766E',
+    justifyContent: 'center',
+    marginTop: 8,
+    marginBottom: 14,
+    shadowColor: '#5EEAD4',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 4,
   },
-  submitBtnDisabled: {
-    backgroundColor: '#5EEAD4',
+  primaryBtnDisabled: {
+    opacity: 0.7,
   },
-  btnRow: {
+  btnContentRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  submitBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
+  primaryBtnText: {
+    fontSize: 14.5,
     fontWeight: '900',
+    color: '#042F2E',
   },
-  registerPromptRow: {
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 18,
   },
-  promptText: {
-    fontSize: 13,
+  footerText: {
+    fontSize: 12.5,
     color: '#687E74',
   },
-  registerLinkText: {
-    fontSize: 13,
+  footerLink: {
+    fontSize: 12.5,
     fontWeight: '800',
     color: '#0F766E',
   },
-  demoCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
+  demoWidget: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 22,
+    padding: 14,
     borderWidth: 1,
-    borderColor: '#E1E6DF',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  demoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 10,
+    paddingHorizontal: 2,
   },
   demoTitle: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '800',
-    color: '#7D9087',
-    marginBottom: 10,
-    textAlign: 'center',
+    color: '#CCFBF1',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -442,33 +523,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
-  demoBtn: {
+  demoBtnAdmin: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingVertical: 10,
     borderRadius: 14,
-  },
-  demoAdminBtn: {
-    backgroundColor: '#FFE4E6',
     borderWidth: 1,
-    borderColor: '#FECDD3',
+    borderColor: 'rgba(239, 68, 68, 0.4)',
   },
-  demoAdminBtnText: {
-    color: '#BE123C',
+  demoBtnAdminText: {
+    color: '#FECDD3',
     fontWeight: '800',
-    fontSize: 12.5,
+    fontSize: 12,
   },
-  demoUserBtn: {
-    backgroundColor: '#CCFBF1',
+  demoBtnChef: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(15, 118, 110, 0.35)',
+    paddingVertical: 10,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: 'rgba(94, 234, 212, 0.4)',
   },
-  demoUserBtnText: {
-    color: '#0F766E',
+  demoBtnChefText: {
+    color: '#5EEAD4',
     fontWeight: '800',
-    fontSize: 12.5,
+    fontSize: 12,
   },
 });

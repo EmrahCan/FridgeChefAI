@@ -6,13 +6,15 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChefHat, User as UserIcon, Mail, Lock, ArrowLeft, Check, Globe } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChefHat, User as UserIcon, Mail, Lock, ArrowLeft, Check, Globe, Sparkles } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
@@ -35,6 +37,7 @@ const DIETARY_CHOICES_TR = [
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { register } = useAuth();
   const { language, toggleLanguage, t } = useLanguage();
 
@@ -74,43 +77,78 @@ export default function RegisterScreen() {
     }
   };
 
-  const dietaryChoices = language === 'en' ? DIETARY_CHOICES_EN : DIETARY_CHOICES_TR;
+  const dietaryList = language === 'en' ? DIETARY_CHOICES_EN : DIETARY_CHOICES_TR;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
+      {/* CINEMATIC BACKGROUND */}
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80' }}
+        style={styles.backgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 47, 46, 0.75)', 'rgba(6, 30, 25, 0.92)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.gradientOverlay}
+      />
+
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 20) + 12,
+            paddingBottom: Math.max(insets.bottom, 20) + 24,
+          },
+        ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topNavRow}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <ArrowLeft size={20} color="#0D1714" />
+        {/* Top Navbar */}
+        <View style={styles.navBar}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <ArrowLeft size={20} color="#FFFFFF" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.langPillTop} onPress={toggleLanguage}>
+          <TouchableOpacity
+            style={styles.langPill}
+            activeOpacity={0.8}
+            onPress={toggleLanguage}
+          >
             <Globe size={13} color="#0F766E" />
             <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Header Title */}
         <View style={styles.header}>
+          <View style={styles.badgeRow}>
+            <View style={styles.chefBadge}>
+              <ChefHat size={13} color="#5EEAD4" />
+              <Text style={styles.chefBadgeText}>New Master Chef</Text>
+            </View>
+          </View>
           <Text style={styles.title}>{t('auth.registerTitle')}</Text>
           <Text style={styles.subtitle}>{t('auth.registerSub')}</Text>
         </View>
 
-        <View style={styles.card}>
+        {/* GLASSMORPHIIC FORM CARD */}
+        <View style={styles.glassCard}>
           {/* Full Name */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>{t('auth.fullNameLabel')}</Text>
             <View style={styles.inputWrapper}>
-              <UserIcon size={17} color="#7D9087" style={styles.inputIcon} />
+              <UserIcon size={17} color="#8A9C93" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="Alex Chef"
-                placeholderTextColor="#9CA3AF"
+                placeholder="Gordon Ramsay"
+                placeholderTextColor="#687E74"
                 value={name}
                 onChangeText={setName}
+                autoCapitalize="words"
               />
             </View>
           </View>
@@ -119,15 +157,16 @@ export default function RegisterScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>{t('auth.emailLabel')}</Text>
             <View style={styles.inputWrapper}>
-              <Mail size={17} color="#7D9087" style={styles.inputIcon} />
+              <Mail size={17} color="#8A9C93" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                placeholder="alex@mail.com"
-                placeholderTextColor="#9CA3AF"
+                placeholder="chef@mail.com"
+                placeholderTextColor="#687E74"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
               />
             </View>
           </View>
@@ -136,11 +175,11 @@ export default function RegisterScreen() {
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>{t('auth.passwordLabel')}</Text>
             <View style={styles.inputWrapper}>
-              <Lock size={17} color="#7D9087" style={styles.inputIcon} />
+              <Lock size={17} color="#8A9C93" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 placeholder={t('auth.passwordMinHint')}
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor="#687E74"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -148,74 +187,98 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          {/* Dietary Options */}
-          <View style={styles.inputGroup}>
+          {/* Dietary Preferences Select */}
+          <View style={styles.dietarySection}>
             <Text style={styles.inputLabel}>{t('auth.dietaryOptional')}</Text>
-            <View style={styles.dietaryWrap}>
-              {dietaryChoices.map((choice) => {
-                const isSelected = selectedDietary.includes(choice);
+            <View style={styles.dietaryChipsWrapper}>
+              {dietaryList.map((item) => {
+                const isSelected = selectedDietary.includes(item);
                 return (
                   <TouchableOpacity
-                    key={choice}
+                    key={item}
                     style={[styles.dietaryChip, isSelected && styles.dietaryChipSelected]}
-                    onPress={() => toggleDietary(choice)}
+                    activeOpacity={0.8}
+                    onPress={() => toggleDietary(item)}
                   >
-                    <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
-                      {choice}
+                    <Text style={[styles.dietaryChipText, isSelected && styles.dietaryChipTextSelected]}>
+                      {item}
                     </Text>
-                    {isSelected && <Check size={14} color="#0F766E" />}
+                    {isSelected && <Check size={12} color="#0F766E" />}
                   </TouchableOpacity>
                 );
               })}
             </View>
           </View>
 
-          {/* Submit */}
+          {/* Create Button */}
           <TouchableOpacity
-            style={[styles.submitBtn, isLoading && styles.submitBtnDisabled]}
-            activeOpacity={0.88}
+            style={[styles.primaryBtn, isLoading && styles.primaryBtnDisabled]}
+            activeOpacity={0.9}
             onPress={handleRegister}
             disabled={isLoading}
           >
             {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#042F2E" />
             ) : (
-              <Text style={styles.submitBtnText}>{t('auth.createAccountBtn')}</Text>
+              <Text style={styles.primaryBtnText}>{t('auth.createAccountBtn')}</Text>
             )}
           </TouchableOpacity>
 
-          <View style={styles.loginPromptRow}>
-            <Text style={styles.promptText}>{t('auth.haveAccount')}</Text>
-            <TouchableOpacity onPress={() => router.push('/login')}>
-              <Text style={styles.loginLinkText}>{t('auth.signInBtn')}</Text>
+          {/* Login Back Link */}
+          <View style={styles.footerRow}>
+            <Text style={styles.footerText}>{t('auth.haveAccount')} </Text>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Text style={styles.footerLink}>{t('auth.signInBtn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
-    paddingTop: Platform.OS === 'android' ? 30 : 0,
+    backgroundColor: '#041F1A',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 20,
   },
-  topNavRow: {
+  navBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   backBtn: {
-    padding: 6,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
-  langPillTop: {
+  langPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -223,49 +286,67 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#99F6E4',
   },
   langPillText: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '900',
     color: '#0F766E',
   },
   header: {
     marginBottom: 20,
   },
+  badgeRow: {
+    marginBottom: 6,
+  },
+  chefBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.3)',
+  },
+  chefBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#5EEAD4',
+  },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '900',
-    color: '#0D1714',
-    letterSpacing: -0.6,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: '#556860',
+    color: '#CCFBF1',
     lineHeight: 18,
+    opacity: 0.9,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
+  glassCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
     borderRadius: 28,
     padding: 22,
-    borderWidth: 1,
-    borderColor: '#E1E6DF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 8,
+    marginBottom: 20,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: 13,
   },
   inputLabel: {
     fontSize: 12,
     fontWeight: '800',
     color: '#2C3E36',
-    marginBottom: 6,
+    marginBottom: 5,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -281,11 +362,14 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 14,
+    paddingVertical: 11,
+    fontSize: 13.5,
     color: '#0D1714',
   },
-  dietaryWrap: {
+  dietarySection: {
+    marginBottom: 16,
+  },
+  dietaryChipsWrapper: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
@@ -298,54 +382,54 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#E1E6DF',
     paddingHorizontal: 11,
-    paddingVertical: 8,
-    borderRadius: 14,
+    paddingVertical: 7,
+    borderRadius: 12,
   },
   dietaryChipSelected: {
     backgroundColor: '#CCFBF1',
     borderColor: '#0F766E',
   },
-  dietaryText: {
+  dietaryChipText: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#3E5049',
+    fontWeight: '600',
+    color: '#556860',
   },
-  dietaryTextSelected: {
+  dietaryChipTextSelected: {
     color: '#0F766E',
+    fontWeight: '800',
   },
-  submitBtn: {
-    backgroundColor: '#0F766E',
-    paddingVertical: 16,
+  primaryBtn: {
+    backgroundColor: '#5EEAD4',
     borderRadius: 18,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 8,
-    shadowColor: '#0F766E',
+    justifyContent: 'center',
+    marginBottom: 14,
+    shadowColor: '#5EEAD4',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 4,
   },
-  submitBtnDisabled: {
-    backgroundColor: '#5EEAD4',
+  primaryBtnDisabled: {
+    opacity: 0.7,
   },
-  submitBtnText: {
-    color: '#FFFFFF',
-    fontSize: 15,
+  primaryBtnText: {
+    fontSize: 14.5,
     fontWeight: '900',
+    color: '#042F2E',
   },
-  loginPromptRow: {
+  footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 18,
   },
-  promptText: {
-    fontSize: 13,
+  footerText: {
+    fontSize: 12.5,
     color: '#687E74',
   },
-  loginLinkText: {
-    fontSize: 13,
+  footerLink: {
+    fontSize: 12.5,
     fontWeight: '800',
     color: '#0F766E',
   },
