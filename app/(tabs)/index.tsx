@@ -221,9 +221,16 @@ export default function HomeScreen() {
         {radarItems.length > 0 && (
           <View style={styles.radarWrapper}>
             <View style={styles.radarHeader}>
-              <View style={styles.radarHeaderLeft}>
-                <Hourglass size={14} color="#D97706" />
-                <Text style={styles.radarTitle}>{t('radar.title')}</Text>
+              <View style={styles.radarHeaderTopRow}>
+                <View style={styles.radarBadge}>
+                  <Hourglass size={12} color="#B45309" />
+                  <Text style={styles.radarTitle}>{t('radar.title')}</Text>
+                </View>
+                <View style={styles.radarCountPill}>
+                  <Text style={styles.radarCountPillText}>
+                    {radarItems.length} {language === 'en' ? 'Items' : 'Ürün'}
+                  </Text>
+                </View>
               </View>
               <Text style={styles.radarSub}>{t('radar.subtitle')}</Text>
             </View>
@@ -245,7 +252,7 @@ export default function HomeScreen() {
                 >
                   <View style={styles.radarCardTop}>
                     <AlertTriangle
-                      size={13}
+                      size={12}
                       color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
                     />
                     <Text
@@ -257,12 +264,15 @@ export default function HomeScreen() {
                       {item.daysRemaining} {language === 'en' ? 'Days Left' : 'Gün Kaldı'}
                     </Text>
                   </View>
-                  <Text style={styles.radarItemName} numberOfLines={1}>
+
+                  <Text style={styles.radarItemName} numberOfLines={2}>
                     {item.name}
                   </Text>
-                  <Text style={styles.radarActionText}>
-                    {t('radar.consumeNowCta')} →
-                  </Text>
+
+                  <View style={styles.radarActionRow}>
+                    <Text style={styles.radarActionText}>{t('radar.consumeNowCta')}</Text>
+                    <ArrowRight size={11} color="#0F766E" />
+                  </View>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -623,41 +633,67 @@ const styles = StyleSheet.create({
   },
   radarWrapper: {
     paddingHorizontal: 18,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   radarHeader: {
+    marginBottom: 10,
+  },
+  radarHeaderTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 4,
   },
-  radarHeaderLeft: {
+  radarBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
   },
   radarTitle: {
-    fontSize: 12.5,
-    fontWeight: '800',
+    fontSize: 11.5,
+    fontWeight: '900',
     color: '#B45309',
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
+  },
+  radarCountPill: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  radarCountPillText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#6B7280',
   },
   radarSub: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#78350F',
+    lineHeight: 16,
     fontWeight: '500',
   },
   radarScroll: {
     gap: 10,
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
   radarCard: {
-    width: 145,
+    width: 160,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 12,
+    borderRadius: 20,
+    padding: 13,
     borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   radarCardCritical: {
     borderColor: '#FECDD3',
@@ -671,20 +707,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   radarUrgencyTag: {
     fontSize: 10.5,
     fontWeight: '800',
   },
   radarItemName: {
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '800',
     color: '#0D1714',
-    marginBottom: 6,
+    lineHeight: 17,
+    marginBottom: 8,
+    minHeight: 34,
+  },
+  radarActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   radarActionText: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: '800',
     color: '#0F766E',
   },
