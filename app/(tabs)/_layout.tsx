@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { ChefHat, Camera, Heart, Settings } from 'lucide-react-native';
-import { View, StyleSheet, Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function TabLayout() {
@@ -21,13 +21,13 @@ export default function TabLayout() {
           paddingTop: 6,
           paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
-          shadowRadius: 10,
-          elevation: 8,
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.04,
+          shadowRadius: 6,
+          elevation: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 10.5,
+          fontSize: 11,
           fontWeight: '700',
           marginTop: 2,
         },
@@ -45,14 +45,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scan"
         options={{
-          title: '', // Empty to prevent text overlap with center action button
-          tabBarLabel: () => null, // Completely hide label for the center floating button
-          tabBarIcon: ({ focused }) => (
-            <View style={[styles.scanFabWrapper, focused && styles.scanFabFocused]}>
-              <View style={styles.scanFabInner}>
-                <Camera size={22} color="#FFFFFF" strokeWidth={2.2} />
-              </View>
-            </View>
+          title: t('nav.scan'),
+          tabBarIcon: ({ color, focused }) => (
+            <Camera size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
           ),
         }}
       />
@@ -61,7 +56,12 @@ export default function TabLayout() {
         options={{
           title: t('nav.saved'),
           tabBarIcon: ({ color, focused }) => (
-            <Heart size={21} color={color} strokeWidth={focused ? 2.4 : 1.8} fill={focused ? '#0F766E' : 'transparent'} />
+            <Heart
+              size={22}
+              color={color}
+              strokeWidth={focused ? 2.4 : 1.8}
+              fill={focused ? '#0F766E' : 'transparent'}
+            />
           ),
         }}
       />
@@ -70,7 +70,7 @@ export default function TabLayout() {
         options={{
           title: t('nav.settings'),
           tabBarIcon: ({ color, focused }) => (
-            <Settings size={21} color={color} strokeWidth={focused ? 2.4 : 1.8} />
+            <Settings size={22} color={color} strokeWidth={focused ? 2.4 : 1.8} />
           ),
         }}
       />
@@ -83,33 +83,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  scanFabWrapper: {
-    top: Platform.OS === 'ios' ? -12 : -10,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#FFFFFF',
-    padding: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#0F766E',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  scanFabInner: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 24,
-    backgroundColor: '#0F766E',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scanFabFocused: {
-    transform: [{ scale: 1.05 }],
-    shadowOpacity: 0.45,
-  },
-});
