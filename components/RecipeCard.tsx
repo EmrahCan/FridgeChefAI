@@ -31,8 +31,8 @@ export const RecipeCard: React.FC<Props> = ({
   };
 
   const getDifficultyLabel = (diff: string) => {
-    if (diff === 'Kolay') return t('common.kolay');
-    if (diff === 'Orta') return t('common.orta');
+    if (diff === 'Kolay' || diff === 'Easy') return t('common.kolay');
+    if (diff === 'Orta' || diff === 'Medium') return t('common.orta');
     return t('common.usta');
   };
 

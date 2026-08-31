@@ -25,10 +25,13 @@ export const IngredientTag: React.FC<Props> = ({
   const getActionBadge = (action?: string) => {
     switch (action) {
       case 'Hemen Tüket':
+      case 'Consume First':
         return { bg: '#FFE4E6', text: '#BE123C', dot: '#F43F5E', label: t('common.useFirst') };
       case 'Fırınla':
+      case 'Roast / Bake':
         return { bg: '#FFEDD5', text: '#C2410C', dot: '#F97316', label: t('common.bake') };
       case 'Çorba Yap':
+      case 'Make Soup':
         return { bg: '#E0F2FE', text: '#0369A1', dot: '#0EA5E9', label: t('common.soup') };
       default:
         return { bg: '#CCFBF1', text: '#0F766E', dot: '#14B8A6', label: t('common.fresh') };

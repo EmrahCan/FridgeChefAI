@@ -74,7 +74,7 @@ export default function HomeScreen() {
     try {
       const currentStats = await StorageService.getUserStats();
       const saved = await StorageService.getSavedRecipes();
-      const radar = await PantryRadarService.getRadarItems();
+      const radar = await PantryRadarService.getRadarItems(language);
       const groceries = await GroceryService.getItems();
 
       setStats(currentStats);

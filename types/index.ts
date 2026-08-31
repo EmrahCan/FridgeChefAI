@@ -11,7 +11,7 @@ export interface User {
   dietaryPreferences?: string[];
 }
 
-export type DifficultyLevel = 'Kolay' | 'Orta' | 'Usta';
+export type DifficultyLevel = 'Kolay' | 'Orta' | 'Usta' | 'Easy' | 'Medium' | 'Chef';
 
 export type CookingStyle = 
   | 'hepsi'
@@ -74,7 +74,7 @@ export interface DetectedIngredient {
     | 'Bakery & Bread'
     | 'Other';
   confidence: number;
-  suggestedAction?: 'Hemen Tüket' | 'Fırınla' | 'Çorba Yap' | 'Taze';
+  suggestedAction?: 'Hemen Tüket' | 'Fırınla' | 'Çorba Yap' | 'Taze' | 'Consume First' | 'Roast / Bake' | 'Make Soup' | 'Fresh';
 }
 
 export interface AnalysisResponse {

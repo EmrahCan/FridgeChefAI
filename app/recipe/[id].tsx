@@ -322,7 +322,7 @@ export default function RecipeDetailScreen() {
             <View style={styles.metricTile}>
               <ChefHat size={16} color="#D97706" />
               <Text style={styles.metricTileValue}>
-                {recipe.difficulty === 'Kolay' ? t('common.kolay') : recipe.difficulty === 'Orta' ? t('common.orta') : t('common.usta')}
+                {recipe.difficulty === 'Kolay' || recipe.difficulty === 'Easy' ? t('common.kolay') : recipe.difficulty === 'Orta' || recipe.difficulty === 'Medium' ? t('common.orta') : t('common.usta')}
               </Text>
               <Text style={styles.metricTileLabel}>{t('recipe.difficulty')}</Text>
             </View>
