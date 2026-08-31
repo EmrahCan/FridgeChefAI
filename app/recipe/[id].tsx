@@ -10,6 +10,7 @@ import {
   Alert,
   Platform,
   Image,
+  Modal,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -32,10 +33,17 @@ import {
   Plus,
   Minus,
   Star,
+  Volume2,
+  VolumeX,
+  ShoppingCart,
+  Check,
+  X,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Recipe } from '../../types';
 import { StorageService } from '../../services/storageService';
+import { AudioChefService } from '../../services/audioChefService';
+import { GroceryService } from '../../services/groceryService';
 import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
@@ -50,6 +58,15 @@ export default function RecipeDetailScreen() {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'cook' | 'prep'>('cook');
+
+  // Audio Chef State
+  const [speakingStepIndex, setSpeakingStepIndex] = useState<number | null>(null);
+
+  // Grocery Added Toast state
+  const [groceryAdded, setGroceryAdded] = useState(false);
+
+  // Story Card Modal State
+  const [storyModalVisible, setStoryModalVisible] = useState(false);
 
   // Interactive step timer state
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
@@ -67,6 +84,10 @@ export default function RecipeDetailScreen() {
         console.error(e);
       }
     }
+
+    return () => {
+      AudioChefService.stop();
+    };
   }, [params.recipeJson]);
 
   // Timer countdown tick
@@ -136,6 +157,36 @@ export default function RecipeDetailScreen() {
     );
   };
 
+  const handleToggleSpeakStep = async (step: any, idx: number) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+
+    if (speakingStepIndex === idx) {
+      await AudioChefService.stop();
+      setSpeakingStepIndex(null);
+    } else {
+      setSpeakingStepIndex(idx);
+      await AudioChefService.speakStep(
+        step.title,
+        step.description,
+        step.tip || '',
+        language,
+        () => setSpeakingStepIndex(null)
+      );
+    }
+  };
+
+  const handleAddMissingToGrocery = async () => {
+    if (!recipe) return;
+    try {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch {}
+    await GroceryService.addItems(recipe.pantryItemsNeeded, recipe.title);
+    setGroceryAdded(true);
+    setTimeout(() => setGroceryAdded(false), 3000);
+  };
+
   const startTimer = (minutes: number, stepIndex: number) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -152,17 +203,18 @@ export default function RecipeDetailScreen() {
     } catch {}
 
     await StorageService.recordMealCooked(recipe.wasteSavedGrams || 350);
+    setStoryModalVisible(true);
+  };
 
-    Alert.alert(
-      t('recipe.congratsTitle'),
-      `${recipe.wasteSavedGrams}g ${t('recipe.congratsMsg')}`,
-      [
-        {
-          text: t('recipe.greatBtn'),
-          onPress: () => router.push('/(tabs)'),
-        },
-      ]
-    );
+  const handleShareStory = async () => {
+    if (!recipe) return;
+    try {
+      await Share.share({
+        message: `🌱 ${recipe.wasteSavedGrams}g ${t('storyCard.foodSavedBadge')}!\n🍳 "${recipe.title}"\n${recipe.tagline}\n\n#FridgeChefAI #ZeroWaste`,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (!recipe) {
@@ -372,11 +424,13 @@ export default function RecipeDetailScreen() {
             </View>
           )}
 
-          {/* TAB 1: MASTERCLASS COOKING TIMELINE */}
+          {/* TAB 1: MASTERCLASS COOKING TIMELINE WITH HANDS-FREE AUDIO CHEF */}
           {activeTab === 'cook' && (
             <View style={styles.timelineContainer}>
               {recipe.instructions.map((step, idx) => {
                 const isCompleted = completedSteps.includes(step.stepNumber);
+                const isSpeaking = speakingStepIndex === idx;
+
                 return (
                   <TouchableOpacity
                     key={step.stepNumber}
@@ -411,17 +465,49 @@ export default function RecipeDetailScreen() {
                       </View>
                     )}
 
-                    {step.durationMinutes && step.durationMinutes > 0 && (
+                    {/* Step Action Buttons: Voice Guide & Timer */}
+                    <View style={styles.stepActionsRow}>
+                      {/* Audio Chef Button */}
                       <TouchableOpacity
-                        style={styles.timerTriggerBtn}
-                        onPress={() => startTimer(step.durationMinutes!, idx)}
+                        style={[styles.audioChefBtn, isSpeaking && styles.audioChefBtnActive]}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleToggleSpeakStep(step, idx);
+                        }}
                       >
-                        <Clock size={13} color="#0F766E" />
-                        <Text style={styles.timerTriggerText}>
-                          ⏱️ {step.durationMinutes} {t('common.mins')} {t('recipe.startTimerBtn')}
-                        </Text>
+                        {isSpeaking ? (
+                          <>
+                            <VolumeX size={14} color="#FFFFFF" />
+                            <Text style={[styles.audioChefBtnText, { color: '#FFFFFF' }]}>
+                              {t('audioChef.stopBtn')}
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 size={14} color="#0F766E" />
+                            <Text style={styles.audioChefBtnText}>
+                              {t('audioChef.startBtn')}
+                            </Text>
+                          </>
+                        )}
                       </TouchableOpacity>
-                    )}
+
+                      {/* Timer Trigger */}
+                      {step.durationMinutes && step.durationMinutes > 0 && (
+                        <TouchableOpacity
+                          style={styles.timerTriggerBtn}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            startTimer(step.durationMinutes!, idx);
+                          }}
+                        >
+                          <Clock size={13} color="#0F766E" />
+                          <Text style={styles.timerTriggerText}>
+                            ⏱️ {step.durationMinutes} {t('common.mins')}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -438,7 +524,7 @@ export default function RecipeDetailScreen() {
             </View>
           )}
 
-          {/* TAB 2: INGREDIENTS CHECKLIST */}
+          {/* TAB 2: INGREDIENTS CHECKLIST & SMART GROCERY EXPORT */}
           {activeTab === 'prep' && (
             <View style={styles.prepCard}>
               <View style={styles.prepHeaderRow}>
@@ -489,6 +575,25 @@ export default function RecipeDetailScreen() {
                 );
               })}
 
+              {/* 1-TAP ADD MISSING TO SMART GROCERY LIST BUTTON */}
+              <TouchableOpacity
+                style={[styles.addGroceryBtn, groceryAdded && styles.addGroceryBtnSuccess]}
+                activeOpacity={0.88}
+                onPress={handleAddMissingToGrocery}
+              >
+                {groceryAdded ? (
+                  <>
+                    <Check size={16} color="#FFFFFF" />
+                    <Text style={styles.addGroceryBtnText}>{t('grocery.addedToast')}</Text>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={16} color="#FFFFFF" />
+                    <Text style={styles.addGroceryBtnText}>{t('grocery.addMissingBtn')}</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
               {/* Extra Chef Tips */}
               {recipe.chefTips && recipe.chefTips.length > 0 && (
                 <View style={styles.chefTipsBox}>
@@ -502,6 +607,66 @@ export default function RecipeDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* VIRAL 9:16 INSTAGRAM / WHATSAPP STORY CERTIFICATE MODAL */}
+      <Modal
+        visible={storyModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setStoryModalVisible(false)}
+      >
+        <View style={styles.storyModalBackdrop}>
+          <View style={styles.storyCardContainer}>
+            {/* Top Close */}
+            <TouchableOpacity
+              style={styles.storyCloseBtn}
+              onPress={() => {
+                setStoryModalVisible(false);
+                router.push('/(tabs)');
+              }}
+            >
+              <X size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+
+            {/* 9:16 Luxury Story Card Background */}
+            <View style={styles.storyPhotoWrapper}>
+              <Image source={{ uri: displayImage }} style={styles.storyImage} />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.25)', 'rgba(4, 47, 46, 0.75)', 'rgba(4, 47, 46, 0.98)']}
+                locations={[0, 0.4, 1]}
+                style={styles.storyGradient}
+              />
+
+              <View style={styles.storyContent}>
+                <View style={styles.storyCrown}>
+                  <Award size={36} color="#5EEAD4" />
+                </View>
+                <Text style={styles.storyBadgeText}>🌱 FRIDGECHEF AI MASTERCLASS</Text>
+                <Text style={styles.storyTitle}>{recipe.title}</Text>
+                <Text style={styles.storySavedAmount}>
+                  +{recipe.wasteSavedGrams}g {t('storyCard.foodSavedBadge')}
+                </Text>
+
+                <View style={styles.storyEcoBox}>
+                  <Text style={styles.storyEcoText}>
+                    🌍 0.85kg {t('storyCard.carbonOffset')}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Share Trigger */}
+            <TouchableOpacity
+              style={styles.storyShareBtn}
+              activeOpacity={0.9}
+              onPress={handleShareStory}
+            >
+              <Share2 size={18} color="#042F2E" />
+              <Text style={styles.storyShareBtnText}>{t('storyCard.shareNow')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -872,19 +1037,43 @@ const styles = StyleSheet.create({
     color: '#92400E',
     fontWeight: '700',
   },
+  stepActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
+  },
+  audioChefBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#E6F4F1',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+  },
+  audioChefBtnActive: {
+    backgroundColor: '#0F766E',
+    borderColor: '#0B514B',
+  },
+  audioChefBtnText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0F766E',
+  },
   timerTriggerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    alignSelf: 'flex-start',
-    backgroundColor: '#CCFBF1',
+    backgroundColor: '#EFF6F3',
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 12,
-    marginTop: 10,
   },
   timerTriggerText: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '800',
     color: '#0F766E',
   },
@@ -943,6 +1132,29 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textDecorationLine: 'line-through',
   },
+  addGroceryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#0F766E',
+    paddingVertical: 13,
+    borderRadius: 16,
+    marginTop: 18,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  addGroceryBtnSuccess: {
+    backgroundColor: '#059669',
+  },
+  addGroceryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
   chefTipsBox: {
     marginTop: 20,
     backgroundColor: '#FFFBEB',
@@ -962,5 +1174,128 @@ const styles = StyleSheet.create({
     color: '#92400E',
     lineHeight: 18,
     marginBottom: 3,
+  },
+  storyModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  storyCardContainer: {
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'center',
+  },
+  storyCloseBtn: {
+    alignSelf: 'flex-end',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  storyPhotoWrapper: {
+    width: '100%',
+    height: 440,
+    borderRadius: 28,
+    overflow: 'hidden',
+    position: 'relative',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  storyImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'cover',
+  },
+  storyGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  storyContent: {
+    position: 'absolute',
+    bottom: 24,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+  },
+  storyCrown: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(94, 234, 212, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: '#5EEAD4',
+  },
+  storyBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '900',
+    color: '#5EEAD4',
+    letterSpacing: 1.2,
+    marginBottom: 6,
+  },
+  storyTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    letterSpacing: -0.4,
+    lineHeight: 26,
+    marginBottom: 8,
+  },
+  storySavedAmount: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#CCFBF1',
+    marginBottom: 12,
+  },
+  storyEcoBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  storyEcoText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '700',
+  },
+  storyShareBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#5EEAD4',
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 20,
+    marginTop: 16,
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  storyShareBtnText: {
+    color: '#042F2E',
+    fontSize: 14.5,
+    fontWeight: '900',
   },
 });

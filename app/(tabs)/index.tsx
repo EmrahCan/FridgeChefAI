@@ -9,6 +9,8 @@ import {
   SafeAreaView,
   Platform,
   Image,
+  Modal,
+  Share,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -22,11 +24,22 @@ import {
   Star,
   Clock,
   Leaf,
+  Hourglass,
+  AlertTriangle,
+  ShoppingCart,
+  CheckCircle2,
+  Circle,
+  Trash2,
+  Share2,
+  X,
+  Flame,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ZeroWasteStatCard } from '../../components/ZeroWasteStatCard';
 import { RecipeCard } from '../../components/RecipeCard';
 import { StorageService } from '../../services/storageService';
+import { PantryRadarService, ExpiryItem } from '../../services/pantryRadarService';
+import { GroceryService, GroceryItem } from '../../services/groceryService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { getDemoPresets, ZERO_WASTE_TIPS, DemoPreset } from '../../constants/MockData';
@@ -44,6 +57,9 @@ export default function HomeScreen() {
     estimatedMoneySavedTL: 320,
   });
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+  const [radarItems, setRadarItems] = useState<ExpiryItem[]>([]);
+  const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
+  const [groceryModalVisible, setGroceryModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [randomTipIndex, setRandomTipIndex] = useState(0);
 
@@ -55,8 +71,13 @@ export default function HomeScreen() {
     try {
       const currentStats = await StorageService.getUserStats();
       const saved = await StorageService.getSavedRecipes();
+      const radar = await PantryRadarService.getRadarItems();
+      const groceries = await GroceryService.getItems();
+
       setStats(currentStats);
       setSavedRecipes(saved);
+      setRadarItems(radar);
+      setGroceryItems(groceries);
     } catch (e) {
       console.error(e);
     }
@@ -103,9 +124,34 @@ export default function HomeScreen() {
     });
   };
 
+  const handleToggleGrocery = async (id: string) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    const updated = await GroceryService.toggleItem(id);
+    setGroceryItems(updated);
+  };
+
+  const handleClearCompletedGroceries = async () => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    const updated = await GroceryService.clearCompleted();
+    setGroceryItems(updated);
+  };
+
+  const handleExportGroceries = async () => {
+    const text = GroceryService.formatForExport(groceryItems, language);
+    if (!text) return;
+    try {
+      await Share.share({ message: text });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const currentTips = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
   const currentTip = currentTips[randomTipIndex] || currentTips[0];
-
   const dateLocale = language === 'en' ? 'en-US' : 'tr-TR';
 
   return (
@@ -118,7 +164,7 @@ export default function HomeScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0F766E" />
         }
       >
-        {/* Editorial Top Bar */}
+        {/* Editorial Top Bar with Streak 🔥 and Grocery Button */}
         <View style={styles.topBar}>
           <View>
             <Text style={styles.dateLabel}>
@@ -130,6 +176,26 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.topRightRow}>
+            {/* 3-Day Cooking Streak Badge */}
+            <View style={styles.streakBadge}>
+              <Flame size={14} color="#EA580C" fill="#EA580C" />
+              <Text style={styles.streakBadgeText}>3 🔥</Text>
+            </View>
+
+            {/* Smart Grocery Cart Trigger */}
+            <TouchableOpacity
+              style={styles.groceryBtn}
+              activeOpacity={0.8}
+              onPress={() => setGroceryModalVisible(true)}
+            >
+              <ShoppingCart size={14} color="#0F766E" />
+              {groceryItems.length > 0 && (
+                <View style={styles.groceryBadgeCount}>
+                  <Text style={styles.groceryBadgeCountText}>{groceryItems.length}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
             {/* Quick Language Toggle Pill */}
             <TouchableOpacity
               style={styles.langPill}
@@ -139,17 +205,60 @@ export default function HomeScreen() {
               <Globe size={13} color="#0F766E" />
               <Text style={styles.langPillText}>{language.toUpperCase()}</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileBadge}
-              onPress={() => router.push('/(tabs)/settings')}
-            >
-              <View style={styles.profileAvatar}>
-                <Text style={styles.profileAvatarLetter}>{user?.name?.[0] || 'C'}</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
+
+        {/* PANTRY EXPIRY RADAR WIDGET (Step 5) */}
+        {radarItems.length > 0 && (
+          <View style={styles.radarWrapper}>
+            <View style={styles.radarHeader}>
+              <View style={styles.radarHeaderLeft}>
+                <Hourglass size={14} color="#D97706" />
+                <Text style={styles.radarTitle}>{t('radar.title')}</Text>
+              </View>
+              <Text style={styles.radarSub}>{t('radar.subtitle')}</Text>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.radarScroll}
+            >
+              {radarItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.radarCard,
+                    item.urgency === 'critical' ? styles.radarCardCritical : styles.radarCardWarning,
+                  ]}
+                  activeOpacity={0.88}
+                  onPress={handleStartScan}
+                >
+                  <View style={styles.radarCardTop}>
+                    <AlertTriangle
+                      size={13}
+                      color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
+                    />
+                    <Text
+                      style={[
+                        styles.radarUrgencyTag,
+                        { color: item.urgency === 'critical' ? '#E11D48' : '#B45309' },
+                      ]}
+                    >
+                      {item.daysRemaining} {language === 'en' ? 'Days Left' : 'Gün Kaldı'}
+                    </Text>
+                  </View>
+                  <Text style={styles.radarItemName} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.radarActionText}>
+                    {t('radar.consumeNowCta')} →
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* SPOTLIGHT HERO: CINEMATIC FOOD PHOTOGRAPHY SPOTLIGHT */}
         {spotlightRecipe && (
@@ -227,7 +336,6 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.scanChamberGradient}
           >
-            {/* Holographic light sphere */}
             <View style={styles.ambientSphere} />
 
             <View style={styles.scanChamberTop}>
@@ -322,6 +430,89 @@ export default function HomeScreen() {
           })}
         </View>
       </ScrollView>
+
+      {/* SMART GROCERY CHECKLIST MODAL (Step 2) */}
+      <Modal
+        visible={groceryModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setGroceryModalVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.groceryModalCard}>
+            <View style={styles.groceryModalHeader}>
+              <View>
+                <Text style={styles.groceryModalTitle}>{t('grocery.title')}</Text>
+                <Text style={styles.groceryModalSub}>{t('grocery.subtitle')}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => setGroceryModalVisible(false)}
+              >
+                <X size={20} color="#0D1714" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.groceryListScroll} showsVerticalScrollIndicator={false}>
+              {groceryItems.length === 0 ? (
+                <View style={styles.emptyGroceryBox}>
+                  <ShoppingCart size={32} color="#9CA3AF" />
+                  <Text style={styles.emptyGroceryText}>{t('grocery.empty')}</Text>
+                </View>
+              ) : (
+                groceryItems.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.groceryItemRow}
+                    onPress={() => handleToggleGrocery(item.id)}
+                  >
+                    {item.isCompleted ? (
+                      <CheckCircle2 size={20} color="#0F766E" />
+                    ) : (
+                      <Circle size={20} color="#9CA3AF" />
+                    )}
+                    <View style={{ flex: 1 }}>
+                      <Text
+                        style={[
+                          styles.groceryItemName,
+                          item.isCompleted && styles.groceryItemNameDone,
+                        ]}
+                      >
+                        {item.name}
+                      </Text>
+                      {item.recipeTitle && (
+                        <Text style={styles.groceryItemRecipe}>{item.recipeTitle}</Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+
+            {groceryItems.length > 0 && (
+              <View style={styles.groceryActionsRow}>
+                <TouchableOpacity
+                  style={styles.exportWhatsappBtn}
+                  activeOpacity={0.88}
+                  onPress={handleExportGroceries}
+                >
+                  <Share2 size={16} color="#FFFFFF" />
+                  <Text style={styles.exportWhatsappBtnText}>
+                    {t('grocery.exportWhatsappBtn')}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.clearDoneBtn}
+                  onPress={handleClearCompletedGroceries}
+                >
+                  <Trash2 size={16} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -364,6 +555,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#FFEDD5',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+  },
+  streakBadgeText: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: '#EA580C',
+  },
+  groceryBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#CCFBF1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  groceryBadgeCount: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#0F766E',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  groceryBadgeCountText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '900',
+  },
   langPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -380,26 +612,72 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#0F766E',
   },
-  profileBadge: {
-    padding: 3,
+  radarWrapper: {
+    paddingHorizontal: 18,
+    marginBottom: 16,
   },
-  profileAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#0F766E',
-    justifyContent: 'center',
+  radarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#0F766E',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
+    marginBottom: 8,
   },
-  profileAvatarLetter: {
-    color: '#FFFFFF',
+  radarHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  radarTitle: {
+    fontSize: 12.5,
     fontWeight: '800',
-    fontSize: 16,
+    color: '#B45309',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  radarSub: {
+    fontSize: 11,
+    color: '#78350F',
+    fontWeight: '500',
+  },
+  radarScroll: {
+    gap: 10,
+    paddingVertical: 2,
+  },
+  radarCard: {
+    width: 145,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 12,
+    borderWidth: 1.5,
+  },
+  radarCardCritical: {
+    borderColor: '#FECDD3',
+    backgroundColor: '#FFF1F2',
+  },
+  radarCardWarning: {
+    borderColor: '#FEF3C7',
+    backgroundColor: '#FFFBEB',
+  },
+  radarCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  radarUrgencyTag: {
+    fontSize: 10.5,
+    fontWeight: '800',
+  },
+  radarItemName: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0D1714',
+    marginBottom: 6,
+  },
+  radarActionText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#0F766E',
   },
   spotlightCard: {
     marginHorizontal: 18,
@@ -723,5 +1001,112 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     fontWeight: '700',
     color: '#0F766E',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  groceryModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 20,
+    maxHeight: '75%',
+  },
+  groceryModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F6F4',
+  },
+  groceryModalTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0D1714',
+  },
+  groceryModalSub: {
+    fontSize: 12,
+    color: '#687E74',
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  groceryListScroll: {
+    maxHeight: 280,
+    marginBottom: 16,
+  },
+  emptyGroceryBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 36,
+    gap: 8,
+  },
+  emptyGroceryText: {
+    fontSize: 13,
+    color: '#687E74',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    lineHeight: 18,
+  },
+  groceryItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F8FAF8',
+  },
+  groceryItemName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0D1714',
+  },
+  groceryItemNameDone: {
+    color: '#9CA3AF',
+    textDecorationLine: 'line-through',
+  },
+  groceryItemRecipe: {
+    fontSize: 11,
+    color: '#0F766E',
+    fontWeight: '500',
+    marginTop: 1,
+  },
+  groceryActionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingTop: 8,
+  },
+  exportWhatsappBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#0F766E',
+    paddingVertical: 14,
+    borderRadius: 18,
+  },
+  exportWhatsappBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13.5,
+    fontWeight: '800',
+  },
+  clearDoneBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 18,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

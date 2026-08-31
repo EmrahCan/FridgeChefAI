@@ -28,9 +28,12 @@ import {
   ChefHat,
   Award,
   Star,
+  Flame,
+  Lock,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StorageService } from '../../services/storageService';
+import { GamificationService, ChefBadge } from '../../services/gamificationService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
@@ -56,18 +59,21 @@ export default function SettingsScreen() {
 
   const [apiKey, setApiKey] = useState('');
   const [dietary, setDietary] = useState<string[]>([]);
+  const [badges, setBadges] = useState<ChefBadge[]>([]);
   const [isSavedSuccess, setIsSavedSuccess] = useState(false);
   const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
   const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   useEffect(() => {
     loadPrefs();
-  }, []);
+  }, [language]);
 
   const loadPrefs = async () => {
     const prefs = await StorageService.getUserPreferences();
+    const loadedBadges = await GamificationService.getBadges(language);
     setApiKey(prefs.geminiApiKey || '');
     setDietary(prefs.dietaryRestrictions || []);
+    setBadges(loadedBadges);
   };
 
   const handleSaveApiKey = async () => {
@@ -116,6 +122,7 @@ export default function SettingsScreen() {
               estimatedMoneySavedTL: 0,
             });
             Alert.alert(t('settings.savedSuccess'), t('settings.cacheClearedMsg'));
+            loadPrefs();
           },
         },
       ]
@@ -211,6 +218,57 @@ export default function SettingsScreen() {
             </View>
           </View>
         )}
+
+        {/* BENTO CARD: ZERO-WASTE BADGES & ACHIEVEMENTS (Step 3) */}
+        <View style={styles.bentoCard}>
+          <View style={styles.cardHeader}>
+            <View style={[styles.cardIconBox, { backgroundColor: '#FEF3C7' }]}>
+              <Award size={16} color="#D97706" />
+            </View>
+            <Text style={styles.cardTitle}>{t('gamification.badgesTitle')}</Text>
+          </View>
+
+          <View style={styles.badgesList}>
+            {badges.map((badge) => {
+              const title = language === 'en' ? badge.titleEn : badge.titleTr;
+              const desc = language === 'en' ? badge.descEn : badge.descTr;
+
+              return (
+                <View
+                  key={badge.id}
+                  style={[styles.badgeItemRow, badge.isUnlocked && styles.badgeItemRowUnlocked]}
+                >
+                  <Text style={styles.badgeEmoji}>{badge.icon}</Text>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.badgeTitleRow}>
+                      <Text style={styles.badgeName}>{title}</Text>
+                      {badge.isUnlocked ? (
+                        <View style={styles.unlockedPill}>
+                          <Check size={11} color="#0F766E" />
+                          <Text style={styles.unlockedPillText}>{t('gamification.unlocked')}</Text>
+                        </View>
+                      ) : (
+                        <View style={styles.lockedPill}>
+                          <Lock size={10} color="#9CA3AF" />
+                          <Text style={styles.lockedPillText}>{badge.progressPercent}%</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.badgeDesc}>{desc}</Text>
+                    {/* Mini progress bar */}
+                    {!badge.isUnlocked && (
+                      <View style={styles.progressBarBg}>
+                        <View
+                          style={[styles.progressBarFill, { width: `${badge.progressPercent}%` }]}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
 
         {/* Admin Dashboard Access (If Admin) */}
         {user?.role === 'admin' && (
@@ -572,6 +630,81 @@ const styles = StyleSheet.create({
   chefBadgeText: {
     color: '#5EEAD4',
   },
+  badgesList: {
+    gap: 10,
+  },
+  badgeItemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: '#F8FAF8',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E6EBE8',
+  },
+  badgeItemRowUnlocked: {
+    backgroundColor: '#EFFCF6',
+    borderColor: '#A7F3D0',
+  },
+  badgeEmoji: {
+    fontSize: 24,
+  },
+  badgeTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  badgeName: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0D1714',
+  },
+  unlockedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  unlockedPillText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#0F766E',
+  },
+  lockedPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#E5E7EB',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  lockedPillText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#6B7280',
+  },
+  badgeDesc: {
+    fontSize: 11.5,
+    color: '#687E74',
+    lineHeight: 15,
+  },
+  progressBarBg: {
+    height: 4,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 2,
+    marginTop: 6,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#0F766E',
+  },
   adminAccessBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -626,7 +759,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 12,
   },
   cardIconBox: {
     width: 30,

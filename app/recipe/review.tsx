@@ -21,6 +21,8 @@ import { StorageService } from '../../services/storageService';
 import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
+import { PantryRadarService } from '../../services/pantryRadarService';
+
 const STYLE_KEYS: CookingStyle[] = ['hepsi', 'hizli', 'firinda', 'corba', 'fit', 'cocuk'];
 
 export default function ReviewScreen() {
@@ -42,6 +44,12 @@ export default function ReviewScreen() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedRecipes, setGeneratedRecipes] = useState<Recipe[]>([]);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+
+  React.useEffect(() => {
+    if (initialIngredients.length > 0) {
+      PantryRadarService.registerScannedIngredients(initialIngredients);
+    }
+  }, []);
 
   const handleAddIngredient = () => {
     if (!newIngredientName.trim()) return;
