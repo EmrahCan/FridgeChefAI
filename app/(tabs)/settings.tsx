@@ -74,7 +74,7 @@ export default function SettingsScreen() {
 
     setIsSavedSuccess(true);
     setTimeout(() => setIsSavedSuccess(false), 2500);
-    Alert.alert(t('settings.savedSuccess'), 'Gemini API key updated.');
+    Alert.alert(t('settings.savedSuccess'), language === 'en' ? 'API key updated successfully.' : 'API anahtarı başarıyla güncellendi.');
   };
 
   const toggleDietary = async (option: string) => {
