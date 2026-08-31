@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { CookingStyle, DetectedIngredient, Recipe } from '../types';
 import { StorageService } from './storageService';
 import { getDemoPresets } from '../constants/MockData';
@@ -5,7 +6,13 @@ import { SupportedLanguage } from '../constants/Translations';
 
 const CLOUD_VISION_API_URL = 'https://vision.googleapis.com/v1/images:annotate';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
-const DEFAULT_CLOUD_VISION_KEY = 'AIzaSyBjaJCtONI5yculIi8VQ1yw0y-CNFY6SIc';
+
+const IOS_CLOUD_VISION_KEY = 'AIzaSyBjaJCtONI5yculIi8VQ1yw0y-CNFY6SIc';
+const ANDROID_CLOUD_VISION_KEY = 'AIzaSyDfURY2Vh2Uc2tIRhZFtdRI9KilHaQ7qiM';
+
+export function getDefaultVisionKey(): string {
+  return Platform.OS === 'android' ? ANDROID_CLOUD_VISION_KEY : IOS_CLOUD_VISION_KEY;
+}
 
 // Culinary dictionary for Google Cloud Vision label translation & categorization
 const FOOD_DICTIONARY_TR: Record<string, { name: string; category: string; action: 'Hemen Tüket' | 'Fırınla' | 'Çorba Yap' | 'Taze' }> = {
@@ -116,7 +123,7 @@ export const GeminiService = {
     lang: SupportedLanguage = 'en'
   ): Promise<{ detectedIngredients: DetectedIngredient[]; fridgeSummary: string }> {
     const prefs = await StorageService.getUserPreferences();
-    const apiKey = prefs.geminiApiKey?.trim() || DEFAULT_CLOUD_VISION_KEY;
+    const apiKey = prefs.geminiApiKey?.trim() || getDefaultVisionKey();
 
     if (apiKey && imageBase64) {
       // 1. TRY GOOGLE CLOUD VISION API (Labels & Objects)
@@ -222,7 +229,7 @@ export const GeminiService = {
     lang: SupportedLanguage = 'en'
   ): Promise<Recipe[]> {
     const prefs = await StorageService.getUserPreferences();
-    const apiKey = prefs.geminiApiKey?.trim() || DEFAULT_CLOUD_VISION_KEY;
+    const apiKey = prefs.geminiApiKey?.trim() || getDefaultVisionKey();
 
     // Use Gemini Generative API if available or generate custom smart recipes
     if (apiKey) {
