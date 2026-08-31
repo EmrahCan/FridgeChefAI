@@ -63,6 +63,7 @@ export default function HomeScreen() {
   const [radarItems, setRadarItems] = useState<ExpiryItem[]>([]);
   const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
   const [groceryModalVisible, setGroceryModalVisible] = useState(false);
+  const [tipModalVisible, setTipModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [randomTipIndex, setRandomTipIndex] = useState(0);
 
@@ -406,14 +407,27 @@ export default function HomeScreen() {
         {/* BENTO 2-COLUMN TILES: TIPS & QUICK ACTIONS */}
         <View style={styles.bentoGridRow}>
           {/* Tile 1: Tip of the day */}
-          <View style={styles.bentoTileLeft}>
+          <TouchableOpacity
+            style={styles.bentoTileLeft}
+            activeOpacity={0.88}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              } catch {}
+              setTipModalVisible(true);
+            }}
+          >
             <View style={styles.bentoTileHeader}>
               <Lightbulb size={16} color="#D97706" />
               <Text style={styles.bentoTileTag}>{t('home.tipOfTheDay')}</Text>
             </View>
             <Text style={styles.tipTitleText} numberOfLines={2}>{currentTip.title}</Text>
-            <Text style={styles.tipDescText} numberOfLines={3}>{currentTip.description}</Text>
-          </View>
+            <Text style={styles.tipDescText} numberOfLines={2}>{currentTip.description}</Text>
+            <View style={styles.tipLinkRow}>
+              <Text style={styles.tipLinkText}>{language === 'en' ? 'Explore Hacks' : 'Püf Noktaları'}</Text>
+              <ArrowRight size={13} color="#B45309" />
+            </View>
+          </TouchableOpacity>
 
           {/* Tile 2: Instant Chef Preset */}
           <TouchableOpacity
@@ -549,6 +563,65 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* ZERO-WASTE MASTER TIPS MODAL */}
+      <Modal
+        visible={tipModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setTipModalVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.tipsModalCard}>
+            <View style={styles.tipsModalHeader}>
+              <View style={styles.tipsModalTitleRow}>
+                <View style={styles.tipsHaloIcon}>
+                  <Lightbulb size={18} color="#D97706" />
+                </View>
+                <View>
+                  <Text style={styles.tipsModalTitle}>
+                    {language === 'en' ? 'Chef Zero-Waste Hacks' : 'Şefin Sıfır İsraf Taktikleri'} 💡
+                  </Text>
+                  <Text style={styles.tipsModalSub}>
+                    {language === 'en'
+                      ? 'Pro culinary secrets to rescue leftovers'
+                      : 'Kalanları gurme lezzetlere dönüştüren şef sırları'}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => setTipModalVisible(false)}
+              >
+                <X size={20} color="#0D1714" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.tipsListScroll} showsVerticalScrollIndicator={false}>
+              {currentTips.map((tip, idx) => (
+                <View key={idx} style={styles.tipItemCard}>
+                  <Text style={styles.tipItemCardTitle}>{tip.title}</Text>
+                  <Text style={styles.tipItemCardDesc}>{tip.description}</Text>
+                </View>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.tipsScanCtaBtn}
+              activeOpacity={0.9}
+              onPress={() => {
+                setTipModalVisible(false);
+                handleStartScan();
+              }}
+            >
+              <Camera size={18} color="#042F2E" />
+              <Text style={styles.tipsScanCtaBtnText}>
+                {language === 'en' ? 'Scan My Fridge Now' : 'Dolabımı Tara & Uygula'} 📸
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1199,5 +1272,100 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tipLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 'auto',
+    paddingTop: 8,
+  },
+  tipLinkText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  tipsModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  tipsModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F6F4',
+  },
+  tipsModalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+    paddingRight: 10,
+  },
+  tipsHaloIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FEF3C7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tipsModalTitle: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: '#0D1714',
+  },
+  tipsModalSub: {
+    fontSize: 12,
+    color: '#687E74',
+    marginTop: 2,
+  },
+  tipsListScroll: {
+    maxHeight: 320,
+    marginBottom: 16,
+  },
+  tipItemCard: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+    marginBottom: 10,
+  },
+  tipItemCardTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#78350F',
+    marginBottom: 4,
+  },
+  tipItemCardDesc: {
+    fontSize: 12.5,
+    color: '#92400E',
+    lineHeight: 18,
+  },
+  tipsScanCtaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#5EEAD4',
+    paddingVertical: 14,
+    borderRadius: 18,
+    shadowColor: '#5EEAD4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  tipsScanCtaBtnText: {
+    color: '#042F2E',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });
