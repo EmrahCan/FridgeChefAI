@@ -4,6 +4,7 @@ import { getDemoPresets } from '../constants/MockData';
 import { SupportedLanguage } from '../constants/Translations';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const DEFAULT_CLOUD_VISION_KEY = 'AIzaSyBjaJCtONI5yculIi8VQ1yw0y-CNFY6SIc';
 
 export const GeminiService = {
   /**
@@ -15,7 +16,7 @@ export const GeminiService = {
     lang: SupportedLanguage = 'en'
   ): Promise<{ detectedIngredients: DetectedIngredient[]; fridgeSummary: string }> {
     const prefs = await StorageService.getUserPreferences();
-    const apiKey = prefs.geminiApiKey?.trim();
+    const apiKey = prefs.geminiApiKey?.trim() || DEFAULT_CLOUD_VISION_KEY;
 
     if (apiKey) {
       try {
@@ -107,7 +108,7 @@ Return output ONLY as valid JSON matching this schema:
     lang: SupportedLanguage = 'en'
   ): Promise<Recipe[]> {
     const prefs = await StorageService.getUserPreferences();
-    const apiKey = prefs.geminiApiKey?.trim();
+    const apiKey = prefs.geminiApiKey?.trim() || DEFAULT_CLOUD_VISION_KEY;
 
     if (apiKey) {
       try {
