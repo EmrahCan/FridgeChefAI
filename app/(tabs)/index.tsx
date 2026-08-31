@@ -49,7 +49,7 @@ import { PantryRadarService, ExpiryItem } from '../../services/pantryRadarServic
 import { GroceryService, GroceryItem } from '../../services/groceryService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { getDemoPresets, ZERO_WASTE_TIPS, DemoPreset } from '../../constants/MockData';
+import { getDemoPresets, ZERO_WASTE_TIPS, DemoPreset, getDailyRotatedData } from '../../constants/MockData';
 import { Recipe, UserStats } from '../../types';
 import * as Haptics from 'expo-haptics';
 
@@ -79,9 +79,12 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [randomTipIndex, setRandomTipIndex] = useState(0);
 
-  const presets = getDemoPresets(language);
-  const primaryPreset = presets[0];
-  const spotlightRecipe = primaryPreset.recipes[0];
+  const dailyData = getDailyRotatedData(language);
+  const presets = dailyData.rotatedPresets;
+  const primaryPreset = dailyData.currentPreset;
+  const spotlightRecipe = dailyData.spotlightRecipe;
+  const currentTips = dailyData.allTips;
+  const currentTip = currentTips[randomTipIndex % currentTips.length] || dailyData.currentTip;
 
   const loadData = async () => {
     try {
@@ -101,15 +104,13 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadData();
-    const tipsList = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
-    setRandomTipIndex(Math.floor(Math.random() * tipsList.length));
+    setRandomTipIndex(dailyData.dayOfYear);
   }, [language]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     await loadData();
-    const tipsList = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
-    setRandomTipIndex((prev) => (prev + 1) % tipsList.length);
+    setRandomTipIndex((prev) => prev + 1);
     setRefreshing(false);
   };
 
@@ -242,8 +243,6 @@ export default function HomeScreen() {
     }
   };
 
-  const currentTips = ZERO_WASTE_TIPS[language] || ZERO_WASTE_TIPS['en'];
-  const currentTip = currentTips[randomTipIndex] || currentTips[0];
   const dateLocale = language === 'en' ? 'en-US' : 'tr-TR';
 
   return (
@@ -472,7 +471,9 @@ export default function HomeScreen() {
               <View style={styles.spotlightBadge}>
                 <Sparkles size={12} color="#5EEAD4" />
                 <Text style={styles.spotlightBadgeText}>
-                  {language === 'en' ? "Chef's Daily Spotlight" : "Günün Şef Seçkisi"}
+                  {language === 'en'
+                    ? `Daily Spotlight • ${dailyData.formattedDate}`
+                    : `Günün Seçkisi • ${dailyData.formattedDate}`}
                 </Text>
               </View>
 
@@ -561,8 +562,19 @@ export default function HomeScreen() {
             }}
           >
             <View style={styles.bentoTileHeader}>
-              <Lightbulb size={16} color="#D97706" />
-              <Text style={styles.bentoTileTag}>{t('home.tipOfTheDay')}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Lightbulb size={16} color="#D97706" />
+                <Text style={styles.bentoTileTag}>{t('home.tipOfTheDay')}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setRandomTipIndex((prev) => prev + 1);
+                }}
+                style={{ padding: 2 }}
+              >
+                <Text style={{ fontSize: 11, color: '#D97706', fontWeight: '800' }}>🎲</Text>
+              </TouchableOpacity>
             </View>
             <Text style={styles.tipTitleText} numberOfLines={2}>{currentTip.title}</Text>
             <Text style={styles.tipDescText} numberOfLines={2}>{currentTip.description}</Text>

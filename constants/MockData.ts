@@ -22,6 +22,14 @@ export const ZERO_WASTE_TIPS: Record<SupportedLanguage, { title: string; descrip
     {
       title: 'Hard Cheese Rinds 🧀',
       description: 'Grate drying cheddar, feta, or parmesan rinds over baked casseroles or melt them into warm breakfast toasts.',
+    },
+    {
+      title: 'Brown Bananas & Soft Fruit 🍌',
+      description: 'Freeze overripe bananas for creamy sugar-free smoothies, or caramelize in a skillet with cinnamon for oatmeal topping.',
+    },
+    {
+      title: 'Leftover Boiled Potatoes 🥔',
+      description: 'Smash cold boiled potatoes with a fork, brush with olive oil and garlic, and roast at 220°C for ultra-crispy smashed potatoes.',
     }
   ],
   tr: [
@@ -44,6 +52,14 @@ export const ZERO_WASTE_TIPS: Record<SupportedLanguage, { title: string; descrip
     {
       title: 'Kalan Peynir Uçları 🧀',
       description: 'Kuruyan kaşar, beyaz peynir veya tulum peynirlerini rendeleyip fırın böreğinde veya fırınlanmış sebzelerde eritebilirsiniz.',
+    },
+    {
+      title: 'Kararmış Muzlar & Yumuşak Meyveler 🍌',
+      description: 'Fazla olgunlaşmış muzları dilimleyip dondurucuda saklayarak dondurma kıvamında şekersiz smoothie yapabilirsiniz.',
+    },
+    {
+      title: 'Haşlanmış Kalan Patatesler 🥔',
+      description: 'Soğumuş patatesleri bardağın altıyla ezip zeytinyağı, biberiye ve tuzla 220°C fırında çıtır patatese dönüştürün.',
     }
   ]
 };
@@ -99,27 +115,19 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
               },
               {
                 stepNumber: 2,
-                title: 'Bağlayıcı Altın Sosu Çırpın',
-                description: 'Bir kasede yoğurt, 1 yumurta, tuz, karabiber ve kırmızı biberi pürüzsüz kıvama gelene kadar çırpın.',
-                durationMinutes: 3,
-                tip: 'Sosun içine 1 diş ezilmiş sarımsak eklerseniz lezzet seviyesi katlanır.'
-              },
-              {
-                stepNumber: 3,
-                title: 'Kalan Malzemeleri Sosla Buluşturun',
-                description: 'Pirinç pilavını, didilmiş tavukları ve doğranmış biberleri sosla karıştırıp fırın kabına yayın.',
+                title: 'Yumurtalı Yoğurt Sosunu Çırpın',
+                description: 'Bir kasede 1 yumurta, 2 yemek kaşığı yoğurt, zeytinyağı, tuz ve baharatları pürüzsüzce çırpın.',
                 durationMinutes: 2,
               },
               {
-                stepNumber: 4,
-                title: 'Kaşar Peyniri Serpin ve Fırınlayın',
-                description: 'Üzerini rendelenmiş kaşarla kaplayıp önceden ısıtılmış fırında 15 dakika üzeri kızarana kadar pişirin.',
+                stepNumber: 3,
+                title: 'Harmanlayıp Fırınlayın',
+                description: 'Didilmiş tavuk, pirinç pilavı ve doğranmış biberi sosla karıştırıp kaba yayın. Üzerine kaşar serpip 15 dk fırınlayın.',
                 durationMinutes: 15,
               }
             ],
             chefTips: [
-              'Pilav kuruysa sosun içine 2 yemek kaşığı ılık süt veya su ilave edin.',
-              'Fırından çıkınca üzerine taze maydanoz veya kekik serpiştirin.'
+              'Pilavınız çok kuruysa karışıma 2 yemek kaşığı süt veya ılık su ekleyerek nem dengesini mükemmelleştirin.'
             ],
             nutritionalHighlights: {
               protein: '32g',
@@ -127,57 +135,12 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
               fat: '14g'
             },
             createdAt: new Date().toISOString(),
-          },
-          {
-            id: 'rec-2',
-            title: 'Kadife Kıvamlı Tavuklu Şifalı Yayla Çorbası',
-            tagline: 'Kalan pilavla kaynatma derdi olmadan 10 dakikada hazırlanan şifa iksiri',
-            description: 'Dünden kalan pirinç pilavı sayesinde pirinç haşlama adımını atlayın, ipeksi yoğurt terbiyesiyle tavukları buluşturun.',
-            prepTimeMinutes: 3,
-            cookTimeMinutes: 10,
-            difficulty: 'Kolay',
-            servings: 3,
-            caloriesPerServing: 220,
-            wasteSavedGrams: 300,
-            category: 'Şifalı Çorba',
-            imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
-            ingredientsUsed: ['Kalan Pirinç Pilavı', 'Didilmiş Tavuk', 'Sade Yoğurt'],
-            pantryItemsNeeded: ['1 Yumurta Sarısı', '1 Yemek Kaşığı Un', 'Kuru Nane', 'Tereyağı veya Zeytinyağı', '3 Su Bardağı Sıcak Su'],
-            instructions: [
-              {
-                stepNumber: 1,
-                title: 'Yoğurt Terbiyesini Hazırlayın',
-                description: 'Tencerede yoğurt, yumurta sarısı, un ve 1 bardak ılık suyu pürüzsüz olana kadar çırpın.',
-                durationMinutes: 2,
-              },
-              {
-                stepNumber: 2,
-                title: 'Pilav ve Tavukla Kaynatın',
-                description: 'Kalan 2 bardak sıcak suyu azar azar ekleyip orta ateşte kaynatın. Kaynayınca pilav ve tavukları ekleyin.',
-                durationMinutes: 5,
-              },
-              {
-                stepNumber: 3,
-                title: 'Naneli Yağ Cızırtısı ile Servis Edin',
-                description: 'Küçük tavada tereyağında kuru naneyi 30 saniye kızdırıp sıcak çorbanın üzerine dökün.',
-                durationMinutes: 3,
-              }
-            ],
-            chefTips: [
-              'Yoğurdun kesilmemesi için tuzu ocaktan aldıktan sonra ekleyin.'
-            ],
-            nutritionalHighlights: {
-              protein: '22g',
-              carbs: '18g',
-              fat: '6g'
-            },
-            createdAt: new Date().toISOString(),
           }
         ]
       },
       {
         id: 'preset-breakfast-veggies',
-        name: 'Bayat Ekmek & Kahvaltılıklar 🥖🧀',
+        name: 'Bayat Ekmek & Kahvaltılık Tava Pizzası 🥖🧀',
         subtitle: 'Bayat ekmek, beyaz peynir, 2 yumurta, domates, zeytin',
         icon: 'croissant',
         imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
@@ -235,6 +198,100 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
             createdAt: new Date().toISOString(),
           }
         ]
+      },
+      {
+        id: 'preset-veggie-ratatouille',
+        name: 'Kalan Sebzelerden Fırın Ratatouille & Çorba 🥦🍅',
+        subtitle: 'Yumuşamış domates, kabak, biber, havuç, zeytinyağı',
+        icon: 'soup',
+        imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
+        ingredients: [
+          { id: '20', name: 'Yumuşamış Domatesler', category: 'Sebze & Meyve', confidence: 0.98, suggestedAction: 'Fırınla' },
+          { id: '21', name: 'Kabak & Patlıcan Parçaları', category: 'Sebze & Meyve', confidence: 0.95, suggestedAction: 'Fırınla' },
+          { id: '22', name: 'Kapya Biber', category: 'Sebze & Meyve', confidence: 0.92, suggestedAction: 'Fırınla' },
+        ],
+        recipes: [
+          {
+            id: 'rec-4',
+            title: 'Köz Kokulu İpeksi Sebze Kremalı Çorba',
+            tagline: 'Solmaya yüz tutmuş sebzeleri fırında karamelize edip pürüzsüz şef çorbasına çevirin!',
+            description: 'Tüm yumuşayan sebzeleri fırınlayıp zeytinyağı ve sarımsakla püre haline getirerek lüks bir kış çorbası elde edin.',
+            prepTimeMinutes: 5,
+            cookTimeMinutes: 20,
+            difficulty: 'Kolay',
+            servings: 3,
+            caloriesPerServing: 180,
+            wasteSavedGrams: 450,
+            category: 'Çorbalar',
+            imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
+            ingredientsUsed: ['Domates', 'Kabak', 'Kapya Biber', 'Sarımsak'],
+            pantryItemsNeeded: ['Zeytinyağı', 'Krema veya Süt', 'Tuz', 'Karabiber'],
+            instructions: [
+              {
+                stepNumber: 1,
+                title: 'Sebzeleri Fırında Közleyin',
+                description: 'Sebzeleri iri doğrayıp zeytinyağı ve tuzla 200°C fırında 15 dk közleyin.',
+                durationMinutes: 15,
+              },
+              {
+                stepNumber: 2,
+                title: 'Blenderdan Geçirip Kaynatın',
+                description: 'Közlenen sebzeleri sıcak su veya et suyu ile blenderdan geçirip tencereye alın, 5 dk kaynatın.',
+                durationMinutes: 5,
+              }
+            ],
+            chefTips: ['Közlenmiş sarımsak çorbaya harika bir derinlik ve restorant tadı kazandırır.'],
+            nutritionalHighlights: { protein: '6g', carbs: '22g', fat: '7g' },
+            createdAt: new Date().toISOString(),
+          }
+        ]
+      },
+      {
+        id: 'preset-potato-frittata',
+        name: 'Haşlanmış Patates & Çıtır İspanyol Frittata 🥔🍳',
+        subtitle: 'Kalan patates, 3 yumurta, maydanoz sapları, soğan',
+        icon: 'egg',
+        imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1000&q=80',
+        ingredients: [
+          { id: '30', name: 'Soğuk Haşlanmış Patates', category: 'Kalan Yemek', confidence: 0.98, suggestedAction: 'Hemen Tüket' },
+          { id: '31', name: '3 Adet Yumurta', category: 'Et & Şarküteri', confidence: 0.96, suggestedAction: 'Taze' },
+          { id: '32', name: 'Kalan Soğan & Yeşillik', category: 'Sebze & Meyve', confidence: 0.90, suggestedAction: 'Taze' },
+        ],
+        recipes: [
+          {
+            id: 'rec-5',
+            title: 'Karamelize Soğanlı Çıtır Patates Frittata',
+            tagline: 'Kalan patateslerle dışı çıtır, içi yumuşacık doyurucu ana öğün omlet!',
+            description: 'Dilimlenen haşlanmış patatesleri tavada altın sarısı kızartıp yumurtayla birleştirin.',
+            prepTimeMinutes: 5,
+            cookTimeMinutes: 10,
+            difficulty: 'Kolay',
+            servings: 2,
+            caloriesPerServing: 320,
+            wasteSavedGrams: 380,
+            category: 'Pratik & Hızlı',
+            imageUrl: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1000&q=80',
+            ingredientsUsed: ['Haşlanmış Patates', 'Yumurta', 'Soğan', 'Maydanoz'],
+            pantryItemsNeeded: ['Zeytinyağı', 'Tuz', 'Karabiber'],
+            instructions: [
+              {
+                stepNumber: 1,
+                title: 'Patatesleri Tavada Çıtırlaştırın',
+                description: 'Patatesleri küp veya yuvarlak dilimleyip zeytinyağında her iki tarafını 5 dk kızartın.',
+                durationMinutes: 5,
+              },
+              {
+                stepNumber: 2,
+                title: 'Yumurtayı Ekleyip Pişirin',
+                description: 'Çırpılmış yumurtayı patateslerin üzerine dökün. Kısık ateşte altı kızarana kadar pişirin.',
+                durationMinutes: 5,
+              }
+            ],
+            chefTips: ['Üzerine tabağı kapatıp ters çevirerek diğer tarafını da 2 dakika kızartabilirsiniz.'],
+            nutritionalHighlights: { protein: '18g', carbs: '28g', fat: '14g' },
+            createdAt: new Date().toISOString(),
+          }
+        ]
       }
     ];
   }
@@ -258,8 +315,8 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
         {
           id: 'rec-1',
           title: 'Golden Baked Chicken & Rice Gratin',
-          tagline: 'Turn yesterday’s rice & chicken into a bubbly gourmet gratin in 15 mins!',
-          description: 'Combine leftover shredded chicken and cooked rice with a light egg-yogurt liaison and melt-in-your-mouth golden cheese crust.',
+          tagline: 'Turn yesterday’s dry rice and chicken into a bubbling 15-minute soufflé gratin!',
+          description: 'Fold cooked rice and chicken with an egg-yogurt binder, blanket with bubbling cheese, and bake to golden perfection.',
           prepTimeMinutes: 5,
           cookTimeMinutes: 15,
           difficulty: 'Easy',
@@ -268,88 +325,35 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
           wasteSavedGrams: 420,
           category: 'Oven & Gratin',
           imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80',
-          ingredientsUsed: ['Shredded Cooked Chicken', 'Cooked Rice', 'Cheese Scraps', 'Yogurt', 'Bell Pepper'],
+          ingredientsUsed: ['Cooked Chicken', 'Leftover Rice', 'Cheddar Cheese', 'Yogurt', 'Bell Pepper'],
           pantryItemsNeeded: ['1 Egg', 'Olive Oil', 'Black Pepper', 'Paprika', 'Salt'],
           instructions: [
             {
               stepNumber: 1,
-              title: 'Preheat Oven and Oil Baking Dish',
-              description: 'Set oven to 200°C (400°F). Lightly coat a small baking dish with 1 tsp olive oil.',
+              title: 'Preheat & Oil Baking Dish',
+              description: 'Preheat oven to 200°C (400°F). Brush small casserole dish with olive oil.',
               durationMinutes: 2,
             },
             {
               stepNumber: 2,
-              title: 'Whisk the Golden Binding Sauce',
-              description: 'In a bowl, whisk yogurt, 1 egg, salt, black pepper, and paprika until velvety smooth.',
-              durationMinutes: 3,
-              tip: 'Add 1 minced garlic clove for an extra depth of savory flavor.'
-            },
-            {
-              stepNumber: 3,
-              title: 'Fold Leftovers with Sauce',
-              description: 'Fold cooked rice, shredded chicken, and sliced bell pepper together with the sauce. Spread evenly in baking dish.',
+              title: 'Whisk the Custard Binder',
+              description: 'In a bowl, whisk 1 egg, 2 tbsp yogurt, olive oil, salt, and spices until silky smooth.',
               durationMinutes: 2,
             },
             {
-              stepNumber: 4,
-              title: 'Top with Cheese & Bake',
-              description: 'Cover top with grated cheese scraps. Bake for 15 minutes until golden bubbly and soufflé-like.',
+              stepNumber: 3,
+              title: 'Bake Until Golden',
+              description: 'Toss shredded chicken, rice, and diced pepper into sauce. Transfer to dish, top with cheese, and bake for 15 mins.',
               durationMinutes: 15,
             }
           ],
           chefTips: [
-            'If the rice feels dry, splash 2 tbsp of milk or warm water into the sauce.',
-            'Garnish with freshly chopped parsley or thyme before serving.'
+            'If the rice feels dry, splash 2 tbsp of milk or warm water into the sauce.'
           ],
           nutritionalHighlights: {
             protein: '32g',
             carbs: '28g',
             fat: '14g'
-          },
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'rec-2',
-          title: 'Silky Chicken & Yogurt Elixir Soup',
-          tagline: 'Traditional Yayla soup elevated with tender chicken shreds',
-          description: 'Cooked leftover rice skips the boiling step. Whipped yogurt liaison and tender chicken create a soothing bowl in 10 mins.',
-          prepTimeMinutes: 3,
-          cookTimeMinutes: 10,
-          difficulty: 'Easy',
-          servings: 3,
-          caloriesPerServing: 220,
-          wasteSavedGrams: 300,
-          category: 'Healing Soup',
-          imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
-          ingredientsUsed: ['Cooked Rice', 'Shredded Cooked Chicken', 'Plain Yogurt'],
-          pantryItemsNeeded: ['1 Egg Yolk', '1 tbsp Flour', 'Dried Mint', 'Butter or Olive Oil', '3 Cups Hot Water'],
-          instructions: [
-            {
-              stepNumber: 1,
-              title: 'Whisk the Yogurt Liaison',
-              description: 'In a pot, whisk yogurt, egg yolk, flour, and 1 cup warm water until completely silky and smooth.',
-              durationMinutes: 2,
-            },
-            {
-              stepNumber: 2,
-              title: 'Simmer with Rice & Chicken',
-              description: 'Gradually pour remaining 2 cups hot water while whisking over medium heat. When simmering, add cooked rice and shredded chicken.',
-              durationMinutes: 5,
-            },
-            {
-              stepNumber: 3,
-              title: 'Infuse Minted Butter Sizzle',
-              description: 'Sizzle dried mint in melted butter or olive oil for 30 seconds and pour over hot soup.',
-              durationMinutes: 3,
-            }
-          ],
-          chefTips: [
-            'Add salt only after removing from heat to keep yogurt perfectly smooth.'
-          ],
-          nutritionalHighlights: {
-            protein: '22g',
-            carbs: '18g',
-            fat: '6g'
           },
           createdAt: new Date().toISOString(),
         }
@@ -417,6 +421,50 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
       ]
     }
   ];
+}
+
+/**
+ * Returns daily rotated menu, spotlight recipe, and zero-waste tip based on current calendar day
+ */
+export function getDailyRotatedData(lang: SupportedLanguage = 'en') {
+  const presets = getDemoPresets(lang);
+  const tips = ZERO_WASTE_TIPS[lang] || ZERO_WASTE_TIPS['en'];
+
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 0);
+  const diff = now.getTime() - startOfYear.getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
+
+  const presetIndex = dayOfYear % presets.length;
+  const tipIndex = dayOfYear % tips.length;
+
+  const currentPreset = presets[presetIndex];
+  const spotlightRecipe = currentPreset.recipes[0];
+  const currentTip = tips[tipIndex];
+
+  // Rotate presets array so today's preset is always at the top
+  const rotatedPresets = [
+    ...presets.slice(presetIndex),
+    ...presets.slice(0, presetIndex),
+  ];
+
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'long',
+    weekday: 'long',
+  };
+  const formattedDate = now.toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'en-US', dateOptions);
+
+  return {
+    formattedDate,
+    dayOfYear,
+    currentPreset,
+    spotlightRecipe,
+    currentTip,
+    rotatedPresets,
+    allTips: tips,
+  };
 }
 
 export const DEMO_PRESETS = getDemoPresets('en');
