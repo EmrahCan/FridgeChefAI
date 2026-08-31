@@ -30,17 +30,17 @@ import { AdminMetrics } from '../../types';
 export default function AdminDashboardScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadMetrics();
-  }, []);
+  }, [language]);
 
   const loadMetrics = async () => {
     try {
-      const data = await AdminService.getMetrics();
+      const data = await AdminService.getMetrics(language);
       setMetrics(data);
     } catch (e) {
       console.error(e);
@@ -186,7 +186,7 @@ export default function AdminDashboardScreen() {
                       <Text style={styles.userEmail}>{u.email}</Text>
                     </View>
                     <View style={styles.userMetaBox}>
-                      <Text style={styles.userScans}>{u.scans} Scans</Text>
+                      <Text style={styles.userScans}>{u.scans} {t('admin.scansCount')}</Text>
                       <Text style={styles.userDate}>{u.joinedDate}</Text>
                     </View>
                   </View>

@@ -94,5 +94,5 @@ export interface AdminMetrics {
   activeAiQueriesToday: number;
   popularIngredients: { name: string; percentage: number; count: number }[];
   recentUsers: { id: string; name: string; email: string; role: UserRole; joinedDate: string; scans: number }[];
-  systemHealth: 'Mükemmel' | 'Bakımda' | 'Yoğun';
+  systemHealth: string;
 }

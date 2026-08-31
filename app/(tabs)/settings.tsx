@@ -9,6 +9,7 @@ import {
   Alert,
   SafeAreaView,
   Platform,
+  Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -20,28 +21,28 @@ import {
   LogOut,
   Globe,
   ChevronRight,
+  Sliders,
+  FileText,
+  Trash2,
+  Vibrate,
 } from 'lucide-react-native';
 import { StorageService } from '../../services/storageService';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
-const DIETARY_OPTIONS_EN = [
-  'Vegetarian 🥬',
-  'Vegan 🌱',
-  'Gluten-Free 🌾',
-  'Lactose-Free 🥛',
-  'Low Carb (Keto) 🥑',
-  'Mild / Non-Spicy 🌶️',
-];
+interface DietaryItem {
+  id: string;
+  key: string;
+}
 
-const DIETARY_OPTIONS_TR = [
-  'Vejetaryen 🥬',
-  'Vegan 🌱',
-  'Glutensiz 🌾',
-  'Laktozsuz 🥛',
-  'Düşük Karbonhidrat (Keto) 🥑',
-  'Acı Sevmeyen 🌶️',
+const DIETARY_ITEMS: DietaryItem[] = [
+  { id: 'vegetarian', key: 'settings.dietary.vegetarian' },
+  { id: 'vegan', key: 'settings.dietary.vegan' },
+  { id: 'gluten_free', key: 'settings.dietary.gluten_free' },
+  { id: 'lactose_free', key: 'settings.dietary.lactose_free' },
+  { id: 'low_carb', key: 'settings.dietary.low_carb' },
+  { id: 'mild', key: 'settings.dietary.mild' },
 ];
 
 export default function SettingsScreen() {
@@ -52,6 +53,8 @@ export default function SettingsScreen() {
   const [apiKey, setApiKey] = useState('');
   const [dietary, setDietary] = useState<string[]>([]);
   const [isSavedSuccess, setIsSavedSuccess] = useState(false);
+  const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
+  const [hapticsEnabled, setHapticsEnabled] = useState(true);
 
   useEffect(() => {
     loadPrefs();
@@ -77,17 +80,60 @@ export default function SettingsScreen() {
     Alert.alert(t('settings.savedSuccess'), language === 'en' ? 'API key updated successfully.' : 'API anahtarı başarıyla güncellendi.');
   };
 
-  const toggleDietary = async (option: string) => {
+  const toggleDietary = async (id: string) => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {}
 
-    const updated = dietary.includes(option)
-      ? dietary.filter((d) => d !== option)
-      : [...dietary, option];
+    const updated = dietary.includes(id)
+      ? dietary.filter((d) => d !== id)
+      : [...dietary, id];
 
     setDietary(updated);
     await StorageService.saveUserPreferences({ dietaryRestrictions: updated });
+  };
+
+  const handleClearCache = () => {
+    Alert.alert(
+      t('settings.clearCacheConfirmTitle'),
+      t('settings.clearCacheConfirmMsg'),
+      [
+        { text: t('settings.cancel'), style: 'cancel' },
+        {
+          text: t('settings.clearCacheBtn'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            } catch {}
+            await StorageService.saveUserStats({
+              totalMealsCooked: 0,
+              totalWasteSavedKg: 0,
+              estimatedMoneySavedTL: 0,
+            });
+            Alert.alert(t('settings.savedSuccess'), t('settings.cacheClearedMsg'));
+          },
+        },
+      ]
+    );
+  };
+
+  const showPrivacyPolicy = () => {
+    Alert.alert(
+      t('settings.privacyPolicy'),
+      language === 'en'
+        ? 'FridgeChef AI strictly respects your privacy. Photos captured in the app are processed anonymously and are never stored or sold to third parties.'
+        : 'FridgeChef AI gizliliğinize tam saygı duyar. Çektiğiniz buzdolabı fotoğrafları yalnızca anlık yemek tespiti için işlenir ve asla üçüncü taraflarla paylaşılmaz.'
+    );
+  };
+
+  const showTerms = () => {
+    Alert.alert(
+      t('settings.termsOfService'),
+      language === 'en'
+        ? 'By using FridgeChef AI, you agree that AI-suggested recipes are culinary recommendations. Always inspect food freshness and allergies before consumption.'
+        : 'FridgeChef AI kullanarak, yapay zeka tariflerinin öneri niteliğinde olduğunu, tüketimden önce gıda tazeliğini ve alerjenleri kontrol edeceğinizi kabul etmiş olursunuz.'
+    );
   };
 
   const handleLogout = () => {
@@ -110,8 +156,6 @@ export default function SettingsScreen() {
       ]
     );
   };
-
-  const dietaryChoices = language === 'en' ? DIETARY_OPTIONS_EN : DIETARY_OPTIONS_TR;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -193,7 +237,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section 1: Gemini AI Key */}
+        {/* Section: Custom AI Key */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Key size={18} color="#0F766E" />
@@ -229,7 +273,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Section 2: Dietary Restrictions */}
+        {/* Section: Dietary Restrictions (Standardized Keys) */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Sparkles size={18} color="#EA580C" />
@@ -238,16 +282,17 @@ export default function SettingsScreen() {
           <Text style={styles.cardDesc}>{t('settings.dietaryDesc')}</Text>
 
           <View style={styles.dietaryList}>
-            {dietaryChoices.map((opt) => {
-              const isSelected = dietary.includes(opt);
+            {DIETARY_ITEMS.map((item) => {
+              const isSelected = dietary.includes(item.id);
+              const label = t(item.key);
               return (
                 <TouchableOpacity
-                  key={opt}
+                  key={item.id}
                   style={[styles.dietaryItem, isSelected && styles.dietaryItemSelected]}
-                  onPress={() => toggleDietary(opt)}
+                  onPress={() => toggleDietary(item.id)}
                 >
                   <Text style={[styles.dietaryText, isSelected && styles.dietaryTextSelected]}>
-                    {opt}
+                    {label}
                   </Text>
                   {isSelected && <Check size={16} color="#0F766E" />}
                 </TouchableOpacity>
@@ -256,7 +301,68 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section 3: App & Store Info */}
+        {/* Section: App & Cooking Preferences */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Sliders size={18} color="#0F766E" />
+            <Text style={styles.cardTitle}>{t('settings.appPreferencesTitle')}</Text>
+          </View>
+
+          {/* Units Selection */}
+          <Text style={styles.preferenceLabel}>{t('settings.unitsTitle')}</Text>
+          <View style={styles.unitsRow}>
+            <TouchableOpacity
+              style={[styles.unitBtn, unitSystem === 'metric' && styles.unitBtnSelected]}
+              onPress={() => setUnitSystem('metric')}
+            >
+              <Text style={[styles.unitBtnText, unitSystem === 'metric' && styles.unitBtnTextSelected]}>
+                {t('settings.metricUnits')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.unitBtn, unitSystem === 'imperial' && styles.unitBtnSelected]}
+              onPress={() => setUnitSystem('imperial')}
+            >
+              <Text style={[styles.unitBtnText, unitSystem === 'imperial' && styles.unitBtnTextSelected]}>
+                {t('settings.imperialUnits')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Haptics Switch */}
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.switchTitle}>{t('settings.hapticsTitle')}</Text>
+              <Text style={styles.switchDesc}>{t('settings.hapticsDesc')}</Text>
+            </View>
+            <Switch
+              value={hapticsEnabled}
+              onValueChange={setHapticsEnabled}
+              trackColor={{ false: '#D1D5DB', true: '#5EEAD4' }}
+              thumbColor={hapticsEnabled ? '#0F766E' : '#F4F3F4'}
+            />
+          </View>
+        </View>
+
+        {/* Section: Legal & Privacy (App Store Guideline 5.1.1) */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <FileText size={18} color="#0F766E" />
+            <Text style={styles.cardTitle}>{t('settings.legalTitle')}</Text>
+          </View>
+
+          <TouchableOpacity style={styles.legalRow} onPress={showPrivacyPolicy}>
+            <Text style={styles.legalRowText}>{t('settings.privacyPolicy')}</Text>
+            <ChevronRight size={16} color="#9CA3AF" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.legalRow} onPress={showTerms}>
+            <Text style={styles.legalRowText}>{t('settings.termsOfService')}</Text>
+            <ChevronRight size={16} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Section: App Info */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Leaf size={18} color="#0F766E" />
@@ -278,6 +384,12 @@ export default function SettingsScreen() {
             <Text style={styles.infoValue}>{t('settings.missionValue')}</Text>
           </View>
         </View>
+
+        {/* Section: Data Management (Clear Stats / Cache) */}
+        <TouchableOpacity style={styles.clearCacheBtn} onPress={handleClearCache}>
+          <Trash2 size={16} color="#4B5563" />
+          <Text style={styles.clearCacheBtnText}>{t('settings.clearCacheBtn')}</Text>
+        </TouchableOpacity>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
@@ -534,6 +646,70 @@ const styles = StyleSheet.create({
     color: '#0F766E',
     fontWeight: '800',
   },
+  preferenceLabel: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#2C3E36',
+    marginBottom: 8,
+  },
+  unitsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  unitBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#F8FAF8',
+    borderWidth: 1.5,
+    borderColor: '#E1E6DF',
+    alignItems: 'center',
+  },
+  unitBtnSelected: {
+    backgroundColor: '#CCFBF1',
+    borderColor: '#0F766E',
+  },
+  unitBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#687E74',
+  },
+  unitBtnTextSelected: {
+    color: '#0F766E',
+    fontWeight: '800',
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F6F4',
+  },
+  switchTitle: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: '#0D1714',
+  },
+  switchDesc: {
+    fontSize: 11.5,
+    color: '#687E74',
+    marginTop: 2,
+  },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F6F4',
+  },
+  legalRowText: {
+    fontSize: 13.5,
+    fontWeight: '600',
+    color: '#2C3E36',
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -551,6 +727,23 @@ const styles = StyleSheet.create({
     color: '#0D1714',
     fontWeight: '800',
   },
+  clearCacheBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingVertical: 13,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  clearCacheBtnText: {
+    color: '#4B5563',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   logoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -561,7 +754,7 @@ const styles = StyleSheet.create({
     borderColor: '#FECDD3',
     paddingVertical: 15,
     borderRadius: 18,
-    marginTop: 6,
+    marginTop: 2,
   },
   logoutBtnText: {
     color: '#BE123C',

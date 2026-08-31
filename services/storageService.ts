@@ -73,11 +73,20 @@ export const StorageService = {
     }
   },
 
+  async saveUserStats(stats: UserStats): Promise<UserStats> {
+    try {
+      await AsyncStorage.setItem(KEYS.USER_STATS, JSON.stringify(stats));
+      return stats;
+    } catch (e) {
+      return DEFAULT_STATS;
+    }
+  },
+
   async recordMealCooked(wasteGrams: number = 300): Promise<UserStats> {
     try {
       const current = await this.getUserStats();
       const wasteSavedKg = Number((current.totalWasteSavedKg + wasteGrams / 1000).toFixed(2));
-      const estimatedSaved = current.estimatedMoneySavedTL + Math.round(wasteGrams * 0.25); // ~75 TL per meal saved
+      const estimatedSaved = current.estimatedMoneySavedTL + Math.round(wasteGrams * 0.25);
 
       const updated: UserStats = {
         totalMealsCooked: current.totalMealsCooked + 1,

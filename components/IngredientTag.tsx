@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { X, Sparkles } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { DetectedIngredient } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 import * as Haptics from 'expo-haptics';
 
 interface Props {
@@ -19,16 +20,18 @@ export const IngredientTag: React.FC<Props> = ({
   onToggle,
   isRemovable = true,
 }) => {
+  const { t } = useLanguage();
+
   const getActionBadge = (action?: string) => {
     switch (action) {
       case 'Hemen Tüket':
-        return { bg: '#FFE4E6', text: '#BE123C', dot: '#F43F5E', label: 'Hemen Tüket' };
+        return { bg: '#FFE4E6', text: '#BE123C', dot: '#F43F5E', label: t('common.useFirst') };
       case 'Fırınla':
-        return { bg: '#FFEDD5', text: '#C2410C', dot: '#F97316', label: 'Fırınla' };
+        return { bg: '#FFEDD5', text: '#C2410C', dot: '#F97316', label: t('common.bake') };
       case 'Çorba Yap':
-        return { bg: '#E0F2FE', text: '#0369A1', dot: '#0EA5E9', label: 'Çorba' };
+        return { bg: '#E0F2FE', text: '#0369A1', dot: '#0EA5E9', label: t('common.soup') };
       default:
-        return { bg: '#CCFBF1', text: '#0F766E', dot: '#14B8A6', label: 'Taze' };
+        return { bg: '#CCFBF1', text: '#0F766E', dot: '#14B8A6', label: t('common.fresh') };
     }
   };
 

@@ -27,6 +27,9 @@ import {
   Sparkles,
   Award,
   Timer as TimerIcon,
+  Users,
+  Plus,
+  Minus,
 } from 'lucide-react-native';
 import { Recipe } from '../../types';
 import { StorageService } from '../../services/storageService';
@@ -40,6 +43,7 @@ export default function RecipeDetailScreen() {
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [isSaved, setIsSaved] = useState(false);
+  const [servings, setServings] = useState(2);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'cook' | 'prep'>('cook');
@@ -54,6 +58,7 @@ export default function RecipeDetailScreen() {
       try {
         const parsed = JSON.parse(params.recipeJson);
         setRecipe(parsed);
+        setServings(parsed.servings || 2);
         checkIfSaved(parsed.id);
       } catch (e) {
         console.error(e);
@@ -101,6 +106,13 @@ export default function RecipeDetailScreen() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const adjustServings = (delta: number) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+    setServings((prev) => Math.max(1, Math.min(12, prev + delta)));
   };
 
   const toggleStep = (stepNumber: number) => {
@@ -227,6 +239,31 @@ export default function RecipeDetailScreen() {
             <Flame size={16} color="#EA580C" />
             <Text style={styles.metricTileValue}>{recipe.caloriesPerServing}</Text>
             <Text style={styles.metricTileLabel}>{t('recipe.calories')}</Text>
+          </View>
+        </View>
+
+        {/* Servings Adjuster Bar */}
+        <View style={styles.servingsBar}>
+          <View style={styles.servingsLeft}>
+            <Users size={16} color="#0F766E" />
+            <Text style={styles.servingsLabel}>{t('recipe.servingsLabel')}:</Text>
+            <Text style={styles.servingsCount}>{servings}</Text>
+          </View>
+          <View style={styles.servingsControls}>
+            <TouchableOpacity
+              style={styles.servingsBtn}
+              onPress={() => adjustServings(-1)}
+              disabled={servings <= 1}
+            >
+              <Minus size={14} color={servings <= 1 ? '#9CA3AF' : '#0F766E'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.servingsBtn}
+              onPress={() => adjustServings(1)}
+              disabled={servings >= 12}
+            >
+              <Plus size={14} color={servings >= 12 ? '#9CA3AF' : '#0F766E'} />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -506,7 +543,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
-    marginBottom: 20,
+    marginBottom: 14,
   },
   metricTile: {
     alignItems: 'center',
@@ -526,6 +563,46 @@ const styles = StyleSheet.create({
     width: 1,
     height: 26,
     backgroundColor: '#E6EBE8',
+  },
+  servingsBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E6EBE8',
+    marginBottom: 16,
+  },
+  servingsLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  servingsLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#3E5049',
+  },
+  servingsCount: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: '#0F766E',
+  },
+  servingsControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  servingsBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#EFF6F3',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tabBarWrapper: {
     flexDirection: 'row',
