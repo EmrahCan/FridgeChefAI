@@ -160,7 +160,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.safeArea}>
-      {/* AMBIENT GOURMET BACKGROUND LAYER (TRIAL) */}
+      {/* FULL CINEMATIC DARK GOURMET BACKGROUND */}
       <Image
         source={{
           uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
@@ -168,8 +168,8 @@ export default function HomeScreen() {
         style={styles.ambientBackgroundImage}
       />
       <LinearGradient
-        colors={['rgba(247, 248, 246, 0.88)', 'rgba(247, 248, 246, 0.95)', '#F7F8F6']}
-        locations={[0, 0.35, 1]}
+        colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+        locations={[0, 0.45, 1]}
         style={styles.ambientGradientOverlay}
       />
 
@@ -645,7 +645,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F7F8F6',
+    backgroundColor: '#041F1A',
     paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   ambientBackgroundImage: {
@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: '100%',
     height: '100%',
-    opacity: 0.18,
+    opacity: 0.60,
     resizeMode: 'cover',
   },
   ambientGradientOverlay: {
@@ -683,14 +683,14 @@ const styles = StyleSheet.create({
   dateLabel: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#0F766E',
+    color: '#5EEAD4',
     letterSpacing: 1.2,
     marginBottom: 2,
   },
   greetingText: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.5,
   },
   topRightRow: {
@@ -702,23 +702,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FFEDD5',
+    backgroundColor: 'rgba(234, 88, 12, 0.25)',
     paddingHorizontal: 8,
     paddingVertical: 5,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#FED7AA',
+    borderColor: 'rgba(251, 146, 60, 0.5)',
   },
   streakBadgeText: {
     fontSize: 11,
     fontWeight: '900',
-    color: '#EA580C',
+    color: '#FDBA74',
   },
   groceryBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -743,17 +745,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   langPillText: {
     fontSize: 11,
     fontWeight: '900',
-    color: '#0F766E',
+    color: '#FFFFFF',
   },
   radarWrapper: {
     paddingHorizontal: 18,
@@ -771,21 +773,21 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: 'rgba(204, 251, 241, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: 'rgba(94, 234, 212, 0.4)',
   },
   radarMainTitle: {
     fontSize: 17,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.4,
   },
   radarSubtitle: {
     fontSize: 12,
-    color: '#687E74',
+    color: '#A7F3D0',
     marginTop: 1,
   },
   radarScroll: {
@@ -1099,11 +1101,11 @@ const styles = StyleSheet.create({
   },
   bentoTileLeft: {
     flex: 1,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: 'rgba(120, 53, 15, 0.35)',
     borderRadius: 22,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#FEF3C7',
+    borderColor: 'rgba(245, 158, 11, 0.40)',
     shadowColor: '#D97706',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -1112,11 +1114,11 @@ const styles = StyleSheet.create({
   },
   bentoTileRight: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(6, 44, 38, 0.85)',
     borderRadius: 22,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E6EBE8',
+    borderColor: 'rgba(94, 234, 212, 0.25)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -1132,32 +1134,32 @@ const styles = StyleSheet.create({
   bentoTileTag: {
     fontSize: 10.5,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#FBBF24',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   tipTitleText: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#78350F',
+    color: '#FEF3C7',
     marginBottom: 4,
     lineHeight: 18,
   },
   tipDescText: {
     fontSize: 11.5,
-    color: '#92400E',
+    color: '#FDE68A',
     lineHeight: 16,
   },
   presetTitleText: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#0D1714',
+    color: '#FFFFFF',
     marginBottom: 4,
     lineHeight: 18,
   },
   presetDescText: {
     fontSize: 11.5,
-    color: '#556860',
+    color: '#CCFBF1',
     lineHeight: 16,
     marginBottom: 10,
   },
@@ -1170,7 +1172,7 @@ const styles = StyleSheet.create({
   presetLinkText: {
     fontSize: 11.5,
     fontWeight: '800',
-    color: '#0F766E',
+    color: '#5EEAD4',
   },
   recipesSection: {
     paddingHorizontal: 18,
@@ -1184,18 +1186,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#0D1714',
+    color: '#FFFFFF',
     letterSpacing: -0.3,
   },
   sectionSub: {
     fontSize: 12,
-    color: '#687E74',
+    color: '#A7F3D0',
     marginTop: 2,
   },
   sectionActionText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#0F766E',
+    color: '#5EEAD4',
   },
   modalBackdrop: {
     flex: 1,
