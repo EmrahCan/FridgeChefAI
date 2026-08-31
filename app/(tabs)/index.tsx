@@ -221,18 +221,21 @@ export default function HomeScreen() {
         {radarItems.length > 0 && (
           <View style={styles.radarWrapper}>
             <View style={styles.radarHeader}>
-              <View style={styles.radarHeaderTopRow}>
-                <View style={styles.radarBadge}>
-                  <Hourglass size={12} color="#B45309" />
-                  <Text style={styles.radarTitle}>{t('radar.title')}</Text>
+              <View style={styles.radarHeaderLeft}>
+                <View style={styles.radarIconHalo}>
+                  <Hourglass size={16} color="#0F766E" />
                 </View>
-                <View style={styles.radarCountPill}>
-                  <Text style={styles.radarCountPillText}>
-                    {radarItems.length} {language === 'en' ? 'Items' : 'Ürün'}
+                <View>
+                  <Text style={styles.radarMainTitle}>
+                    {language === 'en' ? 'Pantry Expiry Radar' : 'Dolap Tazelik Radarı'} ⏳
+                  </Text>
+                  <Text style={styles.radarSubtitle}>
+                    {language === 'en'
+                      ? `${radarItems.length} items nearing shelf-life`
+                      : `Tüketilmesi gereken ${radarItems.length} malzeme var`}
                   </Text>
                 </View>
               </View>
-              <Text style={styles.radarSub}>{t('radar.subtitle')}</Text>
             </View>
 
             <ScrollView
@@ -250,27 +253,44 @@ export default function HomeScreen() {
                   activeOpacity={0.88}
                   onPress={handleStartScan}
                 >
-                  <View style={styles.radarCardTop}>
-                    <AlertTriangle
-                      size={12}
-                      color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
-                    />
-                    <Text
+                  {/* Card Top: Food Avatar & Urgency Pill */}
+                  <View style={styles.radarCardHeader}>
+                    <View style={styles.foodAvatarCircle}>
+                      <Text style={styles.foodAvatarEmoji}>{item.icon || '🍲'}</Text>
+                    </View>
+                    <View
                       style={[
-                        styles.radarUrgencyTag,
-                        { color: item.urgency === 'critical' ? '#E11D48' : '#B45309' },
+                        styles.urgencyCapsule,
+                        item.urgency === 'critical' ? styles.urgencyCapsuleCritical : styles.urgencyCapsuleWarning,
                       ]}
                     >
-                      {item.daysRemaining} {language === 'en' ? 'Days Left' : 'Gün Kaldı'}
-                    </Text>
+                      <Flame
+                        size={10}
+                        color={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
+                        fill={item.urgency === 'critical' ? '#E11D48' : '#D97706'}
+                      />
+                      <Text
+                        style={[
+                          styles.urgencyCapsuleText,
+                          { color: item.urgency === 'critical' ? '#BE123C' : '#B45309' },
+                        ]}
+                      >
+                        {item.daysRemaining === 1
+                          ? (language === 'en' ? '1 Day Left' : '1 Gün Kaldı')
+                          : (language === 'en' ? `${item.daysRemaining} Days` : `${item.daysRemaining} Gün`)}
+                      </Text>
+                    </View>
                   </View>
 
                   <Text style={styles.radarItemName} numberOfLines={2}>
                     {item.name}
                   </Text>
 
-                  <View style={styles.radarActionRow}>
-                    <Text style={styles.radarActionText}>{t('radar.consumeNowCta')}</Text>
+                  {/* Tactile Mini Action Button */}
+                  <View style={styles.cookActionPill}>
+                    <Text style={styles.cookActionPillText}>
+                      {language === 'en' ? 'Cook with this' : 'Tarif Üret'}
+                    </Text>
                     <ArrowRight size={11} color="#0F766E" />
                   </View>
                 </TouchableOpacity>
@@ -633,101 +653,120 @@ const styles = StyleSheet.create({
   },
   radarWrapper: {
     paddingHorizontal: 18,
-    marginBottom: 18,
+    marginBottom: 20,
   },
   radarHeader: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
-  radarHeaderTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  radarBadge: {
+  radarHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 9,
-    paddingVertical: 4,
-    borderRadius: 10,
+    gap: 10,
+  },
+  radarIconHalo: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#CCFBF1',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#99F6E4',
   },
-  radarTitle: {
-    fontSize: 11.5,
+  radarMainTitle: {
+    fontSize: 17,
     fontWeight: '900',
-    color: '#B45309',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: '#0D1714',
+    letterSpacing: -0.4,
   },
-  radarCountPill: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  radarCountPillText: {
-    fontSize: 10.5,
-    fontWeight: '700',
-    color: '#6B7280',
-  },
-  radarSub: {
+  radarSubtitle: {
     fontSize: 12,
-    color: '#78350F',
-    lineHeight: 16,
-    fontWeight: '500',
+    color: '#687E74',
+    marginTop: 1,
   },
   radarScroll: {
-    gap: 10,
+    gap: 12,
     paddingVertical: 4,
   },
   radarCard: {
-    width: 160,
+    width: 168,
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 13,
+    borderRadius: 24,
+    padding: 14,
     borderWidth: 1.5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   radarCardCritical: {
     borderColor: '#FECDD3',
-    backgroundColor: '#FFF1F2',
+    backgroundColor: '#FFFFFF',
   },
   radarCardWarning: {
     borderColor: '#FEF3C7',
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#FFFFFF',
   },
-  radarCardTop: {
+  radarCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  foodAvatarCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3F6F4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  foodAvatarEmoji: {
+    fontSize: 18,
+  },
+  urgencyCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 6,
+    gap: 3.5,
+    paddingHorizontal: 7.5,
+    paddingVertical: 3.5,
+    borderRadius: 10,
+    borderWidth: 1,
   },
-  radarUrgencyTag: {
-    fontSize: 10.5,
+  urgencyCapsuleCritical: {
+    backgroundColor: '#FFE4E6',
+    borderColor: '#FECDD3',
+  },
+  urgencyCapsuleWarning: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+  },
+  urgencyCapsuleText: {
+    fontSize: 10,
     fontWeight: '800',
   },
   radarItemName: {
-    fontSize: 13.5,
+    fontSize: 14,
     fontWeight: '800',
     color: '#0D1714',
-    lineHeight: 17,
-    marginBottom: 8,
-    minHeight: 34,
+    lineHeight: 18,
+    marginBottom: 10,
+    minHeight: 36,
   },
-  radarActionRow: {
+  cookActionPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+    backgroundColor: '#CCFBF1',
+    borderWidth: 1,
+    borderColor: '#99F6E4',
+    paddingVertical: 7,
+    borderRadius: 12,
   },
-  radarActionText: {
-    fontSize: 11,
+  cookActionPillText: {
+    fontSize: 11.5,
     fontWeight: '800',
     color: '#0F766E',
   },
