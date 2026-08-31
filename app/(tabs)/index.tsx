@@ -71,6 +71,7 @@ export default function HomeScreen() {
   const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
   const [groceryModalVisible, setGroceryModalVisible] = useState(false);
   const [tipModalVisible, setTipModalVisible] = useState(false);
+  const [streakModalVisible, setStreakModalVisible] = useState(false);
   const [isAddRadarModalOpen, setIsAddRadarModalOpen] = useState(false);
   const [customRadarName, setCustomRadarName] = useState('');
   const [customRadarDays, setCustomRadarDays] = useState(4);
@@ -287,10 +288,19 @@ export default function HomeScreen() {
 
           <View style={styles.topRightRow}>
             {/* 3-Day Cooking Streak Badge */}
-            <View style={styles.streakBadge}>
+            <TouchableOpacity
+              style={styles.streakBadge}
+              activeOpacity={0.8}
+              onPress={() => {
+                try {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                } catch {}
+                setStreakModalVisible(true);
+              }}
+            >
               <Flame size={13} color="#EA580C" fill="#EA580C" />
               <Text style={styles.streakBadgeText}>3 🔥</Text>
-            </View>
+            </TouchableOpacity>
 
             {/* Smart Grocery Cart Trigger */}
             <TouchableOpacity
@@ -924,6 +934,86 @@ export default function HomeScreen() {
             >
               <Text style={styles.saveRadarCtaBtnText}>
                 {language === 'en' ? 'Save to Freshness Radar ⏳' : 'Tazelik Radarına Ekle ⏳'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* STREAK CELEBRATION MODAL */}
+      <Modal
+        visible={streakModalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setStreakModalVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.streakModalCard}>
+            <View style={styles.streakModalIconHalo}>
+              <Flame size={36} color="#EA580C" fill="#EA580C" />
+            </View>
+
+            <Text style={styles.streakModalTitle}>
+              {language === 'en' ? '3-Day Cooking Streak! 🔥' : '3 Günlük Şef Serisi! 🔥'}
+            </Text>
+            <Text style={styles.streakModalSub}>
+              {language === 'en'
+                ? 'You have been rescuing pantry ingredients 3 days in a row. Keep the momentum going to unlock the MasterChef badge!'
+                : 'Harika gidiyorsunuz! 3 gündür üst üste dolabınızdaki malzemeleri israf etmeden gurme yemeklere dönüştürüyorsunuz.'}
+            </Text>
+
+            {/* Streak Metrics Highlights */}
+            <View style={styles.streakMetricsGrid}>
+              <View style={styles.streakMetricItem}>
+                <Text style={styles.streakMetricValue}>3</Text>
+                <Text style={styles.streakMetricLabel}>
+                  {language === 'en' ? 'Meals Cooked' : 'Yemek Pişti'}
+                </Text>
+              </View>
+              <View style={styles.streakMetricDivider} />
+              <View style={styles.streakMetricItem}>
+                <Text style={styles.streakMetricValue}>{stats.totalWasteSavedKg} kg</Text>
+                <Text style={styles.streakMetricLabel}>
+                  {language === 'en' ? 'Food Rescued' : 'Önlenen İsraf'}
+                </Text>
+              </View>
+              <View style={styles.streakMetricDivider} />
+              <View style={styles.streakMetricItem}>
+                <Text style={styles.streakMetricValue}>₺{stats.estimatedMoneySavedTL}</Text>
+                <Text style={styles.streakMetricLabel}>
+                  {language === 'en' ? 'Money Kept' : 'Tasarruf'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Next Milestone Target */}
+            <View style={styles.streakNextBadgeBox}>
+              <Text style={styles.streakNextBadgeText}>
+                {language === 'en'
+                  ? '🎯 Next Target: 7-Day Gold MasterChef Badge'
+                  : '🎯 Gelecek Rozet: 7 Günlük Altın Şef Rozeti'}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.streakCtaBtn}
+              activeOpacity={0.88}
+              onPress={() => {
+                setStreakModalVisible(false);
+                handleStartScan();
+              }}
+            >
+              <Text style={styles.streakCtaBtnText}>
+                {language === 'en' ? 'Continue Streak & Cook Now 🔥' : 'Seriyi Devam Ettir & Pişir 🔥'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.streakCloseLink}
+              onPress={() => setStreakModalVisible(false)}
+            >
+              <Text style={styles.streakCloseLinkText}>
+                {language === 'en' ? 'Close' : 'Kapat'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1951,5 +2041,123 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '900',
+  },
+  streakModalCard: {
+    backgroundColor: '#062C26',
+    borderRadius: 28,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(251, 146, 60, 0.4)',
+    width: '90%',
+    maxWidth: 380,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  streakModalIconHalo: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(234, 88, 12, 0.25)',
+    borderWidth: 2,
+    borderColor: 'rgba(251, 146, 60, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  streakModalTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  streakModalSub: {
+    fontSize: 12.5,
+    color: '#CCFBF1',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 18,
+    paddingHorizontal: 6,
+  },
+  streakMetricsGrid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    width: '100%',
+    marginBottom: 14,
+  },
+  streakMetricItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  streakMetricValue: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#5EEAD4',
+    marginBottom: 2,
+  },
+  streakMetricLabel: {
+    fontSize: 9.5,
+    color: '#A7F3D0',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  streakMetricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  streakNextBadgeBox: {
+    backgroundColor: 'rgba(234, 88, 12, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(251, 146, 60, 0.35)',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  streakNextBadgeText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#FDBA74',
+  },
+  streakCtaBtn: {
+    backgroundColor: '#EA580C',
+    borderRadius: 18,
+    paddingVertical: 14,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 8,
+  },
+  streakCtaBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  streakCloseLink: {
+    paddingVertical: 6,
+  },
+  streakCloseLinkText: {
+    color: '#9CA3AF',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });
