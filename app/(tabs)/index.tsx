@@ -8,6 +8,7 @@ import {
   RefreshControl,
   SafeAreaView,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -18,6 +19,9 @@ import {
   ChefHat,
   ScanLine,
   Globe,
+  Star,
+  Clock,
+  Leaf,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ZeroWasteStatCard } from '../../components/ZeroWasteStatCard';
@@ -44,7 +48,8 @@ export default function HomeScreen() {
   const [randomTipIndex, setRandomTipIndex] = useState(0);
 
   const presets = getDemoPresets(language);
-  const currentPreset = presets[0];
+  const primaryPreset = presets[0];
+  const spotlightRecipe = primaryPreset.recipes[0];
 
   const loadData = async () => {
     try {
@@ -146,6 +151,70 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* SPOTLIGHT HERO: CINEMATIC FOOD PHOTOGRAPHY SPOTLIGHT */}
+        {spotlightRecipe && (
+          <TouchableOpacity
+            style={styles.spotlightCard}
+            activeOpacity={0.92}
+            onPress={() => {
+              router.push({
+                pathname: '/recipe/[id]',
+                params: { id: spotlightRecipe.id, recipeJson: JSON.stringify(spotlightRecipe) },
+              });
+            }}
+          >
+            <Image
+              source={{ uri: spotlightRecipe.imageUrl || 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80' }}
+              style={styles.spotlightImage}
+            />
+
+            {/* Gradient Vignette */}
+            <LinearGradient
+              colors={['rgba(0,0,0,0.2)', 'transparent', 'rgba(13, 23, 20, 0.92)']}
+              locations={[0, 0.35, 1]}
+              style={styles.spotlightGradient}
+            />
+
+            {/* Floating Top Pill */}
+            <View style={styles.spotlightTopRow}>
+              <View style={styles.spotlightBadge}>
+                <Sparkles size={12} color="#5EEAD4" />
+                <Text style={styles.spotlightBadgeText}>
+                  {language === 'en' ? "Chef's Daily Spotlight" : "Günün Şef Seçkisi"}
+                </Text>
+              </View>
+
+              <View style={styles.spotlightRating}>
+                <Star size={11} color="#FBBF24" fill="#FBBF24" />
+                <Text style={styles.spotlightRatingText}>4.9</Text>
+              </View>
+            </View>
+
+            {/* Spotlight Info Bottom */}
+            <View style={styles.spotlightInfoBottom}>
+              <View style={styles.spotlightMetaRow}>
+                <View style={styles.spotlightWasteRibbon}>
+                  <Leaf size={11} color="#5EEAD4" />
+                  <Text style={styles.spotlightWasteText}>
+                    {spotlightRecipe.wasteSavedGrams}{t('common.gramsSaved')}
+                  </Text>
+                </View>
+                <View style={styles.spotlightTimePill}>
+                  <Clock size={11} color="#FFFFFF" />
+                  <Text style={styles.spotlightTimeText}>
+                    {spotlightRecipe.prepTimeMinutes + spotlightRecipe.cookTimeMinutes} {t('common.mins')}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={styles.spotlightTitle}>{spotlightRecipe.title}</Text>
+              <Text style={styles.spotlightTagline} numberOfLines={2}>
+                {spotlightRecipe.tagline}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
         {/* BENTO HERO: THE SCAN CHAMBER */}
         <TouchableOpacity
           activeOpacity={0.92}
@@ -203,17 +272,17 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.bentoTileRight}
             activeOpacity={0.88}
-            onPress={() => handleSelectPreset(currentPreset)}
+            onPress={() => handleSelectPreset(primaryPreset)}
           >
             <View style={styles.bentoTileHeader}>
               <ChefHat size={16} color="#0F766E" />
               <Text style={[styles.bentoTileTag, { color: '#0F766E' }]}>{t('home.quickMenu')}</Text>
             </View>
             <Text style={styles.presetTitleText} numberOfLines={2}>
-              {currentPreset.name}
+              {primaryPreset.name}
             </Text>
             <Text style={styles.presetDescText} numberOfLines={2}>
-              {currentPreset.subtitle}
+              {primaryPreset.subtitle}
             </Text>
             <View style={styles.presetLinkRow}>
               <Text style={styles.presetLinkText}>{t('home.inspectNow')}</Text>
@@ -222,7 +291,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* SECTION: FEATURED ZERO WASTE RECIPES */}
+        {/* SECTION: FEATURED ZERO WASTE RECIPES WITH HD PHOTOGRAPHY */}
         <View style={styles.recipesSection}>
           <View style={styles.sectionHeaderRow}>
             <View>
@@ -234,7 +303,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {currentPreset.recipes.map((recipe) => {
+          {primaryPreset.recipes.map((recipe) => {
             const isSaved = savedRecipes.some((r) => r.id === recipe.id);
             return (
               <RecipeCard
@@ -275,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 18,
     paddingTop: 12,
-    paddingBottom: 16,
+    paddingBottom: 14,
   },
   dateLabel: {
     fontSize: 10.5,
@@ -331,6 +400,123 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '800',
     fontSize: 16,
+  },
+  spotlightCard: {
+    marginHorizontal: 18,
+    height: 240,
+    borderRadius: 28,
+    marginBottom: 20,
+    overflow: 'hidden',
+    position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  spotlightImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  spotlightGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  spotlightTopRow: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    right: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  spotlightBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(15, 118, 110, 0.9)',
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
+  },
+  spotlightBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
+  spotlightRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    paddingHorizontal: 9,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+  },
+  spotlightRatingText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  spotlightInfoBottom: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  spotlightMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  spotlightWasteRibbon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 10,
+  },
+  spotlightWasteText: {
+    color: '#CCFBF1',
+    fontSize: 10.5,
+    fontWeight: '800',
+  },
+  spotlightTimePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 10,
+  },
+  spotlightTimeText: {
+    color: '#FFFFFF',
+    fontSize: 10.5,
+    fontWeight: '700',
+  },
+  spotlightTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+    marginBottom: 3,
+  },
+  spotlightTagline: {
+    fontSize: 12,
+    color: '#D1D5DB',
+    lineHeight: 16,
   },
   scanChamberCard: {
     marginHorizontal: 18,

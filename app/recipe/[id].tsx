@@ -9,6 +9,7 @@ import {
   Share,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
@@ -30,7 +31,9 @@ import {
   Users,
   Plus,
   Minus,
+  Star,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Recipe } from '../../types';
 import { StorageService } from '../../services/storageService';
 import { useLanguage } from '../../context/LanguageContext';
@@ -178,348 +181,438 @@ export default function RecipeDetailScreen() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const fallbackImage = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80';
+  const displayImage = recipe.imageUrl || fallbackImage;
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Top Navbar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.navBtn}>
-          <ArrowLeft size={20} color="#0D1714" />
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* FULL-BLEED CINEMATIC PHOTOGRAPHY HERO */}
+        <View style={styles.heroImageWrapper}>
+          <Image source={{ uri: displayImage }} style={styles.heroFoodImage} />
+          <LinearGradient
+            colors={['rgba(0,0,0,0.5)', 'transparent', '#F7F8F6']}
+            locations={[0, 0.45, 1]}
+            style={styles.heroGradientOverlay}
+          />
 
-        <View style={styles.navActions}>
-          <TouchableOpacity onPress={handleShare} style={styles.navIconBtn}>
-            <Share2 size={19} color="#3E5049" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleToggleFavorite} style={styles.navIconBtn}>
-            <Heart
-              size={21}
-              color={isSaved ? '#E11D48' : '#3E5049'}
-              fill={isSaved ? '#E11D48' : 'transparent'}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
+          {/* Floating Glass Navbar Buttons */}
+          <SafeAreaView style={styles.floatingNavSafeArea}>
+            <View style={styles.floatingNavRow}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.navGlassBtn}
+                activeOpacity={0.8}
+              >
+                <ArrowLeft size={20} color="#FFFFFF" />
+              </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Waste Saved Badge */}
-        <View style={styles.wasteHeroBanner}>
-          <Leaf size={14} color="#0F766E" />
-          <Text style={styles.wasteHeroText}>
-            🌱 {recipe.wasteSavedGrams}{t('common.gramsSaved')}
-          </Text>
-        </View>
-
-        {/* Master Title & Tagline */}
-        <Text style={styles.titleText}>{recipe.title}</Text>
-        <Text style={styles.taglineText}>{recipe.tagline || recipe.description}</Text>
-
-        {/* Bento Metrics Strip */}
-        <View style={styles.metricsStrip}>
-          <View style={styles.metricTile}>
-            <Clock size={16} color="#0F766E" />
-            <Text style={styles.metricTileValue}>
-              {recipe.prepTimeMinutes + recipe.cookTimeMinutes} {t('common.mins')}
-            </Text>
-            <Text style={styles.metricTileLabel}>{t('recipe.totalTime')}</Text>
-          </View>
-
-          <View style={styles.metricDivider} />
-
-          <View style={styles.metricTile}>
-            <ChefHat size={16} color="#D97706" />
-            <Text style={styles.metricTileValue}>
-              {recipe.difficulty === 'Kolay' ? t('common.kolay') : recipe.difficulty === 'Orta' ? t('common.orta') : t('common.usta')}
-            </Text>
-            <Text style={styles.metricTileLabel}>{t('recipe.difficulty')}</Text>
-          </View>
-
-          <View style={styles.metricDivider} />
-
-          <View style={styles.metricTile}>
-            <Flame size={16} color="#EA580C" />
-            <Text style={styles.metricTileValue}>{recipe.caloriesPerServing}</Text>
-            <Text style={styles.metricTileLabel}>{t('recipe.calories')}</Text>
-          </View>
+              <View style={styles.navActionsRow}>
+                <TouchableOpacity
+                  onPress={handleShare}
+                  style={styles.navGlassBtn}
+                  activeOpacity={0.8}
+                >
+                  <Share2 size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleToggleFavorite}
+                  style={styles.navGlassBtn}
+                  activeOpacity={0.8}
+                >
+                  <Heart
+                    size={20}
+                    color={isSaved ? '#F43F5E' : '#FFFFFF'}
+                    fill={isSaved ? '#F43F5E' : 'transparent'}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </SafeAreaView>
         </View>
 
-        {/* Servings Adjuster Bar */}
-        <View style={styles.servingsBar}>
-          <View style={styles.servingsLeft}>
-            <Users size={16} color="#0F766E" />
-            <Text style={styles.servingsLabel}>{t('recipe.servingsLabel')}:</Text>
-            <Text style={styles.servingsCount}>{servings}</Text>
-          </View>
-          <View style={styles.servingsControls}>
-            <TouchableOpacity
-              style={styles.servingsBtn}
-              onPress={() => adjustServings(-1)}
-              disabled={servings <= 1}
-            >
-              <Minus size={14} color={servings <= 1 ? '#9CA3AF' : '#0F766E'} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.servingsBtn}
-              onPress={() => adjustServings(1)}
-              disabled={servings >= 12}
-            >
-              <Plus size={14} color={servings >= 12 ? '#9CA3AF' : '#0F766E'} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Tab Switcher: Cook Timeline vs Ingredients */}
-        <View style={styles.tabBarWrapper}>
-          <TouchableOpacity
-            style={[styles.tabSegment, activeTab === 'cook' && styles.tabSegmentActive]}
-            onPress={() => setActiveTab('cook')}
-          >
-            <Text style={[styles.tabSegmentText, activeTab === 'cook' && styles.tabSegmentTextActive]}>
-              {t('recipe.cookTab')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tabSegment, activeTab === 'prep' && styles.tabSegmentActive]}
-            onPress={() => setActiveTab('prep')}
-          >
-            <Text style={[styles.tabSegmentText, activeTab === 'prep' && styles.tabSegmentTextActive]}>
-              {t('recipe.prepTab')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* FLOATING TIMER CAPSULE (When Active) */}
-        {timerSeconds !== null && (
-          <View style={styles.floatingTimerCard}>
-            <View style={styles.timerTop}>
-              <TimerIcon size={18} color="#EA580C" />
-              <Text style={styles.timerTopTitle}>
-                {t('recipe.timerTitle')} {Number(timerStepIndex) + 1}
+        {/* RECIPE CONTENT BODY */}
+        <View style={styles.contentBody}>
+          {/* Waste Saved Badge & Rating */}
+          <View style={styles.badgeRow}>
+            <View style={styles.wasteHeroBanner}>
+              <Leaf size={14} color="#5EEAD4" />
+              <Text style={styles.wasteHeroText}>
+                🌱 {recipe.wasteSavedGrams}{t('common.gramsSaved')}
               </Text>
             </View>
-            <Text style={styles.timerValue}>{formatTimer(timerSeconds)}</Text>
-            <View style={styles.timerActionsRow}>
-              <TouchableOpacity
-                style={styles.timerPlayBtn}
-                onPress={() => setIsTimerRunning(!isTimerRunning)}
-              >
-                {isTimerRunning ? (
-                  <>
-                    <Pause size={15} color="#FFFFFF" />
-                    <Text style={styles.timerPlayBtnText}>{t('recipe.pause')}</Text>
-                  </>
-                ) : (
-                  <>
-                    <Play size={15} color="#FFFFFF" />
-                    <Text style={styles.timerPlayBtnText}>{t('recipe.resume')}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
 
+            <View style={styles.ratingBadge}>
+              <Star size={13} color="#F59E0B" fill="#F59E0B" />
+              <Text style={styles.ratingText}>4.9 (Masterclass)</Text>
+            </View>
+          </View>
+
+          {/* Master Title & Tagline */}
+          <Text style={styles.titleText}>{recipe.title}</Text>
+          <Text style={styles.taglineText}>{recipe.tagline || recipe.description}</Text>
+
+          {/* Bento Metrics Strip */}
+          <View style={styles.metricsStrip}>
+            <View style={styles.metricTile}>
+              <Clock size={16} color="#0F766E" />
+              <Text style={styles.metricTileValue}>
+                {recipe.prepTimeMinutes + recipe.cookTimeMinutes} {t('common.mins')}
+              </Text>
+              <Text style={styles.metricTileLabel}>{t('recipe.totalTime')}</Text>
+            </View>
+
+            <View style={styles.metricDivider} />
+
+            <View style={styles.metricTile}>
+              <ChefHat size={16} color="#D97706" />
+              <Text style={styles.metricTileValue}>
+                {recipe.difficulty === 'Kolay' ? t('common.kolay') : recipe.difficulty === 'Orta' ? t('common.orta') : t('common.usta')}
+              </Text>
+              <Text style={styles.metricTileLabel}>{t('recipe.difficulty')}</Text>
+            </View>
+
+            <View style={styles.metricDivider} />
+
+            <View style={styles.metricTile}>
+              <Flame size={16} color="#EA580C" />
+              <Text style={styles.metricTileValue}>{recipe.caloriesPerServing}</Text>
+              <Text style={styles.metricTileLabel}>{t('recipe.calories')}</Text>
+            </View>
+          </View>
+
+          {/* Servings Adjuster Bar */}
+          <View style={styles.servingsBar}>
+            <View style={styles.servingsLeft}>
+              <Users size={16} color="#0F766E" />
+              <Text style={styles.servingsLabel}>{t('recipe.servingsLabel')}:</Text>
+              <Text style={styles.servingsCount}>{servings}</Text>
+            </View>
+            <View style={styles.servingsControls}>
               <TouchableOpacity
-                style={styles.timerResetBtn}
-                onPress={() => {
-                  setTimerSeconds(null);
-                  setIsTimerRunning(false);
-                }}
+                style={styles.servingsBtn}
+                onPress={() => adjustServings(-1)}
+                disabled={servings <= 1}
               >
-                <RotateCcw size={15} color="#4B5563" />
-                <Text style={styles.timerResetBtnText}>{t('recipe.closeTimer')}</Text>
+                <Minus size={14} color={servings <= 1 ? '#9CA3AF' : '#0F766E'} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.servingsBtn}
+                onPress={() => adjustServings(1)}
+                disabled={servings >= 12}
+              >
+                <Plus size={14} color={servings >= 12 ? '#9CA3AF' : '#0F766E'} />
               </TouchableOpacity>
             </View>
           </View>
-        )}
 
-        {/* TAB 1: MASTERCLASS COOKING TIMELINE */}
-        {activeTab === 'cook' && (
-          <View style={styles.timelineContainer}>
-            {recipe.instructions.map((step, idx) => {
-              const isCompleted = completedSteps.includes(step.stepNumber);
-              return (
-                <TouchableOpacity
-                  key={step.stepNumber}
-                  activeOpacity={0.92}
-                  onPress={() => toggleStep(step.stepNumber)}
-                  style={[styles.stepCard, isCompleted && styles.stepCardDone]}
-                >
-                  <View style={styles.stepCardHeader}>
-                    <View style={[styles.stepNode, isCompleted && styles.stepNodeDone]}>
-                      <Text style={[styles.stepNodeNumber, isCompleted && styles.stepNodeNumberDone]}>
-                        {step.stepNumber}
-                      </Text>
-                    </View>
-                    <Text style={[styles.stepTitle, isCompleted && styles.stepTitleDone]}>
-                      {step.title}
-                    </Text>
-                    {isCompleted ? (
-                      <CheckCircle2 size={22} color="#0F766E" />
-                    ) : (
-                      <Circle size={22} color="#C4D1CB" />
-                    )}
-                  </View>
-
-                  <Text style={[styles.stepDesc, isCompleted && styles.stepDescDone]}>
-                    {step.description}
-                  </Text>
-
-                  {step.tip && (
-                    <View style={styles.tipCapsule}>
-                      <Sparkles size={13} color="#D97706" />
-                      <Text style={styles.tipCapsuleText}>{t('recipe.chefTipLabel')} {step.tip}</Text>
-                    </View>
-                  )}
-
-                  {step.durationMinutes && step.durationMinutes > 0 && (
-                    <TouchableOpacity
-                      style={styles.timerTriggerBtn}
-                      onPress={() => startTimer(step.durationMinutes!, idx)}
-                    >
-                      <Clock size={13} color="#0F766E" />
-                      <Text style={styles.timerTriggerText}>
-                        ⏱️ {step.durationMinutes} {t('common.mins')} {t('recipe.startTimerBtn')}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-
-            {/* CELEBRATION FINISH BUTTON */}
+          {/* Tab Switcher: Cook Timeline vs Ingredients */}
+          <View style={styles.tabBarWrapper}>
             <TouchableOpacity
-              style={styles.completeMealBtn}
-              activeOpacity={0.9}
-              onPress={handleCompleteMeal}
+              style={[styles.tabSegment, activeTab === 'cook' && styles.tabSegmentActive]}
+              onPress={() => setActiveTab('cook')}
             >
-              <Award size={20} color="#5EEAD4" />
-              <Text style={styles.completeMealBtnText}>{t('recipe.finishBtn')}</Text>
+              <Text style={[styles.tabSegmentText, activeTab === 'cook' && styles.tabSegmentTextActive]}>
+                {t('recipe.cookTab')}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabSegment, activeTab === 'prep' && styles.tabSegmentActive]}
+              onPress={() => setActiveTab('prep')}
+            >
+              <Text style={[styles.tabSegmentText, activeTab === 'prep' && styles.tabSegmentTextActive]}>
+                {t('recipe.prepTab')}
+              </Text>
             </TouchableOpacity>
           </View>
-        )}
 
-        {/* TAB 2: INGREDIENTS CHECKLIST */}
-        {activeTab === 'prep' && (
-          <View style={styles.prepCard}>
-            <View style={styles.prepHeaderRow}>
-              <Leaf size={15} color="#0F766E" />
-              <Text style={styles.prepHeaderTitle}>{t('recipe.pantryRecoveredTitle')}</Text>
-            </View>
-            {recipe.ingredientsUsed.map((ing, idx) => {
-              const isChecked = checkedIngredients.includes(ing);
-              return (
-                <TouchableOpacity
-                  key={`used-${idx}`}
-                  style={styles.checkItemRow}
-                  onPress={() => toggleIngredient(ing)}
-                >
-                  {isChecked ? (
-                    <CheckCircle2 size={18} color="#0F766E" />
-                  ) : (
-                    <Circle size={18} color="#A7B7AF" />
-                  )}
-                  <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
-                    {ing}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-
-            <View style={[styles.prepHeaderRow, { marginTop: 22 }]}>
-              <ChefHat size={15} color="#EA580C" />
-              <Text style={styles.prepHeaderTitle}>{t('recipe.pantryBasicsTitle')}</Text>
-            </View>
-            {recipe.pantryItemsNeeded.map((item, idx) => {
-              const isChecked = checkedIngredients.includes(item);
-              return (
-                <TouchableOpacity
-                  key={`pantry-${idx}`}
-                  style={styles.checkItemRow}
-                  onPress={() => toggleIngredient(item)}
-                >
-                  {isChecked ? (
-                    <CheckCircle2 size={18} color="#0F766E" />
-                  ) : (
-                    <Circle size={18} color="#A7B7AF" />
-                  )}
-                  <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-
-            {/* Extra Chef Tips */}
-            {recipe.chefTips && recipe.chefTips.length > 0 && (
-              <View style={styles.chefTipsBox}>
-                <Text style={styles.chefTipsTitle}>{t('recipe.extraTipsTitle')}</Text>
-                {recipe.chefTips.map((t, i) => (
-                  <Text key={i} style={styles.chefTipBullet}>• {t}</Text>
-                ))}
+          {/* FLOATING TIMER CAPSULE (When Active) */}
+          {timerSeconds !== null && (
+            <View style={styles.floatingTimerCard}>
+              <View style={styles.timerTop}>
+                <TimerIcon size={18} color="#EA580C" />
+                <Text style={styles.timerTopTitle}>
+                  {t('recipe.timerTitle')} {Number(timerStepIndex) + 1}
+                </Text>
               </View>
-            )}
-          </View>
-        )}
+              <Text style={styles.timerValue}>{formatTimer(timerSeconds)}</Text>
+              <View style={styles.timerActionsRow}>
+                <TouchableOpacity
+                  style={styles.timerPlayBtn}
+                  onPress={() => setIsTimerRunning(!isTimerRunning)}
+                >
+                  {isTimerRunning ? (
+                    <>
+                      <Pause size={15} color="#FFFFFF" />
+                      <Text style={styles.timerPlayBtnText}>{t('recipe.pause')}</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Play size={15} color="#FFFFFF" />
+                      <Text style={styles.timerPlayBtnText}>{t('recipe.resume')}</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.timerResetBtn}
+                  onPress={() => {
+                    setTimerSeconds(null);
+                    setIsTimerRunning(false);
+                  }}
+                >
+                  <RotateCcw size={15} color="#4B5563" />
+                  <Text style={styles.timerResetBtnText}>{t('recipe.closeTimer')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* TAB 1: MASTERCLASS COOKING TIMELINE */}
+          {activeTab === 'cook' && (
+            <View style={styles.timelineContainer}>
+              {recipe.instructions.map((step, idx) => {
+                const isCompleted = completedSteps.includes(step.stepNumber);
+                return (
+                  <TouchableOpacity
+                    key={step.stepNumber}
+                    activeOpacity={0.92}
+                    onPress={() => toggleStep(step.stepNumber)}
+                    style={[styles.stepCard, isCompleted && styles.stepCardDone]}
+                  >
+                    <View style={styles.stepCardHeader}>
+                      <View style={[styles.stepNode, isCompleted && styles.stepNodeDone]}>
+                        <Text style={[styles.stepNodeNumber, isCompleted && styles.stepNodeNumberDone]}>
+                          {step.stepNumber}
+                        </Text>
+                      </View>
+                      <Text style={[styles.stepTitle, isCompleted && styles.stepTitleDone]}>
+                        {step.title}
+                      </Text>
+                      {isCompleted ? (
+                        <CheckCircle2 size={22} color="#0F766E" />
+                      ) : (
+                        <Circle size={22} color="#C4D1CB" />
+                      )}
+                    </View>
+
+                    <Text style={[styles.stepDesc, isCompleted && styles.stepDescDone]}>
+                      {step.description}
+                    </Text>
+
+                    {step.tip && (
+                      <View style={styles.tipCapsule}>
+                        <Sparkles size={13} color="#D97706" />
+                        <Text style={styles.tipCapsuleText}>{t('recipe.chefTipLabel')} {step.tip}</Text>
+                      </View>
+                    )}
+
+                    {step.durationMinutes && step.durationMinutes > 0 && (
+                      <TouchableOpacity
+                        style={styles.timerTriggerBtn}
+                        onPress={() => startTimer(step.durationMinutes!, idx)}
+                      >
+                        <Clock size={13} color="#0F766E" />
+                        <Text style={styles.timerTriggerText}>
+                          ⏱️ {step.durationMinutes} {t('common.mins')} {t('recipe.startTimerBtn')}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+
+              {/* CELEBRATION FINISH BUTTON */}
+              <TouchableOpacity
+                style={styles.completeMealBtn}
+                activeOpacity={0.9}
+                onPress={handleCompleteMeal}
+              >
+                <Award size={20} color="#5EEAD4" />
+                <Text style={styles.completeMealBtnText}>{t('recipe.finishBtn')}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* TAB 2: INGREDIENTS CHECKLIST */}
+          {activeTab === 'prep' && (
+            <View style={styles.prepCard}>
+              <View style={styles.prepHeaderRow}>
+                <Leaf size={15} color="#0F766E" />
+                <Text style={styles.prepHeaderTitle}>{t('recipe.pantryRecoveredTitle')}</Text>
+              </View>
+              {recipe.ingredientsUsed.map((ing, idx) => {
+                const isChecked = checkedIngredients.includes(ing);
+                return (
+                  <TouchableOpacity
+                    key={`used-${idx}`}
+                    style={styles.checkItemRow}
+                    onPress={() => toggleIngredient(ing)}
+                  >
+                    {isChecked ? (
+                      <CheckCircle2 size={18} color="#0F766E" />
+                    ) : (
+                      <Circle size={18} color="#A7B7AF" />
+                    )}
+                    <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
+                      {ing}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+              <View style={[styles.prepHeaderRow, { marginTop: 22 }]}>
+                <ChefHat size={15} color="#EA580C" />
+                <Text style={styles.prepHeaderTitle}>{t('recipe.pantryBasicsTitle')}</Text>
+              </View>
+              {recipe.pantryItemsNeeded.map((item, idx) => {
+                const isChecked = checkedIngredients.includes(item);
+                return (
+                  <TouchableOpacity
+                    key={`pantry-${idx}`}
+                    style={styles.checkItemRow}
+                    onPress={() => toggleIngredient(item)}
+                  >
+                    {isChecked ? (
+                      <CheckCircle2 size={18} color="#0F766E" />
+                    ) : (
+                      <Circle size={18} color="#A7B7AF" />
+                    )}
+                    <Text style={[styles.checkItemText, isChecked && styles.checkItemTextChecked]}>
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+              {/* Extra Chef Tips */}
+              {recipe.chefTips && recipe.chefTips.length > 0 && (
+                <View style={styles.chefTipsBox}>
+                  <Text style={styles.chefTipsTitle}>{t('recipe.extraTipsTitle')}</Text>
+                  {recipe.chefTips.map((t, i) => (
+                    <Text key={i} style={styles.chefTipBullet}>• {t}</Text>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F7F8F6',
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#F7F8F6',
-    paddingTop: Platform.OS === 'android' ? 30 : 0,
   },
   loadingBox: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  navBar: {
+  scrollContent: {
+    paddingBottom: 60,
+  },
+  heroImageWrapper: {
+    height: 310,
+    width: '100%',
+    position: 'relative',
+  },
+  heroFoodImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroGradientOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  floatingNavSafeArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  floatingNavRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingTop: Platform.OS === 'android' ? 30 : 6,
+  },
+  navGlassBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  navActionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  contentBody: {
+    paddingHorizontal: 18,
+    marginTop: -20,
+  },
+  badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E6EBE8',
-  },
-  navBtn: {
-    padding: 6,
-  },
-  navActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  navIconBtn: {
-    padding: 6,
-  },
-  scrollContent: {
-    padding: 18,
-    paddingBottom: 50,
+    gap: 8,
+    marginBottom: 10,
   },
   wasteHeroBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: '#0F766E',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
-    alignSelf: 'flex-start',
-    marginBottom: 12,
   },
   wasteHeroText: {
     fontSize: 11.5,
     fontWeight: '800',
-    color: '#0F766E',
+    color: '#FFFFFF',
+  },
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFFBEB',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
+  },
+  ratingText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#B45309',
   },
   titleText: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: '900',
     color: '#0D1714',
     letterSpacing: -0.6,
-    lineHeight: 30,
+    lineHeight: 32,
     marginBottom: 6,
   },
   taglineText: {

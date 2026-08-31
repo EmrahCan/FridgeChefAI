@@ -53,6 +53,7 @@ export interface DemoPreset {
   name: string;
   subtitle: string;
   icon: string;
+  imageUrl: string;
   ingredients: DetectedIngredient[];
   recipes: Recipe[];
 }
@@ -65,6 +66,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
         name: 'Dünden Kalan Tavuk & Pilav 🍗🍚',
         subtitle: 'Didilmiş tavuk, pirinç pilavı, kapya biber, yoğurt',
         icon: 'drumstick',
+        imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80',
         ingredients: [
           { id: '1', name: 'Didilmiş Haşlanmış Tavuk', category: 'Kalan Yemek', confidence: 0.98, suggestedAction: 'Hemen Tüket' },
           { id: '2', name: 'Dünden Kalan Pirinç Pilavı', category: 'Kalan Yemek', confidence: 0.95, suggestedAction: 'Hemen Tüket' },
@@ -85,6 +87,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
             caloriesPerServing: 380,
             wasteSavedGrams: 420,
             category: 'Fırın & Graten',
+            imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80',
             ingredientsUsed: ['Didilmiş Tavuk', 'Kalan Pirinç Pilavı', 'Kaşar Peyniri', 'Yoğurt', 'Kapya Biber'],
             pantryItemsNeeded: ['1 Adet Yumurta', 'Zeytinyağı', 'Karabiber', 'Toz Kırmızı Biber', 'Tuz'],
             instructions: [
@@ -137,6 +140,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
             caloriesPerServing: 220,
             wasteSavedGrams: 300,
             category: 'Şifalı Çorba',
+            imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
             ingredientsUsed: ['Kalan Pirinç Pilavı', 'Didilmiş Tavuk', 'Sade Yoğurt'],
             pantryItemsNeeded: ['1 Yumurta Sarısı', '1 Yemek Kaşığı Un', 'Kuru Nane', 'Tereyağı veya Zeytinyağı', '3 Su Bardağı Sıcak Su'],
             instructions: [
@@ -176,6 +180,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
         name: 'Bayat Ekmek & Kahvaltılıklar 🥖🧀',
         subtitle: 'Bayat ekmek, beyaz peynir, 2 yumurta, domates, zeytin',
         icon: 'croissant',
+        imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
         ingredients: [
           { id: '10', name: 'Bayat Ekmek Dilimleri', category: 'Bakliyat & Ekmek', confidence: 0.99, suggestedAction: 'Fırınla' },
           { id: '11', name: 'Beyaz Peynir / Kaşar', category: 'Süt Ürünleri', confidence: 0.94, suggestedAction: 'Hemen Tüket' },
@@ -196,6 +201,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
             caloriesPerServing: 310,
             wasteSavedGrams: 360,
             category: 'Pratik & Hızlı',
+            imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
             ingredientsUsed: ['Bayat Ekmek', 'Beyaz Peynir', 'Yumurta', 'Domates', 'Zeytin'],
             pantryItemsNeeded: ['Zeytinyağı', 'Kekik', 'Pul Biber'],
             instructions: [
@@ -240,6 +246,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
       name: 'Leftover Chicken & Cooked Rice 🍗🍚',
       subtitle: 'Shredded chicken, cooked rice, bell pepper, yogurt',
       icon: 'drumstick',
+      imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80',
       ingredients: [
         { id: '1', name: 'Shredded Cooked Chicken', category: 'Leftover Dish', confidence: 0.98, suggestedAction: 'Hemen Tüket' },
         { id: '2', name: 'Cooked Rice Leftover', category: 'Leftover Dish', confidence: 0.95, suggestedAction: 'Hemen Tüket' },
@@ -260,6 +267,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
           caloriesPerServing: 380,
           wasteSavedGrams: 420,
           category: 'Oven & Gratin',
+          imageUrl: 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=1000&q=80',
           ingredientsUsed: ['Shredded Cooked Chicken', 'Cooked Rice', 'Cheese Scraps', 'Yogurt', 'Bell Pepper'],
           pantryItemsNeeded: ['1 Egg', 'Olive Oil', 'Black Pepper', 'Paprika', 'Salt'],
           instructions: [
@@ -312,6 +320,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
           caloriesPerServing: 220,
           wasteSavedGrams: 300,
           category: 'Healing Soup',
+          imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1000&q=80',
           ingredientsUsed: ['Cooked Rice', 'Shredded Cooked Chicken', 'Plain Yogurt'],
           pantryItemsNeeded: ['1 Egg Yolk', '1 tbsp Flour', 'Dried Mint', 'Butter or Olive Oil', '3 Cups Hot Water'],
           instructions: [
@@ -351,6 +360,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
       name: 'Stale Bread & Pantry Brunch 🥖🧀',
       subtitle: 'Stale bread loaf, cheese, 2 eggs, tomato, olives',
       icon: 'croissant',
+      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
       ingredients: [
         { id: '10', name: 'Stale Bread Slices', category: 'Bakery & Bread', confidence: 0.99, suggestedAction: 'Fırınla' },
         { id: '11', name: 'Feta or White Cheese', category: 'Dairy', confidence: 0.94, suggestedAction: 'Hemen Tüket' },
@@ -371,6 +381,7 @@ export function getDemoPresets(lang: SupportedLanguage = 'en'): DemoPreset[] {
           caloriesPerServing: 310,
           wasteSavedGrams: 360,
           category: 'Quick & Easy',
+          imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
           ingredientsUsed: ['Stale Bread', 'White Cheese', 'Eggs', 'Tomato', 'Olives'],
           pantryItemsNeeded: ['Olive Oil', 'Oregano', 'Red Pepper Flakes'],
           instructions: [
