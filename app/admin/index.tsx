@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   ActivityIndicator,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -23,7 +23,12 @@ import {
   CheckCircle2,
   Lock,
   Trash2,
+  ChevronRight,
+  Zap,
+  Globe,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { AdminService } from '../../services/adminService';
@@ -33,6 +38,7 @@ import * as Haptics from 'expo-haptics';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
@@ -91,98 +97,155 @@ export default function AdminDashboardScreen() {
   // Unauthorized Access Guard
   if (!user || user.role !== 'admin') {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View style={styles.safeArea}>
+        <Image
+          source={{ uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80' }}
+          style={styles.ambientBackgroundImage}
+        />
+        <LinearGradient
+          colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+          locations={[0, 0.45, 1]}
+          style={styles.ambientGradientOverlay}
+        />
         <View style={styles.unauthorizedBox}>
-          <Lock size={48} color="#EF4444" />
+          <View style={styles.unauthorizedIconHalo}>
+            <Lock size={40} color="#F87171" />
+          </View>
           <Text style={styles.unauthorizedTitle}>{t('admin.unauthorizedTitle')}</Text>
           <Text style={styles.unauthorizedDesc}>{t('admin.unauthorizedDesc')}</Text>
           <TouchableOpacity
             style={styles.backHomeBtn}
+            activeOpacity={0.88}
             onPress={() => router.replace('/(tabs)')}
           >
             <Text style={styles.backHomeBtnText}>{t('admin.backHome')}</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Top Navbar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.navBtn}>
-          <ArrowLeft size={22} color="#FFFFFF" />
+    <View style={styles.safeArea}>
+      {/* FULL CINEMATIC DARK GOURMET BACKGROUND */}
+      <Image
+        source={{
+          uri: 'https://images.unsplash.com/photo-1543353071-873f17a7a088?auto=format&fit=crop&w=1200&q=80',
+        }}
+        style={styles.ambientBackgroundImage}
+      />
+      <LinearGradient
+        colors={['rgba(4, 31, 26, 0.70)', 'rgba(4, 47, 46, 0.88)', '#041F1A']}
+        locations={[0, 0.45, 1]}
+        style={styles.ambientGradientOverlay}
+      />
+
+      {/* TOP GLASSOID NAVBAR */}
+      <View style={[styles.navBar, { paddingTop: Math.max(insets.top, 20) + 8 }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.navBackBtn}
+          activeOpacity={0.8}
+        >
+          <ArrowLeft size={18} color="#FFFFFF" />
         </TouchableOpacity>
+
         <View style={styles.navTitleRow}>
-          <Shield size={18} color="#FEF08A" />
+          <Shield size={16} color="#5EEAD4" />
           <Text style={styles.navTitle}>{t('admin.title')}</Text>
         </View>
-        <View style={{ width: 36 }} />
+
+        <View style={styles.statusBadge}>
+          <View style={styles.statusPulseDot} />
+          <Text style={styles.statusBadgeText}>{t('admin.systemActive')}</Text>
+        </View>
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: Math.max(insets.bottom, 20) + 40,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Admin Header Banner */}
-        <View style={styles.adminHeaderBanner}>
-          <View>
-            <Text style={styles.adminWelcome}>{t('admin.welcome')}</Text>
-            <Text style={styles.adminName}>{user.name}</Text>
-          </View>
-          <View style={styles.statusBadge}>
-            <Activity size={12} color="#10B981" />
-            <Text style={styles.statusBadgeText}>{t('admin.systemActive')}</Text>
+        {/* EXECUTIVE ADMIN HERO CARD */}
+        <View style={styles.adminHeroCard}>
+          <LinearGradient
+            colors={['rgba(15, 118, 110, 0.45)', 'rgba(6, 44, 38, 0.85)', 'rgba(4, 31, 26, 0.95)']}
+            locations={[0, 0.5, 1]}
+            style={styles.adminHeroGradient}
+          />
+          <View style={styles.adminHeroContent}>
+            <View style={styles.adminAvatarHalo}>
+              <View style={styles.adminAvatarInner}>
+                <Text style={styles.adminAvatarEmoji}>👑</Text>
+              </View>
+            </View>
+
+            <View style={styles.adminHeroInfo}>
+              <Text style={styles.adminWelcome}>{t('admin.welcome')}</Text>
+              <Text style={styles.adminName}>{user.name}</Text>
+              <Text style={styles.adminEmail}>{user.email}</Text>
+            </View>
           </View>
         </View>
 
         {isLoading || !metrics ? (
-          <ActivityIndicator size="large" color="#10B981" style={{ marginTop: 40 }} />
+          <ActivityIndicator size="large" color="#5EEAD4" style={{ marginTop: 40 }} />
         ) : (
           <>
-            {/* 4 Big KPI Cards */}
+            {/* 4 LUXURY BENTO KPI METRICS */}
             <View style={styles.kpiGrid}>
-              <View style={[styles.kpiCard, { borderColor: '#93C5FD' }]}>
-                <View style={[styles.kpiIconBox, { backgroundColor: '#EFF6FF' }]}>
-                  <Users size={20} color="#3B82F6" />
+              {/* Card 1: Users */}
+              <View style={styles.kpiCard}>
+                <View style={[styles.kpiIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.20)', borderColor: 'rgba(96, 165, 250, 0.4)' }]}>
+                  <Users size={18} color="#60A5FA" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalUsers}</Text>
                 <Text style={styles.kpiLabel}>{t('admin.kpiUsers')}</Text>
               </View>
 
-              <View style={[styles.kpiCard, { borderColor: '#A7F3D0' }]}>
-                <View style={[styles.kpiIconBox, { backgroundColor: '#ECFDF5' }]}>
-                  <Camera size={20} color="#10B981" />
+              {/* Card 2: Scans */}
+              <View style={styles.kpiCard}>
+                <View style={[styles.kpiIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.20)', borderColor: 'rgba(94, 234, 212, 0.4)' }]}>
+                  <Camera size={18} color="#5EEAD4" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalScans}</Text>
                 <Text style={styles.kpiLabel}>{t('admin.kpiScans')}</Text>
               </View>
 
-              <View style={[styles.kpiCard, { borderColor: '#FDE68A' }]}>
-                <View style={[styles.kpiIconBox, { backgroundColor: '#FEFCE8' }]}>
-                  <Leaf size={20} color="#CA8A04" />
+              {/* Card 3: Food Saved */}
+              <View style={styles.kpiCard}>
+                <View style={[styles.kpiIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.20)', borderColor: 'rgba(251, 191, 36, 0.4)' }]}>
+                  <Leaf size={18} color="#FBBF24" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.totalWasteSavedTons} Ton</Text>
-                <Text style={styles.kpiLabel}>{t('admin.kpiWasteSaved')}</Text>
+                <Text style={styles.kpiLabel}>{t('admin.kpiWasteSaved')} 🌱</Text>
               </View>
 
-              <View style={[styles.kpiCard, { borderColor: '#DDD6FE' }]}>
-                <View style={[styles.kpiIconBox, { backgroundColor: '#F5F3FF' }]}>
-                  <Sparkles size={20} color="#7C3AED" />
+              {/* Card 4: AI Queries */}
+              <View style={styles.kpiCard}>
+                <View style={[styles.kpiIconBox, { backgroundColor: 'rgba(139, 92, 246, 0.20)', borderColor: 'rgba(167, 139, 250, 0.4)' }]}>
+                  <Sparkles size={18} color="#A78BFA" />
                 </View>
                 <Text style={styles.kpiValue}>{metrics.activeAiQueriesToday}</Text>
                 <Text style={styles.kpiLabel}>{t('admin.kpiAiQueries')}</Text>
               </View>
             </View>
 
-            {/* Popular Leftover Ingredients Chart */}
-            <View style={styles.sectionCard}>
+            {/* BENTO CARD: POPULAR INGREDIENTS */}
+            <View style={styles.bentoSectionCard}>
               <View style={styles.sectionHeader}>
-                <TrendingUp size={18} color="#10B981" />
-                <Text style={styles.sectionTitle}>{t('admin.popularTitle')}</Text>
+                <View style={styles.sectionIconBox}>
+                  <TrendingUp size={16} color="#5EEAD4" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sectionTitle}>{t('admin.popularTitle')}</Text>
+                  <Text style={styles.sectionSub}>{t('admin.popularSub')}</Text>
+                </View>
               </View>
-              <Text style={styles.sectionSub}>{t('admin.popularSub')}</Text>
 
               <View style={styles.chartList}>
                 {metrics.popularIngredients.map((item, idx) => (
@@ -197,7 +260,7 @@ export default function AdminDashboardScreen() {
                           styles.progressBarFill,
                           {
                             width: `${item.percentage * 2.5}%`,
-                            backgroundColor: idx === 0 ? '#EF4444' : idx === 1 ? '#F97316' : '#10B981',
+                            backgroundColor: idx === 0 ? '#EF4444' : idx === 1 ? '#F97316' : '#5EEAD4',
                           },
                         ]}
                       />
@@ -207,21 +270,35 @@ export default function AdminDashboardScreen() {
               </View>
             </View>
 
-            {/* Recent Users & Activity Table */}
-            <View style={styles.sectionCard}>
+            {/* BENTO CARD: REGISTERED USERS MANAGEMENT */}
+            <View style={styles.bentoSectionCard}>
               <View style={styles.sectionHeader}>
-                <Users size={18} color="#3B82F6" />
-                <Text style={styles.sectionTitle}>{t('admin.recentUsersTitle')}</Text>
+                <View style={[styles.sectionIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.18)' }]}>
+                  <Users size={16} color="#60A5FA" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.sectionTitle}>{t('admin.recentUsersTitle')}</Text>
+                  <Text style={styles.sectionSub}>
+                    {language === 'en' ? 'Manage active registered chef accounts' : 'Kayıtlı kullanıcıları yönetin ve gerektiğinde silin'}
+                  </Text>
+                </View>
               </View>
 
               <View style={styles.userList}>
                 {metrics.recentUsers.map((u) => (
                   <View key={u.id} style={styles.userRow}>
                     <View style={styles.userAvatarBox}>
-                      <Text style={styles.userAvatarLetter}>{u.name[0]}</Text>
+                      <Text style={styles.userAvatarLetter}>{u.name[0] || 'U'}</Text>
                     </View>
                     <View style={styles.userInfoBox}>
-                      <Text style={styles.userName}>{u.name}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={styles.userName}>{u.name}</Text>
+                        {u.role === 'admin' && (
+                          <View style={styles.adminPillTag}>
+                            <Text style={styles.adminPillTagText}>ADMIN</Text>
+                          </View>
+                        )}
+                      </View>
                       <Text style={styles.userEmail}>{u.email}</Text>
                     </View>
                     <View style={styles.userMetaBox}>
@@ -235,7 +312,7 @@ export default function AdminDashboardScreen() {
                         activeOpacity={0.75}
                         onPress={() => handleDeleteUser(u.id, u.name, u.email)}
                       >
-                        <Trash2 size={15} color="#EF4444" />
+                        <Trash2 size={14} color="#FDA4AF" />
                       </TouchableOpacity>
                     ) : (
                       <View style={styles.adminBadgeSmall}>
@@ -247,10 +324,10 @@ export default function AdminDashboardScreen() {
               </View>
             </View>
 
-            {/* AI & System Health Status */}
+            {/* BENTO CARD: AI & SYSTEM HEALTH STATUS */}
             <View style={styles.healthCard}>
               <View style={styles.healthHeader}>
-                <CheckCircle2 size={20} color="#059669" />
+                <CheckCircle2 size={18} color="#5EEAD4" />
                 <Text style={styles.healthTitle}>{t('admin.systemHealthTitle')}</Text>
               </View>
               <Text style={styles.healthDesc}>{t('admin.systemHealthDesc')}</Text>
@@ -258,157 +335,249 @@ export default function AdminDashboardScreen() {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0F172A',
-    paddingTop: Platform.OS === 'android' ? 30 : 0,
+    backgroundColor: '#041F1A',
+  },
+  ambientBackgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    opacity: 0.60,
+    resizeMode: 'cover',
+  },
+  ambientGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   navBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 18,
+    paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E293B',
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
-  navBtn: {
-    padding: 6,
+  navBackBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.20)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   navTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
   },
   navTitle: {
-    fontSize: 17,
-    fontWeight: '800',
+    fontSize: 16,
+    fontWeight: '900',
     color: '#FFFFFF',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  adminHeaderBanner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#1E293B',
-    padding: 16,
-    borderRadius: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  adminWelcome: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '600',
-  },
-  adminName: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginTop: 2,
+    letterSpacing: -0.3,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#064E3B',
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 14,
+  },
+  statusPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#5EEAD4',
   },
   statusBadgeText: {
+    color: '#5EEAD4',
     fontSize: 11,
-    fontWeight: '700',
-    color: '#34D399',
+    fontWeight: '800',
+  },
+  scrollContent: {
+    padding: 18,
+  },
+  adminHeroCard: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    position: 'relative',
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 14,
+    elevation: 4,
+  },
+  adminHeroGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  adminHeroContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 18,
+    gap: 14,
+  },
+  adminAvatarHalo: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: 'rgba(254, 240, 138, 0.20)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(251, 191, 36, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adminAvatarInner: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#062C26',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  adminAvatarEmoji: {
+    fontSize: 20,
+  },
+  adminHeroInfo: {
+    flex: 1,
+  },
+  adminWelcome: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#5EEAD4',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
+  adminName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
+  },
+  adminEmail: {
+    fontSize: 12,
+    color: '#A7F3D0',
   },
   kpiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 18,
+    gap: 10,
+    marginBottom: 16,
   },
   kpiCard: {
-    flex: 1,
-    minWidth: '46%',
-    backgroundColor: '#1E293B',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
+    width: '48.5%',
+    backgroundColor: 'rgba(6, 44, 38, 0.75)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.22)',
+    borderRadius: 20,
+    padding: 14,
   },
   kpiIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
   },
   kpiValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: '#FFFFFF',
+    letterSpacing: -0.5,
     marginBottom: 2,
   },
   kpiLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '600',
+    fontSize: 11,
+    color: '#CCFBF1',
+    fontWeight: '700',
   },
-  sectionCard: {
-    backgroundColor: '#1E293B',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#334155',
+  bentoSectionCard: {
+    backgroundColor: 'rgba(6, 44, 38, 0.75)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.22)',
+    borderRadius: 22,
+    padding: 16,
     marginBottom: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
+    gap: 10,
+    marginBottom: 14,
+  },
+  sectionIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: 'rgba(15, 118, 110, 0.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '900',
     color: '#FFFFFF',
+    marginBottom: 1,
   },
   sectionSub: {
-    fontSize: 12,
-    color: '#94A3B8',
-    marginBottom: 14,
+    fontSize: 11,
+    color: '#A7F3D0',
   },
   chartList: {
     gap: 12,
   },
-  chartItem: {},
+  chartItem: {
+    gap: 6,
+  },
   chartItemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'center',
   },
   chartItemName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#E2E8F0',
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   chartItemPercent: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '700',
+    fontSize: 11.5,
+    color: '#5EEAD4',
+    fontWeight: '800',
   },
   progressBarBg: {
-    height: 8,
-    backgroundColor: '#334155',
+    height: 7,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -417,75 +586,117 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   userList: {
-    gap: 10,
+    gap: 9,
   },
   userRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.10)',
     padding: 12,
-    borderRadius: 14,
+    borderRadius: 16,
   },
   userAvatarBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#3B82F6',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(15, 118, 110, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(94, 234, 212, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
   },
   userAvatarLetter: {
-    color: '#FFFFFF',
-    fontWeight: '800',
-    fontSize: 14,
+    color: '#5EEAD4',
+    fontWeight: '900',
+    fontSize: 13,
   },
   userInfoBox: {
     flex: 1,
   },
   userName: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#F8FAFC',
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  adminPillTag: {
+    backgroundColor: 'rgba(245, 158, 11, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(251, 191, 36, 0.5)',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  adminPillTagText: {
+    fontSize: 8.5,
+    fontWeight: '900',
+    color: '#FDE68A',
   },
   userEmail: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#A7F3D0',
+    marginTop: 1,
   },
   userMetaBox: {
     alignItems: 'flex-end',
   },
   userScans: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#10B981',
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#5EEAD4',
   },
   userDate: {
-    fontSize: 10,
-    color: '#64748B',
+    fontSize: 9.5,
+    color: '#9CA3AF',
+    marginTop: 1,
+  },
+  deleteUserBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(239, 68, 68, 0.20)',
+    borderWidth: 1,
+    borderColor: 'rgba(253, 164, 175, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  adminBadgeSmall: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: 'rgba(254, 240, 138, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  adminBadgeSmallText: {
+    fontSize: 11,
   },
   healthCard: {
-    backgroundColor: '#064E3B',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#059669',
+    backgroundColor: 'rgba(6, 44, 38, 0.75)',
+    borderRadius: 20,
+    padding: 15,
+    borderWidth: 1.5,
+    borderColor: 'rgba(94, 234, 212, 0.35)',
   },
   healthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
+    gap: 7,
+    marginBottom: 4,
   },
   healthTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#ECFDF5',
+    fontSize: 13.5,
+    fontWeight: '900',
+    color: '#FFFFFF',
   },
   healthDesc: {
-    fontSize: 12,
-    color: '#A7F3D0',
-    lineHeight: 18,
+    fontSize: 11.5,
+    color: '#CCFBF1',
+    lineHeight: 16,
   },
   unauthorizedBox: {
     flex: 1,
@@ -493,52 +704,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 30,
   },
+  unauthorizedIconHalo: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(239, 68, 68, 0.20)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(248, 113, 113, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   unauthorizedTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    color: '#EF4444',
-    marginTop: 16,
-    marginBottom: 8,
+    color: '#FFFFFF',
+    marginBottom: 6,
   },
   unauthorizedDesc: {
-    fontSize: 14,
-    color: '#9CA3AF',
+    fontSize: 13,
+    color: '#CCFBF1',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
+    lineHeight: 18,
+    marginBottom: 20,
   },
   backHomeBtn: {
-    backgroundColor: '#10B981',
-    paddingHorizontal: 24,
+    backgroundColor: '#0F766E',
+    borderWidth: 1,
+    borderColor: '#5EEAD4',
+    paddingHorizontal: 22,
     paddingVertical: 12,
     borderRadius: 14,
   },
   backHomeBtnText: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  deleteUserBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  adminBadgeSmall: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(254, 240, 138, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  adminBadgeSmallText: {
-    fontSize: 12,
+    fontWeight: '800',
+    fontSize: 13.5,
   },
 });
