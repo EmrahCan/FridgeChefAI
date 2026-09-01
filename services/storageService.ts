@@ -15,7 +15,7 @@ const DEFAULT_STATS: UserStats = {
 };
 
 const DEFAULT_PREFS: UserPreferences = {
-  geminiApiKey: 'AIzaSyBjaJCtONI5yculIi8VQ1yw0y-CNFY6SIc',
+  geminiApiKey: '',
   dietaryRestrictions: [],
   defaultServings: 2,
   favoriteCuisines: ['Türk Mutfağı', 'Pratik & Hızlı'],
