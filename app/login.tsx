@@ -79,22 +79,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleQuickDemoLogin = async (type: 'admin' | 'user') => {
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    } catch {}
-
-    setIsLoading(true);
-    if (type === 'admin') {
-      await loginWithEmail('emrahcan@hotmail.com', 'Test12345++**');
-      router.replace('/(tabs)');
-    } else {
-      await loginWithEmail('misafir.sef@fridgechef.ai', 'sef123');
-      router.replace('/(tabs)');
-    }
-    setIsLoading(false);
-  };
-
   return (
     <View style={styles.container}>
       {/* FULL-SCREEN CINEMATIC GOURMET BACKGROUND */}
@@ -222,7 +206,12 @@ export default function LoginScreen() {
               <TouchableOpacity
                 style={styles.primaryBtn}
                 activeOpacity={0.9}
-                onPress={() => handleQuickDemoLogin('user')}
+                onPress={() => {
+                  try {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  } catch {}
+                  setViewMode('loginForm');
+                }}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -230,7 +219,7 @@ export default function LoginScreen() {
                 ) : (
                   <View style={styles.btnContentRow}>
                     <Text style={styles.primaryBtnText}>
-                      {language === 'en' ? 'Get Started / Free Explore' : 'Hemen Başla / Keşfet'}
+                      {language === 'en' ? 'Get Started / Sign In' : 'Hemen Başla / Giriş Yap'}
                     </Text>
                     <ArrowRight size={18} color="#042F2E" />
                   </View>
@@ -265,29 +254,6 @@ export default function LoginScreen() {
                   <Text style={styles.googleIconLetter}>G</Text>
                 </View>
                 <Text style={styles.googleBtnText}>{t('auth.googleBtn')}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Quick Demo Footer */}
-            <View style={styles.demoButtonsRow}>
-              <TouchableOpacity
-                style={styles.demoBtnAdmin}
-                activeOpacity={0.85}
-                onPress={() => handleQuickDemoLogin('admin')}
-                disabled={isLoading}
-              >
-                <Shield size={13} color="#FECDD3" />
-                <Text style={styles.demoBtnAdminText}>{t('auth.adminLoginBtn')}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.demoBtnChef}
-                activeOpacity={0.85}
-                onPress={() => handleQuickDemoLogin('user')}
-                disabled={isLoading}
-              >
-                <ChefHat size={13} color="#5EEAD4" />
-                <Text style={styles.demoBtnChefText}>{t('auth.chefLoginBtn')}</Text>
               </TouchableOpacity>
             </View>
           </View>
