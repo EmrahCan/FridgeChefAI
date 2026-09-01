@@ -7,20 +7,11 @@ const ALL_USERS_KEY = '@fridge_chef_registered_users';
 const INITIAL_USERS: User[] = [
   {
     id: 'usr_admin_1',
-    name: 'Sistem Yöneticisi',
-    email: 'admin@fridgechef.ai',
+    name: 'Emrah Can (Admin)',
+    email: 'emrahcan@hotmail.com',
     role: 'admin',
-    createdAt: '2026-08-01T10:00:00.000Z',
+    createdAt: '2026-09-01T00:00:00.000Z',
     authProvider: 'email',
-  },
-  {
-    id: 'usr_chef_1',
-    name: 'Ahmet Şef',
-    email: 'chef@fridgechef.ai',
-    role: 'user',
-    createdAt: '2026-08-15T12:30:00.000Z',
-    authProvider: 'email',
-    dietaryPreferences: ['Vejetaryen 🥬'],
   },
 ];
 
@@ -53,16 +44,20 @@ export const AuthService = {
     }
 
     // Check if admin login
-    if (cleanEmail === 'admin@fridgechef.ai' || cleanEmail === 'admin') {
+    if (cleanEmail === 'emrahcan@hotmail.com') {
+      if (password !== 'Test12345++**') {
+        return { success: false, error: 'Hatalı yönetici şifresi girdiniz.' };
+      }
       const adminUser: User = {
         id: 'usr_admin_1',
-        name: 'Sistem Yöneticisi (Admin)',
-        email: 'admin@fridgechef.ai',
+        name: 'Emrah Can (Admin)',
+        email: 'emrahcan@hotmail.com',
         role: 'admin',
-        createdAt: new Date().toISOString(),
+        createdAt: '2026-09-01T00:00:00.000Z',
         authProvider: 'email',
       };
       await this.persistSession(adminUser);
+      await this.saveUserToDatabase(adminUser);
       return { success: true, user: adminUser };
     }
 
@@ -131,7 +126,7 @@ export const AuthService = {
       id: `usr_${Date.now()}`,
       name: name.trim(),
       email: cleanEmail,
-      role: cleanEmail.includes('admin') ? 'admin' : 'user',
+      role: cleanEmail === 'emrahcan@hotmail.com' ? 'admin' : 'user',
       createdAt: new Date().toISOString(),
       authProvider: 'email',
       dietaryPreferences,

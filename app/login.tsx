@@ -86,10 +86,10 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     if (type === 'admin') {
-      await loginWithEmail('admin@fridgechef.ai', 'admin123');
+      await loginWithEmail('emrahcan@hotmail.com', 'Test12345++**');
       router.replace('/(tabs)');
     } else {
-      await loginWithEmail('chef@fridgechef.ai', 'chef123');
+      await loginWithEmail('misafir.sef@fridgechef.ai', 'sef123');
       router.replace('/(tabs)');
     }
     setIsLoading(false);

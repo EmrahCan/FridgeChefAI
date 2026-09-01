@@ -74,91 +74,9 @@ export function calculateOpenedDecay(name: string, category: string = ''): numbe
   return OPENED_DECAY_DAYS.default;
 }
 
-const DEFAULT_RADAR_EN: ExpiryItem[] = [
-  {
-    id: 'rad-1',
-    name: 'Shredded Cooked Chicken',
-    category: 'Leftovers',
-    icon: '🍗',
-    daysRemaining: 1,
-    urgency: 'critical',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-2',
-    name: 'Leftover Steamed Rice',
-    category: 'Leftovers',
-    icon: '🍚',
-    daysRemaining: 2,
-    urgency: 'critical',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-3',
-    name: 'Whole Milk (Opened 🥛)',
-    category: 'Dairy',
-    icon: '🥛',
-    daysRemaining: 3,
-    urgency: 'warning',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-4',
-    name: 'Aged Cheddar & Feta Cheese',
-    category: 'Dairy',
-    icon: '🧀',
-    daysRemaining: 6,
-    urgency: 'fresh',
-    scannedAt: new Date().toISOString(),
-    isOpened: false,
-  },
-];
+const DEFAULT_RADAR_EN: ExpiryItem[] = [];
 
-const DEFAULT_RADAR_TR: ExpiryItem[] = [
-  {
-    id: 'rad-1',
-    name: 'Haşlanmış Didilmiş Tavuk',
-    category: 'Kalan Yemek',
-    icon: '🍗',
-    daysRemaining: 1,
-    urgency: 'critical',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-2',
-    name: 'Dünden Kalan Pirinç Pilavı',
-    category: 'Kalan Yemek',
-    icon: '🍚',
-    daysRemaining: 2,
-    urgency: 'critical',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-3',
-    name: 'Tam Yağlı Süt (Açıldı 🥛)',
-    category: 'Süt Ürünleri',
-    icon: '🥛',
-    daysRemaining: 3,
-    urgency: 'warning',
-    scannedAt: new Date().toISOString(),
-    isOpened: true,
-  },
-  {
-    id: 'rad-4',
-    name: 'Kaşar & Beyaz Peynir Uçları',
-    category: 'Süt Ürünleri',
-    icon: '🧀',
-    daysRemaining: 6,
-    urgency: 'fresh',
-    scannedAt: new Date().toISOString(),
-    isOpened: false,
-  },
-];
+const DEFAULT_RADAR_TR: ExpiryItem[] = [];
 
 export const PantryRadarService = {
   async getRadarItems(lang: SupportedLanguage = 'en'): Promise<ExpiryItem[]> {

@@ -9,9 +9,9 @@ const KEYS = {
 };
 
 const DEFAULT_STATS: UserStats = {
-  totalMealsCooked: 3,
-  totalWasteSavedKg: 1.4,
-  estimatedMoneySavedTL: 320,
+  totalMealsCooked: 0,
+  totalWasteSavedKg: 0,
+  estimatedMoneySavedTL: 0,
 };
 
 const DEFAULT_PREFS: UserPreferences = {

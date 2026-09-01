@@ -62,9 +62,9 @@ export default function HomeScreen() {
   const { language, toggleLanguage, t } = useLanguage();
 
   const [stats, setStats] = useState<UserStats>({
-    totalMealsCooked: 3,
-    totalWasteSavedKg: 1.4,
-    estimatedMoneySavedTL: 320,
+    totalMealsCooked: 0,
+    totalWasteSavedKg: 0,
+    estimatedMoneySavedTL: 0,
   });
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
   const [radarItems, setRadarItems] = useState<ExpiryItem[]>([]);
@@ -287,7 +287,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.topRightRow}>
-            {/* 3-Day Cooking Streak Badge */}
+            {/* Cooking Streak Badge */}
             <TouchableOpacity
               style={styles.streakBadge}
               activeOpacity={0.8}
@@ -299,7 +299,7 @@ export default function HomeScreen() {
               }}
             >
               <Flame size={13} color="#EA580C" fill="#EA580C" />
-              <Text style={styles.streakBadgeText}>3 🔥</Text>
+              <Text style={styles.streakBadgeText}>{stats.totalMealsCooked || 0} 🔥</Text>
             </TouchableOpacity>
 
             {/* Smart Grocery Cart Trigger */}
@@ -954,18 +954,20 @@ export default function HomeScreen() {
             </View>
 
             <Text style={styles.streakModalTitle}>
-              {language === 'en' ? '3-Day Cooking Streak! 🔥' : '3 Günlük Şef Serisi! 🔥'}
+              {language === 'en'
+                ? `${stats.totalMealsCooked || 0}-Day Cooking Streak! 🔥`
+                : `${stats.totalMealsCooked || 0} Günlük Şef Serisi! 🔥`}
             </Text>
             <Text style={styles.streakModalSub}>
               {language === 'en'
-                ? 'You have been rescuing pantry ingredients 3 days in a row. Keep the momentum going to unlock the MasterChef badge!'
-                : 'Harika gidiyorsunuz! 3 gündür üst üste dolabınızdaki malzemeleri israf etmeden gurme yemeklere dönüştürüyorsunuz.'}
+                ? `You have cooked ${stats.totalMealsCooked || 0} zero-waste meals so far. Keep the momentum going to unlock the MasterChef badge!`
+                : `Harika gidiyorsunuz! Şimdiye kadar ${stats.totalMealsCooked || 0} sıfır israf yemeği pişirdiniz. Devam ederek yeni şef rozetlerini açın!`}
             </Text>
 
             {/* Streak Metrics Highlights */}
             <View style={styles.streakMetricsGrid}>
               <View style={styles.streakMetricItem}>
-                <Text style={styles.streakMetricValue}>3</Text>
+                <Text style={styles.streakMetricValue}>{stats.totalMealsCooked || 0}</Text>
                 <Text style={styles.streakMetricLabel}>
                   {language === 'en' ? 'Meals Cooked' : 'Yemek Pişti'}
                 </Text>
