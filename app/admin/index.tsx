@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
@@ -21,11 +22,14 @@ import {
   TrendingUp,
   CheckCircle2,
   Lock,
+  Trash2,
 } from 'lucide-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { AdminService } from '../../services/adminService';
+import { AuthService } from '../../services/authService';
 import { AdminMetrics } from '../../types';
+import * as Haptics from 'expo-haptics';
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
@@ -47,6 +51,41 @@ export default function AdminDashboardScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDeleteUser = (userId: string, userName: string, userEmail: string) => {
+    if (userEmail === 'emrahcan@hotmail.com') {
+      Alert.alert(
+        language === 'en' ? 'Protected Account' : 'Korumalı Hesap',
+        language === 'en' ? 'Main Executive Admin account cannot be deleted.' : 'Ana Yönetici hesabı silinemez.'
+      );
+      return;
+    }
+
+    Alert.alert(
+      language === 'en' ? 'Delete User' : 'Kullanıcıyı Sil',
+      language === 'en'
+        ? `Are you sure you want to permanently delete ${userName} (${userEmail}) and all their data?`
+        : `${userName} (${userEmail}) kullanıcısını ve tüm verilerini sistemden kalıcı olarak silmek istediğinize emin misiniz?`,
+      [
+        { text: language === 'en' ? 'Cancel' : 'Vazgeç', style: 'cancel' },
+        {
+          text: language === 'en' ? 'Delete User' : 'Kullanıcıyı Sil',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            } catch {}
+            await AuthService.deleteUserByAdmin(userId);
+            await loadMetrics();
+            Alert.alert(
+              language === 'en' ? 'User Deleted' : 'Kullanıcı Silindi',
+              language === 'en' ? 'User account has been removed.' : 'Kullanıcı hesabı başarıyla kaldırıldı.'
+            );
+          },
+        },
+      ]
+    );
   };
 
   // Unauthorized Access Guard
@@ -189,6 +228,20 @@ export default function AdminDashboardScreen() {
                       <Text style={styles.userScans}>{u.scans} {t('admin.scansCount')}</Text>
                       <Text style={styles.userDate}>{u.joinedDate}</Text>
                     </View>
+
+                    {u.email !== 'emrahcan@hotmail.com' ? (
+                      <TouchableOpacity
+                        style={styles.deleteUserBtn}
+                        activeOpacity={0.75}
+                        onPress={() => handleDeleteUser(u.id, u.name, u.email)}
+                      >
+                        <Trash2 size={15} color="#EF4444" />
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.adminBadgeSmall}>
+                        <Text style={styles.adminBadgeSmallText}>👑</Text>
+                      </View>
+                    )}
                   </View>
                 ))}
               </View>
@@ -464,5 +517,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 14,
+  },
+  deleteUserBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  adminBadgeSmall: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(254, 240, 138, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  adminBadgeSmallText: {
+    fontSize: 12,
   },
 });

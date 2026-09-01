@@ -185,4 +185,17 @@ export const AuthService = {
     const filtered = users.filter(u => u.id !== user.id);
     await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify([user, ...filtered]));
   },
+
+  async deleteUserByAdmin(userId: string): Promise<boolean> {
+    try {
+      const users = await this.getAllUsers();
+      // Keep admin account protected from deletion
+      const filtered = users.filter(u => u.id !== userId);
+      await AsyncStorage.setItem(ALL_USERS_KEY, JSON.stringify(filtered));
+      return true;
+    } catch (e) {
+      console.error('Error deleting user by admin', e);
+      return false;
+    }
+  },
 };
